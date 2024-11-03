@@ -35,6 +35,7 @@ img {
 .hidden {
     display: none; /* 非表示にするスタイル */
 }
+
 #scrollTopBtn {
     position: fixed;
     bottom: 20px;
@@ -48,4 +49,73 @@ img {
     font-size: 18px;
     cursor: pointer;
     z-index: 1000; /* 最前面に表示 */
+}
+
+#scrollTo2019Btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 1000;
+    text-decoration: none;
+}
+
+#scrollTo2019Btn:hover {
+    background-color: #555;
+}
+#scrollTo2020Btn {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 1000;
+    text-decoration: none;
+}
+
+#scrollTo2020Btn:hover {
+    background-color: #555;
+}
+#scrollTo2021Btn {
+    position: fixed;
+    top: 120px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 1000;
+    text-decoration: none;
+}
+
+#scrollTo2021Btn:hover {
+    background-color: #555;
+}
+#scrollTo2022Btn {
+    position: fixed;
+    top: 170px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 1000;
+    text-decoration: none;
+}
+
+#scrollTo2022Btn:hover {
+    background-color: #555;
 }
