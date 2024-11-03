@@ -36,12 +36,31 @@
             window.onload = function() {
                 document.getElementById('searchInput').addEventListener('keydown', handleKeyPress);
             };
+
+            window.onscroll = function() { toggleScrollButton() };
+            function toggleScrollButton() {
+            const scrollTopBtn = document.getElementById("scrollTopBtn");
+            // 画面の垂直スクロール量が100pxを超えたらボタンを表示
+            if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
+                scrollTopBtn.style.display = "block";
+            } else {
+            scrollTopBtn.style.display = "none";
+            }
+    }
+    // スムーズにトップへスクロール
+    function scrollToTop() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
         </script>
     </head>
     <body>
         <h1>2019~2022年発売AJ1</h1>
         <input type="text" id="searchInput" placeholder="キーワードを入力">
         <button onclick="filterByPartialId()">search</button>
+        <button id="scrollTopBtn" onclick="scrollToTop()">▲<br>トップへ</button>
         
         <h2>2019年発売</h2>
 
