@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>スニーカ図鑑</title>
+        <link rel="stylesheet" href="snker1.css",>
+        <script>
+            function filterByPartialId() {
+                const input = document.getElementById('searchInput').value.trim(); // 入力された値を取得
+                const allDivs = document.querySelectorAll('.result'); // 全ての .result クラスの要素を取得
+    
+                // 全ての要素を非表示にする
+                allDivs.forEach(div => div.classList.add('hidden'));
+    
+                // 部分一致でIDを検索し表示
+                allDivs.forEach(div => {
+                    if (div.id.includes(input)) { // IDの部分一致をチェック
+                        div.classList.remove('hidden');
+                    }
+                });
+    
+                // 一致する要素がない場合の警告
+                if (document.querySelectorAll('.result:not(.hidden)').length === 0) {
+                    alert('該当するものはありません。');
+                }
+            }
+    
+            // Enterキーが押された時の処理
+            function handleKeyPress(event) {
+                if (event.key === 'Enter') {
+                    filterByPartialId();
+                }
+            }
+    
+            // ページが読み込まれた時にイベントリスナーを追加
+            window.onload = function() {
+                document.getElementById('searchInput').addEventListener('keydown', handleKeyPress);
+            };
+        </script>
+    </head>
+    <body>
+        <h1>2019~2022年発売AJ1</h1>
+        <input type="text" id="searchInput" placeholder="キーワードを入力">
+        <button onclick="filterByPartialId()">search</button>
+        
+        <h2>2019年発売</h2>
+
+        <div id="ハイパークリムゾン" class="result">
+            <p>2019年 2月 2日　¥17280  555088-018</p>
+            <p>Air Jordan 1 RETRO High OG "HyperCrimson"</p>
+            <ol>
+                <p><a href="https://snkrdunk.com/articles/1752/"target="_blank">SNKR DUNK</a></p>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-neutral-grey-hyper-crimson"target="_blank">StockX</a></p>
+            </ol>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20190729091818-17.jpeg?size=l">
+        </div>
+
+        <div id="ターボグリーン" class="result">
+
+            <p>2019年 2月15日　¥17280  555088-311</p>
+            <p>Air Jordan 1 Retro High OG "Turbo Green"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/1816/"target="_blank">SNKR DUNK</a></p>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-turbo-green"target="_blank">StockX</a></p>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20190729091817-14.jpeg?size=l">
+        </div>
+
+        <div id="クチュール" class="result">
+            <p>2019年 2月23日　¥18900  BQ6682-006</p>
+            <p>Air Jordan 1 Retro HighOG "Couture"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/7770/"target="_blank">SNKR DUNK</a></p>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-og-defiant-couture"target="_blank">StockX</a></p>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20190729091817-11.jpeg?size=l">
+        </div>
+
+
+        <div id="セイル/ユニバーシティーレッド" class="result">
+            <p>2019年3月16日　¥17280  555088-160</p>
+            <p>Air Jordan 1 Retro High OG "Sail/University Red"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/7712/"target="_blank">SNKR DUNK</a></p>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-phantom-gym-red"target="_blank">StockX</a></p>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20190729091817-7.jpeg?size=l">
+        </div>
+
+        <div id="ブラック/ホワイト" class="result">    
+            <p>2019年4月26日　¥17280  CD0461-007</p>
+            <p>WMNS Air Jordan 1 Retro High OG "Black/White"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/7762/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-black-white-w"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20190729091816-5.jpeg?size=l">
+        </div>
+
+        <div id="La To シカゴ" class="result">
+            <p>2019年5月24日　¥19250  CD6578-507</p>
+            <p>Nike SB x Air Jordan 1 Retro High "La To Chicago"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/7797/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-sb-la-to-chicago"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20190729090848-8.jpeg?size=l">
+        </div>
+
+        <div id="NYC To パリ" class="result">
+            <p>2019年5月25日　¥19250  CD6578-006</p>
+            <p>Nike SB x Air Jordan 1 HighOG "NYC To Paris"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/7834/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-sb-nyc-to-paris"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20190729091816-0.jpeg?size=l">
+        </div>
+
+        <div id="ブラック/ホワイト/セイル/ジムレッド" class="result">
+            <p>2019月6月29日　¥17280  555088-061</p>
+            <p>Air Jordan 1 Retro High "Black/White/Sail/Gym Red"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/7715/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-black-gym-red"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20190729090848-3.jpeg?size=l">
+        </div>
+
+        <div id="デファイアント" class="result">
+            <p>2019年7月27日　¥18900  CD6579-071</p>
+            <p>Air Jordan 1 High OG Defiant ﾃﾞﾌｧｲｱﾝﾄ "Black/Yellow/GymRed"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/8049/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-defiant-white-black-gym-red"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20190729090750-0.jpeg?size=l">
+        </div>
+
+        <div id="オブシディアン" class="result">
+            <p>2019年8月31日　¥17280  555088-140</p>
+            <p>Air Jordan 1 Retro High OG "Obsidian/University Blue"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/7604/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-unc-leather"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20190830100641-0.jpeg?size=l">
+        </div>
+
+        <div id="サテンブラックトゥ" class="result">
+            <p>2019年9月21日　¥17280  CD0461-016</p>
+            <p>WMNS Air Jordan 1 Retro High OG "Satin Black Toe"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/8060/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-satin-black-toe-w"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20190920083152-0.jpeg?size=l">
+        </div>
+
+        <div id="ファーストクラスフライト" class="result">
+            <p>2019年9月26日　¥17280  555088-170</p>
+            <p>Air Jordan 1 High OG "First Class Flight"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/8122/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-first-class-flight"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20190925094738-0.jpeg?size=l">
+        </div>
+
+        <div id="フィアレスメタリックローズゴールド" class="result">
+            <p>2019年10月22日　¥17600  CU6690-006</p>
+            <p>WMNS Air Jordan 1 High OG "Fearless Metallic Rose Gold"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/8538/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-fearless-metallic-rose-gold-w"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20191021083407-0.jpeg?size=l">
+        </div>
+
+        <div id="シャッタードバックボード" class="result">
+            <p>2019年10月26日　¥17600  555088-028</p>
+            <p>Air Jordan 1 High OG "Shattered Backboard 3.0"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/7543/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-shattered-backboard-3"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20191025115900-0.jpeg?size=l">
+        </div>
+
+        <div id="フィアレス" class="result">
+            <p>2019年11月 2日　¥17600  CK5666-100</p>
+            <p>Air Jordan 1 High OG "Fearless"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/8368/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-fearless-unc-chicago"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20191101124815-3.jpeg?size=l">
+        </div>
+
+        <div id="ブラッドライン" class="result">
+            <p>2019年11月29日　¥17600  555088-062</p>
+            <p>Air Jordan 1 Retro High OG "Blood Line"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/8056/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-bloodline"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20191122014010-0.jpeg?size=l">
+        </div>
+
+        <h2>2020年発売</h2>
+
+        <div id="ブラック/メタリックシルバー/ジムレッド" class="result">
+            <p>2020年1月18日　¥17600  555088-060</p>
+            <p>Air Jordan 1 Retro High OG "Black/Metallic Silver/GymRed"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/8044/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-black-gym-red-black"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20200112103831-0.jpeg?size=l">
+        </div>
+
+        <div id="85バーシティレッド" class="result">
+            <p>2020年 2月8日　¥20900  BQ4422-600</p>
+            <p>Air Jordan 1 High '85"Varsity Red"</p>
+            <ul>
+            <p><a href="https://snkrdunk.com/articles/8980/"target="_blank">SNKR DUNK</a></p></li>
+            <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-85-varsity-red"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20200129115704-0.jpeg?size=l">
+        </div>
+
+        <div id="UNC to シカゴ" class="result">
+            <p>2020年 2月22日　¥17600  CD0461-046</p>
+            <p>WMNS Air Jordan 1 High OG "UNC to Chicago"</p>
+            <ul>
+            <p><a href="https://snkrdunk.com/articles/8337/"target="_blank">SNKR DUNK</a></p></li>
+            <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-unc-chicago-leather-w"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20200129130122-0.jpeg?size=l">
+        </div>
+
+        <div id="ブラック/パイングリーン" class="result">
+            <p>2020年 2月29日　¥17600  555088-030</p>
+            <p>Air Jordan 1 Retro High OG "Black/Pine Green"</p>
+            <ul>
+            <p><a href="https://snkrdunk.com/articles/7827/"target="_blank">SNKR DUNK</a></p></li>
+            <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-pine-green-black"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20200224110629-0.jpeg?size=l">
+        </div>
+
+        <div id="コートパープル" class="result">
+            <p>2020年4月18日　¥17600  555088-500</p>
+            <p>Air Jordan 1 Retro High OG "Court Purple White/Black"</p>
+            <ul>
+            <p><a href="https://snkrdunk.com/articles/8183/"target="_blank">SNKR DUNK</a></p></li>
+            <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-court-purple-white"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20200329024216-0.jpeg?size=l">
+        </div>
+
+        <div id="ロイヤルトゥ" class="result">
+            <p>2020年5月16日　¥17600  555088-041</p>
+            <p>Air Jordan 1 Retro High OG"RoyalToe"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/8221/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-black-game-royal"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20200425025647-0.jpeg?size=l">
+        </div>
+
+        <div id="タイダイ" class="result">
+            <p>2020年6月16日　¥17600  CD0461-100</p>
+            <p>WMNS Air Jordan 1 High OG "Tie-Dye"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/8802/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-tie-dye-w"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20200406125257-2.jpeg?size=l">
+        </div>
+
+        <div id="Dior" class="result">
+            <p>2020年7月8日　¥264000  CN8607-002</p>
+            <p>Dior x Nike Air Jordan 1 High OG "DIOR"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/8835/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-dior"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20230602084426-0.jpeg?size=l">
+        </div>
+
+        <div id="CO JP/TOKYO" class="result">
+            <p>2020年7月25日　¥26400  DA0382-029</p>
+            <p>Air Jordan 1 Retro High OG "CO JP/TOKYO"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/8528/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-co-japan-neutral-grey-suitcase"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20200724032551-0.jpeg?size=l">
+        </div>
+
+        <div id="CO JP/TOKYO" class="result">
+            <p>2020年8月1日　¥19250  DC1788-029</p>
+            <p>AIR JORDAN 1 HIGH OG "CO JP/TOKYO"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/8528/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-co-japan-neutral-grey"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20200724034620-0.jpeg?size=l">
+        </div>
+
+        <div id="サテンレッド" class="result">
+            <p>2020年8月6日　¥19250  CD0461-601</p>
+            <p>Wmns Air Jordan 1 High OG "Satin Red"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/9321/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-satin-snake-chicago-w"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20200722093528-0.jpeg?size=l">
+        </div>
+
+        <div id="ホワイト/ブラック/スモークグレイ" class="result">
+            <p>2020年 9月4日　¥19250  555088-126</p>
+            <p>Air Jordan 1 High OG "White/Black/Light SmokeGrey"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/9258/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-light-smoke-grey"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20200712030736-0.jpeg?size=l">
+        </div>
+            
+        <div id="ミッドナイトネイビー" class="result">
+            <p>2020年10月23日　¥26400  DB5877-100</p>
+            <p>Air Jordan 1 Retro High OG CO.JP "MidnightNavy"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/8856/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-co-japan-midnight-navy-suitcase"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20201022021033-0.jpeg?size=l">
+        </div>
+
+            
+        <div id="ホワイト/ミッドナイトネイビー" class="result">
+            <p>2020年10月31日　¥19250  DC1788-100</p>
+            <p>Air Jordan 1 High OG CO.JP "White/MidnightNavy"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/8856/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-midnight-navy-2020"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20201016020929-0.jpeg?size=l">
+        </div>
+            
+        <div id="ラッキーグリーン/ホワイトセイルブラック" class="result">
+            <p>2020年11月3日　¥19250  DB4612-300</p>
+            <p>WMNS Air Jordan 1 High OG "Lucky Green/White-Sail-Black"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/8862/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-lucky-green-w"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20200927043725-12.jpeg?size=l">
+        </div>
+            
+        <div id="セイル/ダークモカ/ブラック" class="result">
+            <p>2020年11月21日　¥19250  555088-105</p>
+            <p>Air Jordan 1 High OG "Sail/DarkMocha/Black"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/8636/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-dark-mocha"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20230517074007-0.jpeg?size=l">
+        </div>
+            
+        <div id="ブラックメタリックゴールド" class="result">
+            <p>2020年11月30日　¥19250  555088-032</p>
+            <p>Air Jordan 1 High OG "Black-Metalic Gold"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/8848/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-black-metallic-gold-2020"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20200927043724-9.jpeg?size=l">
+        </div>
+            
+        <div id="J Balvinレインボー" class="result">
+            <p>2020年12月8日　¥22550  DC3481-900</p>
+            <p>J Balvin x Nike Air Jordan 1High OG "Rainbow"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/9121/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-j-balvin"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20201207073814-0.jpeg?size=l"></p>
+        </div>
+
+        <div id="ボルトゴールド" class="result">
+            <h2>2021年発売</h2>
+            <p>2021年1月16日　¥19250  555088-118</p>
+            <p>Air Jordan 1 High OG "Volt Gold"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/9851/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-white-black-volt-university-gold"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20240730091527-0.jpeg?size=l">
+        </div>
+
+        <div id="85ニュートラルグレー" class="result">
+            <p>2021年 2月10日　¥23100  BQ4422-100</p>
+            <p>AIR JORDAN 1 HIGH 85 "NEUTRAL GREY"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/9507/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-85-neutral-grey"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20210127092751-0.jpeg?size=l">
+        </div>
+
+        <div id="シカゴ" class="result">
+            <p>2021年 2月11日　$170  DA2728-100</p>
+            <p>Trophy Room x Nike Air Jordan 1 High OG "Chicago"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/9988/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-trophy-room-chicago-friends-and-family-w-blue-laces"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20230728091757-0.jpeg?size=l">
+        </div>
+
+        <div id="シルバートゥ" class="result">
+            <p>2021年 2月12日　¥19250  CD0461-001</p>
+            <p>WMNS Air Jordan 1 RetroHigh OG "SilverToe"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/9452/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-silver-toe-w"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20210202044307-6.jpeg?size=l">
+        </div>
+
+        <div id="ラストシャドウ" class="result">
+            <p>2021年3月25日　¥19250  555088-033</p>
+            <p>Air Jordan 1 High OG "Rust Shadow"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/9200/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-light-army"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20210107022721-2.jpeg?size=l">
+        </div>
+
+        <div id="ユニバーシティーブルー" class="result">
+            <p>2021年3月6日　¥19250  555088-134</p>
+            <p>Air Jordan 1 High OG "University Blue"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/9172/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-white-university-blue-black"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20210212061116-8.jpeg?size=l">
+        </div>
+
+        <div id="ハイパーロイヤル" class="result">
+            <p>2021年 4月17日　¥19250  555088-402</p>
+            <p>Air Jordan 1 High OG "Hyper Royal"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/9522/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-hyper-royal-smoke-grey"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20210107022722-5.jpeg?size=l">
+        </div>
+
+        <div id="シャドウ" class="result">
+            <p>2021年5月15日　¥19250  555088-035</p>
+            <p>Air Jordan 1 High OG "Shadow 2.0"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/9660/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-black-white-light-smoke-grey"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20220117173347-0.jpeg?size=l">
+        </div>
+
+        <div id="コートパープル" class="result">
+            <p>2021年6月3日　¥19250  CD0461-151</p>
+            <p>WMNS Air Jordan 1 High OG "Court Purple"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/9561/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-court-purple-w"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20210902032525-0.jpeg?size=l">
+        </div>
+
+        <div id="ライトヒュージョンレッド" class="result">
+            <p>2021年6月19日　¥19250  555088-603</p>
+            <p>Air Jordan 1 High OG "Light Fusion Red"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/9731/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-og-light-fusion-red"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20210403033228-0.jpeg?size=l">
+        </div>
+
+        <div id="エレクトロオレンジ" class="result">
+            <p>2021年7月26日　¥19250  555088-180</p>
+            <p>Air Jordan 1 Retro High OG "Electro Orange"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/9720/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-electro-orange"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20210902032146-0.jpeg?size=l">
+        </div>
+
+        <div id="travisミリタリーブルー" class="result">
+            <p>2021年7月29日　¥23100  DH3227-105</p>
+            <p>Travis Scott x Fragment x Nike Air Jordan 1 Retro High OG SP "Military Blue"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/10320/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-high-og-sp-fragment-design-x-travis-scott"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20210716011042-0.jpeg?size=l">
+        </div>
+
+        <div id="パラン" class="result">
+            <p>2021年8月23日　¥19250  555088-701</p>
+            <p>Air Jordan 1 High OG "Pollen"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/10015/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-pollen"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20210810072507-1.jpeg?size=l">
+        </div>
+
+        <div id="プロトタイプ" class="result">
+            <p>2021年9月10日　¥19250  DC6515-100</p>
+            <p>Air Jordan 1 High OG "Prototype"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/10616/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-high-og-prototype"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20210826105125-5.jpeg?size=l">
+        </div>
+
+        <div id="シーフォーム" class="result">
+            <p>2021年9月21日　¥19250  CD0461-002</p>
+            <p>Wmns Air Jordan 1 High OG "Seafoam"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/9931/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-high-og-seafoam-w"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20210810072208-2.jpeg?size=l">
+        </div>
+
+        <div id="ボルドー" class="result">
+            <p>2021年11月20日　¥19250  555088-611</p>
+            <p>Air Jordan 1 High OG "Bordeaux"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/10036/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-bordeaux"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20211208015424-0.jpeg?size=l">
+        </div>
+
+        <div id="セイルアンドバーガンディー" class="result">
+            <p>2021年12月4日　¥22550  DO7097-100</p>
+            <p>A Ma Maniere × Nike Air Jordan 1 Retro High OG "Sail and Burgundy"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/11267/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-og-a-ma-maniere"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20211113084744-0.jpeg?size=l"></p>
+        </div>
+
+        <div id="ハンドクラフト" class="result">
+            <p>2021年12月18日　¥20900  DH3097-001</p>
+            <p>Air Jordan 1 High OG "Hand Crafted"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/10395/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-og-hand-crafted"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20210910021255-0.jpeg?size=l">
+        </div>
+
+        <div id="パテントブレッド" class="result">
+                <h2>2022年発売</h2>
+                <p>2022年1月15日　¥19250  555088-063</p>
+                <p>Air Jordan 1 High OG "Patent Bred"</p>
+                <ul>
+                    <p><a href="https://snkrdunk.com/articles/1070/"target="_blank">SNKR DUNK</a></p></li>
+                    <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-og-patent-bred"target="_blank">StockX</a></p></li>
+                </ul>
+                <img src="https://cdn.snkrdunk.com/uploads/media/20211115033248-0.jpeg?size=l">
+            </div>
+
+        <div id="アトモスフィア" class="result">
+            <p>2022年1月25日　¥20900  DD9335-641</p>
+            <p>WMNS Air Jordan 1 High OG SE "Atmosphere"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/10729/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-og-atmosphere-w"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20210910022120-0.jpeg?size=l">
+        </div>
+
+        <div id="ダークマリナーブルー" class="result">
+            <p>2022年 2月5日　¥19250  555088-404</p>
+            <p>Air Jordan 1 Retro High OG "Dark Marina Blue"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/11280/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-og-dark-marina-blue"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20210827024200-0.jpeg?size=l">
+        </div>
+
+        <div id="ブラザーフッド" class="result">
+            <p>2022年 2月26日　¥19250  555088-706</p>
+            <p>Air Jordan 1 High OG "Brotherhood"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/10926/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-og-brotherhood"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20220220022603-0.jpeg?size=l">
+        </div>
+
+        <div id="リベリオネア" class="result">
+            <p>2022年3月12日　¥19250  555088-036</p>
+            <p>Air Jordan 1 High OG "Rebellionaire"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/11177/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-og-rebellionaire"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20220306015456-0.jpeg?size=l">
+        </div>
+
+        <div id="ヘリテージ" class="result">
+            <p>2022年4月9日　¥19250  555088-161</p>
+            <p>Air Jordan 1 High OG "Heritage"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/11657/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-og-heritage"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20220327073750-0.jpeg?size=l">
+        </div>
+
+        <div id="ボルト" class="result">
+            <p>2022年7月5日　¥19250  555088-702</p>
+            <p>Air Jordan 1 High OG "Volt/Visionaire"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/11700/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-og-visionaire"target="_blank">StockX</a></p></li>
+            </ul> 
+            <img src="https://cdn.snkrdunk.com/uploads/media/20220606010545-0.jpeg?size=l">
+        </div>
+
+        <div id="ブリーチドコーラル" class="result">
+            <p>2022年8月13日　¥19250  555088-108</p>
+            <p>Air Jordan 1 High OG "Bleached Coral"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/11740/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-og-stage-haze"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20220504023751-0.jpeg?size=l">
+        </div>
+
+        <div id="タクシー" class="result">
+            <p>2022年8月13日　¥20900  555088-711</p>
+            <p>Air Jordan 1 Retro High OG "Taxi"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/12094/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-og-yellow-toe"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20220813085900-0.jpeg?size=l">
+        </div>
+
+        <div id="デニム" class="result">
+            <p>2022年8月19日　¥19250  DM9036-104</p>
+            <p>WMNS Air Jordan 1 High OG "Denim"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/11734/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-high-og-denim-w"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20220429044054-0.jpeg?size=l">
+        </div>
+
+        <div id="ステルス" class="result">
+            <p>2022年8月27日　¥20900  555088-037</p>
+            <p>Air Jordan 1 High OG "Stealth"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/12682/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-og-stealth"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20220709084732-0.jpeg?size=l">
+        </div>
+
+        <div id="スタフィッシュ" class="result">
+            <p>2022年9月22日　¥20900  DO9369-101</p>
+            <p>WMNS Air Jordan 1 High OG "Starfish"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/12129/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-og-starfish-w"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20220711074229-0.jpeg?size=l">
+        </div>
+
+        <div id="バケッタータン" class="result">
+            <p>2022年10月31日¥19250  555088-202</p>
+            <p>Air Jordan 1 Retro High OG "Vachetta Tan"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/12125/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-og-heirloom"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20220709083952-0.jpeg?size=l">
+        </div>
+
+        <div id="ロストアンドファウンドシカゴ" class="result">
+            <p>2022年11月19日　¥20900  DZ5485-612</p>
+            <p>Air Jordan 1 High OG "Lost & Found/Chicago"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/12526/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-og-chicago-reimagined-lost-and-found"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20221012010050-0.jpeg?size=l">
+        </div>
+
+        <div id="コージーグリーン" class="result">
+            <p>2022年12月21日　¥22869  DZ5485-303</p>
+            <p>Air Jordan 1 High Retro OG "Gorge Green"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/12613/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-og-gorge-green"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20220705005133-0.jpeg?size=l">
+        </div>
+
+        <div id="ミディアムグレー" class="result">
+            <p>2022年12月22日　¥19800  DZ2523-001</p>
+            <p>WMNS Air Jordan 1 Retro High OG "Medium Grey"</p>
+            <ul>
+                <p><a href="https://snkrdunk.com/articles/13372/"target="_blank">SNKR DUNK</a></p></li>
+                <p><a href="https://stockx.com/ja-jp/air-jordan-1-retro-high-og-twist-20-w"target="_blank">StockX</a></p></li>
+            </ul>
+            <img src="https://cdn.snkrdunk.com/uploads/media/20221119023612-0.jpeg?size=l">
+        </div>
+    </body>
+</html>
+
