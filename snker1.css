@@ -1,0 +1,37 @@
+h1 {
+    font-size: xx-large;
+    text-align: center;
+}
+body {
+    text-align: center;
+    font-family: Arial, sans-serif; /* フォントを設定 */
+}
+
+input[type="search"] {
+    padding: 10px; /* 内側の余白を設定 */
+    border: 1px solid #ccc; /* ボーダーを設定 */
+    border-radius: 5px; /* 角を丸くする */
+}
+
+button {
+    padding: 10px; /* 内側の余白を設定 */
+    border: none; /* ボーダーを無しに */
+    border-radius: 5px; /* 角を丸くする */
+    background-color: #007bff; /* ボタンの背景色 */
+    color: white; /* ボタンのテキスト色 */
+    cursor: pointer; /* カーソルをポインターに */
+    
+}
+img {
+    width: 500px;
+    max-width: 100%; /* これが適切に設定されていれば問題はないはず */
+    height: auto; /* アスペクト比を維持 */
+}
+.result {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #ccc;
+}
+.hidden {
+    display: none; /* 非表示にするスタイル */
+}
