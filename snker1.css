@@ -119,3 +119,7 @@ img {
 #scrollTo2022Btn:hover {
     background-color: #555;
 }
+
+.flip {
+    width: 950px;
+}
