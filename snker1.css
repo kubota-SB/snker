@@ -51,9 +51,96 @@ img {
     z-index: 1000; /* 最前面に表示 */
 }
 
-#scrollTo2019Btn {
+#scrollToOGBtn {
     position: fixed;
     top: 20px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 1000;
+    text-decoration: none;
+}
+
+#scrollToOGBtn:hover {
+    background-color: #555;
+}
+
+#scrollTo2015Btn {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 1000;
+    text-decoration: none;
+}
+
+#scrollTo2015Btn:hover {
+    background-color: #555;
+}
+#scrollTo2016Btn {
+    position: fixed;
+    top: 120px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 1000;
+    text-decoration: none;
+}
+
+#scrollTo2016Btn:hover {
+    background-color: #555;
+}
+#scrollTo2017Btn {
+    position: fixed;
+    top: 170px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 1000;
+    text-decoration: none;
+}
+
+#scrollTo2017Btn:hover {
+    background-color: #555;
+}
+#scrollTo2018Btn {
+    position: fixed;
+    top: 220px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 1000;
+    text-decoration: none;
+}
+
+#scrollTo2018Btn:hover {
+    background-color: #555;
+}
+
+#scrollTo2019Btn {
+    position: fixed;
+    top: 270px;
     right: 20px;
     background-color: #333;
     color: white;
@@ -70,7 +157,7 @@ img {
 }
 #scrollTo2020Btn {
     position: fixed;
-    top: 70px;
+    top: 320px;
     right: 20px;
     background-color: #333;
     color: white;
@@ -87,7 +174,7 @@ img {
 }
 #scrollTo2021Btn {
     position: fixed;
-    top: 120px;
+    top: 370px;
     right: 20px;
     background-color: #333;
     color: white;
@@ -102,9 +189,10 @@ img {
 #scrollTo2021Btn:hover {
     background-color: #555;
 }
+
 #scrollTo2022Btn {
     position: fixed;
-    top: 170px;
+    top: 420px;
     right: 20px;
     background-color: #333;
     color: white;
@@ -117,6 +205,42 @@ img {
 }
 
 #scrollTo2022Btn:hover {
+    background-color: #555;
+}
+
+#scrollTo2023Btn {
+    position: fixed;
+    top: 470px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 1000;
+    text-decoration: none;
+}
+
+#scrollTo2023Btn:hover {
+    background-color: #555;
+}
+
+#scrollTo2024Btn {
+    position: fixed;
+    top: 520px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 1000;
+    text-decoration: none;
+}
+
+#scrollTo2024Btn:hover {
     background-color: #555;
 }
 
