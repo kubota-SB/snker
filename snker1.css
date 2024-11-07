@@ -245,5 +245,29 @@ img {
 }
 
 .flip {
-    width: 950px;
+    width: 830px;
+}
+
+.flip1 {
+    width: 700px;
+}
+
+.flip2 {
+    width: 500px;
+}
+
+.flip-horizontal{
+    width: 450px;
+}
+
+.flip-horizontal1{
+    width: 450px;
+}
+
+.flip-horizontal3{
+    width: 450px;
+}
+
+.flip-horizontal4{
+    width: 400px;
 }
