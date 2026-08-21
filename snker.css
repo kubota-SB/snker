@@ -130,3 +130,14 @@ h1{margin:0;font-size:clamp(36px,6vw,72px);line-height:.94;letter-spacing:-.055e
 .market-source.is-loading .market-empty{visibility:hidden}
 .market-source .market-open{min-width:150px}
 @media(max-width:620px){.market-chart,.market-chart-box,.market-empty{min-height:205px}}
+
+
+/* v6 market price state */
+.market-current{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin:2px 0 10px;padding:11px 12px;border:1px solid #e8e8e3;border-radius:11px;background:#fff}
+.market-current>span{font-size:8px;font-weight:900;color:#8d8d8d;letter-spacing:.06em}
+.market-current>strong{font-size:22px;line-height:1;font-weight:950;letter-spacing:-.03em;color:#111}
+.market-current>small{margin-left:auto;font-size:8px;font-weight:850;color:#777}
+.market-current.is-reference{background:#fff9e8;border-color:#f0dda1}
+.market-chart:not([hidden]){display:block!important;width:100%!important;height:230px!important}
+.market-chart[hidden]{display:none!important}
+@media(max-width:620px){.market-current>strong{font-size:19px}.market-current>small{width:100%;margin-left:0}.market-chart:not([hidden]){height:205px!important}}
