@@ -196,3 +196,9 @@ h1{margin:0;font-size:clamp(36px,6vw,72px);line-height:.94;letter-spacing:-.055e
 .market-history{display:none!important}
 .market-chart-nav{display:none!important}
 @media(max-width:620px){.market-chart-guide span{font-size:8px}.market-chart-guide button{padding:6px 9px}.market-chart{height:230px!important;min-height:230px!important}}
+
+
+/* v11: compact historical price cursor */
+.chart-cursor-label{filter:drop-shadow(0 3px 8px rgba(0,0,0,.16))}
+.chart-cursor-price{letter-spacing:.01em}
+.market-current.is-history>small{font-weight:850;color:#777}

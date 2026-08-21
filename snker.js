@@ -546,9 +546,8 @@
       <circle class="chart-cursor-halo" cx="0" cy="0" r="13" fill="#fff" stroke="#111" stroke-width="2"/>
       <circle class="chart-cursor-dot" cx="0" cy="0" r="6" fill="#111"/>
       <g class="chart-cursor-label">
-        <rect x="0" y="0" width="118" height="43" rx="11" fill="#111"/>
-        <text class="chart-cursor-price" x="59" y="18" text-anchor="middle" font-size="12" font-weight="900" fill="#fff"></text>
-        <text class="chart-cursor-date" x="59" y="33" text-anchor="middle" font-size="9" font-weight="700" fill="#cfcfcf"></text>
+        <rect x="0" y="0" width="86" height="28" rx="14" fill="#111"/>
+        <text class="chart-cursor-price" x="43" y="18" text-anchor="middle" font-size="11" font-weight="900" fill="#fff"></text>
       </g>
     </g>`;
     svg.innerHTML=s;
@@ -561,11 +560,14 @@
     const p=meta.points[index],cursor=$('[data-chart-cursor]',svg);if(!cursor)return;
     $('.chart-cursor-line',cursor).setAttribute('x1',p.x);$('.chart-cursor-line',cursor).setAttribute('x2',p.x);
     $$('.chart-cursor-halo,.chart-cursor-dot',cursor).forEach(c=>{c.setAttribute('cx',p.x);c.setAttribute('cy',p.y);});
-    const label=$('.chart-cursor-label',cursor),bubbleX=Math.max(meta.L,Math.min(meta.width-meta.R-118,p.x-59)),bubbleY=Math.max(4,p.y-58);
-    label.setAttribute('transform',`translate(${bubbleX} ${bubbleY})`);$('.chart-cursor-price',cursor).textContent=fmt(p.value);$('.chart-cursor-date',cursor).textContent=p.label||'—';
+    const label=$('.chart-cursor-label',cursor),bubbleW=86,bubbleH=28;
+    const bubbleX=Math.max(meta.L+4,Math.min(meta.width-meta.R-bubbleW-4,p.x-bubbleW/2));
+    const placeBelow=p.y < meta.T+52;
+    const bubbleY=placeBelow?Math.min(meta.height-meta.B-bubbleH-4,p.y+16):Math.max(4,p.y-bubbleH-16);
+    label.setAttribute('transform',`translate(${bubbleX} ${bubbleY})`);$('.chart-cursor-price',cursor).textContent=fmt(p.value);
     if(updateCard){
       const current=$('.market-current',panel),size=$('.market-size',panel)?.value||'All',condition=$('.market-condition button.active',panel)?.dataset.condition||'new',latest=index===meta.latestIndex;
-      if(current){$('span',current).textContent=latest?'現在の価格':'過去の価格';$('strong',current).textContent=fmt(p.value);$('small',current).textContent=`${p.label||'—'} · ${size==='All'?'全サイズ':size+'cm'} · ${condition==='used'?'中古':'新品'}`;current.classList.toggle('is-history',!latest);}
+      if(current){$('span',current).textContent=latest?'現在の価格':'過去の価格';$('strong',current).textContent=fmt(p.value);$('small',current).textContent=p.label||'—';current.classList.toggle('is-history',!latest);}
     }
   }
 
