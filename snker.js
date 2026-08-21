@@ -1,7 +1,7 @@
 
 (() => {
   'use strict';
-  const DATA_URL = 'sneakers.json?v=4';
+  const DATA_URL = 'sneakers.json?v=5';
   const FRAME_COUNT = 36;
   const FAST_360_CANDIDATES = 10;
   const FAST_PROBE_TIMEOUT = 1200;
@@ -179,6 +179,10 @@
     if(typeof els.dialog.showModal==='function') els.dialog.showModal(); else els.dialog.setAttribute('open','');
     document.body.style.overflow='hidden';
     if(hasStockx(item)) load360(item);
+    // 価格チャートは詳細を開いた時点で自動取得。ユーザーが展開操作をしなくても表示を開始する。
+    requestAnimationFrame(() => {
+      $$('.market-source', els.detail).forEach(panel => loadMarket(panel, false));
+    });
   }
   function closeDialog(){if(els.dialog.open)els.dialog.close();else els.dialog.removeAttribute('open');document.body.style.overflow='';cleanupViewer();}
   function cleanupViewer(){viewer=null;currentItem=null;detailAbort?.abort();detailAbort=null;}
@@ -246,45 +250,73 @@
 
   function marketMarkup(item){
     const sn=getLink(item,'snkrdunk'),sx=getLink(item,'stockx');
-    return `<details class="market-section"><summary>価格チャート － サイズ・新品 / 中古</summary><div class="market-inner"><p class="market-note">サイズ・状態を変更すると自動で再取得します。SNKRDUNKは取得できた日付付き売買履歴を価格推移として表示し、StockXは公開されている市場レンジを表示します。</p><div class="market-grid">${marketPanel('snkrdunk',sn,item.sku)}${marketPanel('stockx',sx,item.sku)}</div></div></details>`;
+    return `<details class="market-section" open><summary>価格チャート － サイズ・新品 / 中古</summary><div class="market-inner"><p class="market-note">まず「全サイズ」の公開価格を表示します。サイズを選ぶと再取得し、サイズ別データを確認できた場合だけそのサイズの価格に切り替えます。取得できない場合は前の価格を残しません。</p><div class="market-grid">${marketPanel('snkrdunk',sn,item.sku)}${marketPanel('stockx',sx,item.sku)}</div></div></details>`;
+  }
+
+  function canonicalSnkrHistoryUrl(raw,sku){
+    if(sku) return `https://snkrdunk.com/products/${encodeURIComponent(sku)}/sales-histories?slide=right`;
+    if(!raw)return '';
+    try{
+      const u=new URL(raw); const parts=u.pathname.split('/').filter(Boolean);
+      const pi=parts.indexOf('products');
+      const slug=pi>=0?parts[pi+1]:parts.at(-1);
+      return slug?`https://snkrdunk.com/products/${encodeURIComponent(slug)}/sales-histories?slide=right`:raw;
+    }catch{return raw;}
   }
 
   function marketPanel(source,url,sku){
     const name=source==='stockx'?'StockX':'SNKRDUNK', unit=source==='stockx'?'US':'CM';
     const sizes=source==='stockx'?['All','3.5','4','4.5','5','5.5','6','6.5','7','7.5','8','8.5','9','9.5','10','10.5','11','11.5','12','12.5','13','14','15','16','17']:['All','22.5','23','23.5','24','24.5','25','25.5','26','26.5','27','27.5','28','28.5','29','29.5','30','30.5','31','31.5','32'];
-    const def=source==='stockx'?'9':'27';
-    const opts=sizes.map(x=>`<option ${x===def?'selected':''} value="${x}">${x}</option>`).join('');
+    const opts=sizes.map(x=>`<option ${x==='All'?'selected':''} value="${x}">${x==='All'?'全サイズ':x}</option>`).join('');
+    const official=source==='snkrdunk'?canonicalSnkrHistoryUrl(url,sku):url;
     return `<section class="market-source ${source==='stockx'?'market-stockx':'market-snkr'}" data-source="${source}" data-url="${escapeAttr(url)}" data-sku="${escapeAttr(sku)}">
-      <div class="market-source-head"><strong>${name}</strong><span class="market-status">未取得</span></div>
+      <div class="market-source-head"><strong>${name}</strong><span class="market-status">準備中</span></div>
       <div class="market-controls"><label>サイズ (${unit}) <select class="market-size">${opts}</select></label><div class="market-condition"><button type="button" class="active" data-condition="new">新品</button><button type="button" data-condition="used">中古</button></div></div>
       <div class="market-chart-shell">
-        <div class="market-chart-head"><span class="market-chart-title">価格推移</span><span class="market-selection"></span></div>
+        <div class="market-chart-head"><span class="market-chart-title">価格推移</span><span class="market-selection">全サイズ · 新品</span></div>
+        <div class="market-scope" hidden></div>
         <div class="market-chart-box">
           <div class="market-loading" hidden><span class="market-spinner"></span><span>価格情報を取得しています…</span></div>
-          <div class="market-empty">チャートを開くと自動で読み込みます</div>
+          <div class="market-empty">価格情報を準備しています…</div>
           <svg class="market-chart" hidden viewBox="0 0 620 250" role="img" aria-label="価格チャート"></svg>
         </div>
       </div>
       <div class="market-metrics"></div>
       <p class="market-footnote" hidden></p>
-      <div class="market-actions">${url?`<a class="market-open" href="${escapeAttr(url)}" target="_blank" rel="noopener">${name}で確認</a>`:''}</div>
+      <div class="market-actions">${official?`<a class="market-open" href="${escapeAttr(official)}" target="_blank" rel="noopener">${source==='snkrdunk'?'公式の相場グラフ':'StockXで市場データ'}を確認</a>`:''}</div>
     </section>`;
   }
   function escapeAttr(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
+  function clearMarketVisual(panel,message='新しい条件の価格を取得しています…'){
+    const empty=$('.market-empty',panel),svg=$('.market-chart',panel),metrics=$('.market-metrics',panel),foot=$('.market-footnote',panel),scope=$('.market-scope',panel);
+    if(svg){svg.hidden=true;svg.innerHTML='';}
+    if(empty){empty.hidden=false;empty.textContent=message;}
+    if(metrics)metrics.innerHTML='';
+    if(foot){foot.hidden=true;foot.textContent='';}
+    if(scope){scope.hidden=true;scope.textContent='';scope.className='market-scope';}
+  }
   function marketClickHandler(e){
     const cond=e.target.closest('.market-condition button');
     if(!cond)return;
     const panel=cond.closest('.market-source');
     $$('.market-condition button',panel).forEach(b=>b.classList.toggle('active',b===cond));
+    panel.dataset.loadedKey='';
+    clearMarketVisual(panel);
     loadMarket(panel,true);
   }
-  function marketChangeHandler(e){if(e.target.matches('.market-size'))loadMarket(e.target.closest('.market-source'),true);}
+  function marketChangeHandler(e){
+    if(!e.target.matches('.market-size'))return;
+    const panel=e.target.closest('.market-source');
+    panel.dataset.loadedKey='';
+    clearMarketVisual(panel);
+    loadMarket(panel,true);
+  }
   function readerUrl(url,bust=false){
     if(!url)return'';
     let target=url;
     if(bust){
-      try{const u=new URL(url);u.searchParams.set('_archive_refresh',String(Math.floor(Date.now()/60000)));target=u.toString();}catch{}
+      try{const u=new URL(url);u.searchParams.set('_archive_refresh',String(Date.now()));target=u.toString();}catch{}
     }
     return `https://r.jina.ai/${target}`;
   }
@@ -295,11 +327,13 @@
       if(source==='stockx'){
         const parts=u.pathname.split('/').filter(Boolean),loc=new Set(['ja-jp','en-gb','en','ko-kr','fr-fr','es-mx','es-es','de-de','it-it','zh-cn','zh-tw']);
         const slug=parts.find(p=>!loc.has(p.toLowerCase()));
-        // 日本円表記を優先しつつ商品URLを正規化。
         u.hostname='stockx.com';u.pathname='/ja-jp/'+(slug||parts.at(-1)||'');u.search='';
         if(size&&size!=='All')u.searchParams.set('size',size);
         if(condition==='used')u.searchParams.set('condition','used');
       }else{
+        // SNKRDUNKは相場ページを優先。queryは公式ページの動的UI用で、取得側が必ず反映するとは限らない。
+        const skuMatch=(u.pathname.match(/\/products\/([^/]+)/)||[])[1];
+        if(skuMatch)u.pathname=`/products/${skuMatch}/sales-histories`;
         u.search='';
         if(size&&size!=='All')u.searchParams.set('size',size);
         if(condition)u.searchParams.set('condition',condition);
@@ -336,23 +370,23 @@
 
   function stockxData(text,condition){
     if(condition==='used'&&!/(Condition\s*:\s*Used|商品状態\s*[:：]\s*中古|Used Listings|Shop Used|中古)/i.test(text)){
-      return {kind:'empty',unsupported:'StockXの中古は公開ページからサイズ別の取引履歴を安定して取得できません。StockXの商品ページで確認してください。'};
+      return {kind:'empty',unsupported:'StockXの中古サイズ別市場データは公開ページから安定して取得できません。公式ページで確認してください。'};
     }
-    const buy=nearestMoney(text,/(?:Buy Now for|次の価格で今すぐ買う)[\s\S]{0,100}?(?:￥|¥|\$|£|€)\s*[\d,]+/i);
-    const last=nearestMoney(text,/(?:Last Sale|最新の取引額)[\s\S]{0,75}?(?:￥|¥|\$|£|€)\s*[\d,]+/i);
-    const sell=nearestMoney(text,/(?:(?:Sell Now for)[\s\S]{0,45}?(?:￥|¥|\$|£|€)\s*[\d,]+|(?:￥|¥|\$|£|€)\s*[\d,]+\s*で今すぐ売る)/i);
-    const avg=nearestMoney(text,/(?:Average Sale Price|平均取引額)[\s\S]{0,150}?(?:Last 3 Months|過去3か月)[\s\S]{0,70}?(?:￥|¥|\$|£|€)\s*[\d,]+/i);
-    const r12=moneyPair(text,/(?:Price Range|価格帯)[\s\S]{0,80}?(?:Last 12 Months|過去12か月)[\s\S]{0,90}?(?:￥|¥|\$|£|€)\s*[\d,]+\s*[-–〜~]\s*(?:￥|¥|\$|£|€)\s*[\d,]+/i);
-    const r3=moneyPair(text,/(?:Price Range|価格帯)[\s\S]{0,80}?(?:Last 3 Months|過去3か月)[\s\S]{0,90}?(?:￥|¥|\$|£|€)\s*[\d,]+\s*[-–〜~]\s*(?:￥|¥|\$|£|€)\s*[\d,]+/i);
+    const buy=nearestMoney(text,/(?:Buy Now for|次の価格で今すぐ買う)[\s\S]{0,120}?(?:￥|¥|\$|£|€)\s*[\d,]+/i);
+    const last=nearestMoney(text,/(?:Last Sale|最新の取引額)[\s\S]{0,100}?(?:￥|¥|\$|£|€)\s*[\d,]+/i);
+    const sell=nearestMoney(text,/(?:(?:Sell Now for)[\s\S]{0,60}?(?:￥|¥|\$|£|€)\s*[\d,]+|(?:￥|¥|\$|£|€)\s*[\d,]+\s*で今すぐ売る)/i);
+    const avg=nearestMoney(text,/(?:Average Sale Price|平均取引額)[\s\S]{0,180}?(?:Last 3 Months|過去3か月)[\s\S]{0,90}?(?:￥|¥|\$|£|€)\s*[\d,]+/i);
+    const r12=moneyPair(text,/(?:Price Range|価格帯)[\s\S]{0,100}?(?:Last 12 Months|過去12か月)[\s\S]{0,110}?(?:￥|¥|\$|£|€)\s*[\d,]+\s*[-–〜~]\s*(?:￥|¥|\$|£|€)\s*[\d,]+/i);
+    const r3=moneyPair(text,/(?:Price Range|価格帯)[\s\S]{0,100}?(?:Last 3 Months|過去3か月)[\s\S]{0,110}?(?:￥|¥|\$|£|€)\s*[\d,]+\s*[-–〜~]\s*(?:￥|¥|\$|£|€)\s*[\d,]+/i);
     const vals=[r12?.[0],r12?.[1],r3?.[0],r3?.[1],avg,last,buy,sell].filter(Boolean);
     const currency=currencyOf(vals[0]||'¥');
     const range12=r12?{low:toNum(r12[0]),high:toNum(r12[1])}:null;
     const range3=r3?{low:toNum(r3[0]),high:toNum(r3[1])}:null;
     const metrics=[['今すぐ買う',buy],['最新取引',last],['3か月平均',avg],['今すぐ売る',sell]].filter(x=>x[1]);
     if(range12||range3||last||buy){
-      return {kind:'range',currency,range12,range3,last:toNum(last),buy:toNum(buy),metrics,note:'StockXの公開ページから取得した市場レンジです。日付ごとの実売履歴ではありません。'};
+      return {kind:(range12||range3)?'range':'point',currency,range12,range3,last:toNum(last),buy:toNum(buy),point:toNum(last||buy),metrics,note:'StockX公開ページから取得した市場データです。'};
     }
-    return {kind:'empty',currency,metrics,unsupported:'StockXの公開ページから市場データを取得できませんでした。'};
+    return {kind:'empty',currency,metrics,unsupported:'StockX公開ページから市場データを取得できませんでした。'};
   }
 
   function normalizeDateLabel(s){
@@ -380,14 +414,14 @@
       hits.push({key,date:label,label:normalizeDateLabel(label),value,time:dateValue(label)});
     };
     const patterns=[
-      {re:/(20\d{2}[\/.-]\d{1,2}[\/.-]\d{1,2})[\s\S]{0,140}?(?:￥|¥)\s*([\d,]+)/g,di:1,vi:2},
-      {re:/(?:￥|¥)\s*([\d,]+)[\s\S]{0,140}?(20\d{2}[\/.-]\d{1,2}[\/.-]\d{1,2})/g,di:2,vi:1},
-      {re:/(20\d{2})年\s*(\d{1,2})月\s*(\d{1,2})日[\s\S]{0,140}?(?:￥|¥)\s*([\d,]+)/g,jp:true},
-      {re:/(\d{1,2})[\/.-](\d{1,2})[\s\S]{0,90}?(?:￥|¥)\s*([\d,]+)/g,md:true}
+      {re:/(20\d{2}[\/.-]\d{1,2}[\/.-]\d{1,2})[\s\S]{0,180}?(?:￥|¥)\s*([\d,]+)/g,di:1,vi:2},
+      {re:/(?:￥|¥)\s*([\d,]+)[\s\S]{0,180}?(20\d{2}[\/.-]\d{1,2}[\/.-]\d{1,2})/g,di:2,vi:1},
+      {re:/(20\d{2})年\s*(\d{1,2})月\s*(\d{1,2})日[\s\S]{0,180}?(?:￥|¥)\s*([\d,]+)/g,jp:true},
+      {re:/(\d{1,2})[\/.-](\d{1,2})[\s\S]{0,120}?(?:￥|¥)\s*([\d,]+)/g,md:true}
     ];
     for(const p of patterns){
       let m,guard=0;
-      while((m=p.re.exec(text))&&guard++<120){
+      while((m=p.re.exec(text))&&guard++<160){
         if(p.jp)add(`${m[1]}/${m[2]}/${m[3]}`,m[4]);
         else if(p.md)add(`${m[1]}/${m[2]}`,m[3]);
         else add(m[p.di],m[p.vi]);
@@ -395,16 +429,19 @@
       if(hits.length>=8)break;
     }
     hits.sort((a,b)=>(Number.isFinite(a.time)?a.time:0)-(Number.isFinite(b.time)?b.time:0));
-    // 同一日付に複数価格がある場合も売買履歴として残すが、表示は直近36点まで。
-    const points=hits.slice(-36).map(x=>({label:x.label,value:x.value,time:x.time}));
+    const points=hits.slice(-48).map(x=>({label:x.label,value:x.value,time:x.time}));
     if(points.length>=2){
       const vals=points.map(x=>x.value),latest=points.at(-1)?.value;
-      return {kind:'trend',points,currency:'¥',metrics:[['最新',fmt(latest)],['最安',fmt(Math.min(...vals))],['最高',fmt(Math.max(...vals))],['取得件数',points.length+'件']],note:'SNKRDUNKの公開商品ページから取得できた日付付き価格情報'};
+      return {kind:'trend',points,currency:'¥',metrics:[['最新',fmt(latest)],['最安',fmt(Math.min(...vals))],['最高',fmt(Math.max(...vals))],['取得件数',points.length+'件']],note:'SNKRDUNK公開ページから取得できた日付付き価格情報'};
     }
     const current=(text.match(/(?:￥|¥)\s*[\d,]+\s*~/)||[])[0];
-    const current2=nearestMoney(text,/(?:新品|販売価格|最安|購入)[\s\S]{0,80}?(?:￥|¥)\s*[\d,]+/i);
+    const current2=nearestMoney(text,/(?:新品|販売価格|最安|購入|現在価格)[\s\S]{0,100}?(?:￥|¥)\s*[\d,]+/i);
     const price=current?current.replace(/\s/g,''):current2;
-    return {kind:'empty',currency:'¥',metrics:price?[['現在表示',price]]:[],unsupported:'日付付きの売買履歴を取得できませんでした。公式ページでは確認できる場合があります。'};
+    if(price){
+      const n=toNum(price);
+      return {kind:'point',currency:'¥',point:n,metrics:[['現在表示',price]],note:'日付付き履歴は取得できなかったため、公開ページで確認できた現在価格だけを表示しています。'};
+    }
+    return {kind:'empty',currency:'¥',metrics:[],unsupported:'日付付きの売買履歴を取得できませんでした。公式の相場グラフで確認してください。'};
   }
 
   function setMarketLoading(panel,on){
@@ -418,49 +455,76 @@
     const s=size==='All'?'全サイズ':`${size}${unit}`;
     $('.market-selection',panel).textContent=`${s} · ${condition==='used'?'中古':'新品'}`;
   }
+  function showScope(panel,text,type='ok'){
+    const el=$('.market-scope',panel); if(!el)return;
+    el.textContent=text; el.className=`market-scope ${type}`; el.hidden=false;
+  }
+  function selectedSizeContext(text,source,size){
+    if(!text||size==='All')return '';
+    const escaped=String(size).replace('.', '\\.');
+    const patterns=source==='stockx'
+      ?[new RegExp(`(?:Size|サイズ)\\s*[:：]?\\s*${escaped}(?:\\b|\\s)`, 'ig'),new RegExp(`US\\s*${escaped}(?:\\b|\\s)`, 'ig')]
+      :[new RegExp(`${escaped}\\s*cm`, 'ig'),new RegExp(`サイズ\\s*[:：]?\\s*${escaped}(?:\\b|\\s)`, 'ig')];
+    for(const re of patterns){
+      const m=re.exec(text); if(!m)continue;
+      const from=Math.max(0,m.index-1000),to=Math.min(text.length,m.index+1800);
+      const chunk=text.slice(from,to);
+      // サイズ表だけを拾ったケースを除外するため、価格記号と市場系語の両方を要求。
+      if(moneyRE.test(chunk) && /(価格|取引|販売|購入|Buy|Sale|Ask|Bid|相場)/i.test(chunk)){moneyRE.lastIndex=0;return chunk;}
+      moneyRE.lastIndex=0;
+    }
+    return '';
+  }
 
   async function loadMarket(panel,force=false){
     const raw=panel.dataset.url,status=$('.market-status',panel),empty=$('.market-empty',panel),svg=$('.market-chart',panel),metrics=$('.market-metrics',panel),foot=$('.market-footnote',panel);
     if(!raw){status.textContent='リンクなし';status.className='market-status error';setMarketLoading(panel,false);empty.hidden=false;empty.textContent='このサイトの商品リンクが登録されていません。';svg.hidden=true;metrics.innerHTML='';foot.hidden=true;return;}
     const source=panel.dataset.source,size=$('.market-size',panel).value,condition=$('.market-condition button.active',panel)?.dataset.condition||'new';
     setSelectionLabel(panel,size,condition);
-    const target=withParams(raw,source,size,condition);$('.market-open',panel)?.setAttribute('href',target);
+    const target=withParams(raw,source,size,condition);$('.market-open',panel)?.setAttribute('href',source==='snkrdunk'?canonicalSnkrHistoryUrl(raw,panel.dataset.sku):target);
     const key=`${source}|${target}|${condition}`;if(!force&&panel.dataset.loadedKey===key)return;
 
     panel._marketAbort?.abort();
     const ctrl=new AbortController();panel._marketAbort=ctrl;
     const requestId=String((Number(panel.dataset.requestId)||0)+1);panel.dataset.requestId=requestId;
-    status.textContent='取得中';status.className='market-status';metrics.innerHTML='';foot.hidden=true;setMarketLoading(panel,true);
+    status.textContent='取得中';status.className='market-status';
+    clearMarketVisual(panel,'選択条件の価格を取得しています…');
+    setMarketLoading(panel,true);
     try{
       const text=await fetchText(target,force,ctrl.signal);
       if(panel.dataset.requestId!==requestId||ctrl.signal.aborted)return;
-      let data=source==='stockx'?stockxData(text,condition):snkrData(text);
-      // 選択サイズ付きURLで履歴が取れない場合は、全サイズの商品ページを一度だけ確認する。
-      // その場合はサイズ別データと誤解されないよう注記する。
-      if(data.kind==='empty' && size!=='All'){
-        try{
-          const fallbackTarget=withParams(raw,source,'All',condition);
-          if(fallbackTarget!==target){
-            const fallbackText=await fetchText(fallbackTarget,force,ctrl.signal);
-            if(panel.dataset.requestId!==requestId||ctrl.signal.aborted)return;
-            const fallbackData=source==='stockx'?stockxData(fallbackText,condition):snkrData(fallbackText);
-            if(fallbackData.kind==='trend'||fallbackData.kind==='range'){
-              data=fallbackData;
-              data.note=`選択サイズの公開データを取得できなかったため、全サイズの情報を表示しています。 ${data.note||''}`.trim();
-            }
-          }
-        }catch{}
+
+      let data;
+      let exactSize=size==='All';
+      if(size!=='All'){
+        const scoped=selectedSizeContext(text,source,size);
+        if(scoped){
+          const scopedData=source==='stockx'?stockxData(scoped,condition):snkrData(scoped);
+          if(scopedData.kind!=='empty') {data=scopedData; exactSize=true;}
+        }
       }
+      if(!data) data=source==='stockx'?stockxData(text,condition):snkrData(text);
+
+      // サイズ指定時にサイズ別データを確認できなかった場合、全サイズ値を選択サイズの値として見せない。
+      if(size!=='All'&&!exactSize){
+        const reference=data;
+        data={kind:'empty',currency:reference.currency||'¥',metrics:[],unsupported:`${size}${source==='stockx'?' US':'cm'} のサイズ別価格を公開データから確認できませんでした。前の価格は表示していません。`,note:'下の公式ページを開くと、各サービス側でサイズを選んで最新相場を確認できます。'};
+        showScope(panel,'サイズ別データ未取得','warn');
+      }else{
+        showScope(panel,size==='All'?'全サイズの公開データ':'選択サイズのデータ','ok');
+      }
+
       drawChart(panel,data);
       panel.dataset.loadedKey=key;
-      const hasVisual=data.kind==='trend'||data.kind==='range';
-      status.textContent=hasVisual?'更新済み':data.metrics?.length?'一部取得':'取得不可';
-      status.className='market-status '+(hasVisual?'ok':data.metrics?.length?'warn':'error');
+      const hasVisual=data.kind==='trend'||data.kind==='range'||data.kind==='point';
+      status.textContent=hasVisual?'更新済み':'取得不可';
+      status.className='market-status '+(hasVisual?'ok':'error');
       foot.textContent=data.note||'';foot.hidden=!data.note;
     }catch(err){
       if(panel.dataset.requestId!==requestId||ctrl.signal.aborted)return;
       status.textContent='取得不可';status.className='market-status error';
       svg.hidden=true;empty.hidden=false;empty.textContent='外部サイト側の制限で価格データを取得できませんでした。公式ページで確認してください。';metrics.innerHTML='';foot.hidden=true;
+      showScope(panel,'外部データ取得エラー','error');
     }finally{
       if(panel.dataset.requestId===requestId)setMarketLoading(panel,false);
     }
@@ -475,7 +539,21 @@
     renderMetrics(panel,data);
     if(data.kind==='trend'&&data.points?.length>=2){drawTrendChart(svg,data);svg.hidden=false;empty.hidden=true;$('.market-chart-title',panel).textContent='売買価格の推移';return;}
     if(data.kind==='range'){drawRangeChart(svg,data);svg.hidden=false;empty.hidden=true;$('.market-chart-title',panel).textContent='市場価格レンジ';return;}
+    if(data.kind==='point'&&data.point>0){drawPointChart(svg,data);svg.hidden=false;empty.hidden=true;$('.market-chart-title',panel).textContent='現在価格（履歴未取得）';return;}
     svg.hidden=true;empty.hidden=false;empty.textContent=data.unsupported||'価格履歴を取得できませんでした。';$('.market-chart-title',panel).textContent='価格情報';
+  }
+
+  function drawPointChart(svg,data){
+    const W=620,H=250,L=62,R=28,T=34,B=48,v=data.point,c=data.currency||'¥';
+    const lo=Math.max(0,v*.78),hi=Math.max(v*1.22,v+1000),y=x=>T+(H-T-B)*(1-(x-lo)/(hi-lo||1));
+    let s='';
+    for(let i=0;i<5;i++){const yy=T+(H-T-B)*i/4,val=hi-(hi-lo)*i/4;s+=`<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="#e7e7e2"/><text x="${L-10}" y="${yy+3}" text-anchor="end" font-size="9" fill="#8b8b8b">${fmt(val,c)}</text>`;}
+    const yy=y(v),cx=(L+W-R)/2;
+    s+=`<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="#111" stroke-width="2" stroke-dasharray="5 5" opacity=".35"/>`;
+    s+=`<circle cx="${cx}" cy="${yy}" r="7" fill="#111"/><circle cx="${cx}" cy="${yy}" r="14" fill="none" stroke="#111" stroke-opacity=".12" stroke-width="5"/>`;
+    s+=`<rect x="${cx-56}" y="${Math.max(5,yy-45)}" width="112" height="29" rx="14.5" fill="#111"/><text x="${cx}" y="${Math.max(24,yy-25)}" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">${fmt(v,c)}</text>`;
+    s+=`<text x="${cx}" y="${H-18}" text-anchor="middle" font-size="10" fill="#777">現在</text>`;
+    svg.innerHTML=s;
   }
 
   function drawTrendChart(svg,data){
