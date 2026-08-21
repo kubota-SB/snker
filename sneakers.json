@@ -9,7 +9,12 @@
     "sku": "451012ST",
     "image": "https://image.goat.com/transform/v1/attachments/product_template_pictures/images/065/757/065/original/451012ST.png.png?action=crop&width=850",
     "keywords": "ogOG ブラックトゥ Black Toe black toe",
-    "links": []
+    "links": [
+      {
+        "label": "SNKRDUNK",
+        "url": "https://snkrdunk.com/products/451012ST?slide=right"
+      }
+    ]
   },
   {
     "id": "aj1-002",
@@ -22,6 +27,10 @@
     "image": "https://images.stockx.com/360/Air-Jordan-1-OG-White-Black-1985/Images/Air-Jordan-1-OG-White-Black-1985/Lv2/img01.jpg?w=576&q=57&dpr=2&updated_at=1675844669&h=384",
     "keywords": "ogOG パンダ White/Black Panda panda",
     "links": [
+      {
+        "label": "SNKRDUNK",
+        "url": "https://snkrdunk.com/products/4298?slide=right"
+      },
       {
         "label": "StockX",
         "url": "https://stockx.com/ja-jp/air-jordan-1-og-white-black-1985"
@@ -38,7 +47,12 @@
     "sku": "4296",
     "image": "https://cdn.flightclub.com/TEMPLATE/295619/1.jpg?w=1200",
     "keywords": "ogOG ストームブルー Dark Royal Blue dark royal blue Storm Blue storm blue",
-    "links": []
+    "links": [
+      {
+        "label": "SNKRDUNK",
+        "url": "https://snkrdunk.com/products/4296?slide=right"
+      }
+    ]
   },
   {
     "id": "aj1-004",
@@ -51,6 +65,10 @@
     "image": "https://images.stockx.com/images/Air-Jordan-1-OG-UNC-1985.jpg?fit=fill&bg=FFFFFF&w=576&h=384&q=57&dpr=2&trim=color&updated_at=1674055816",
     "keywords": "ogOG UNC カロライナー unc",
     "links": [
+      {
+        "label": "SNKRDUNK",
+        "url": "https://snkrdunk.com/products/4297?slide=right"
+      },
       {
         "label": "StockX",
         "url": "https://stockx.com/ja-jp/air-jordan-1-og-unc-1985"
@@ -69,6 +87,10 @@
     "keywords": "ogOG ニュートラルグレー Natural Grey natural grey",
     "links": [
       {
+        "label": "SNKRDUNK",
+        "url": "https://snkrdunk.com/products/4295?slide=right"
+      },
+      {
         "label": "StockX",
         "url": "https://stockx.com/ja-jp/air-jordan-1-og-natural-grey-1985"
       }
@@ -84,7 +106,12 @@
     "sku": "4283",
     "image": "https://cdn.flightclub.com/TEMPLATE/216411/1.jpg?w=1200",
     "keywords": "ogOG シャドウ Shadow shadow",
-    "links": []
+    "links": [
+      {
+        "label": "SNKRDUNK",
+        "url": "https://snkrdunk.com/products/4283?slide=right"
+      }
+    ]
   },
   {
     "id": "aj1-007",
@@ -97,6 +124,10 @@
     "image": "https://images.stockx.com/images/Air-Jordan-1-OG-Royal-1985.png?fit=fill&bg=FFFFFF&w=576&h=384&q=57&dpr=2&trim=color&updated_at=1612550325",
     "keywords": "ogOG ロイヤル Royal royal",
     "links": [
+      {
+        "label": "SNKRDUNK",
+        "url": "https://snkrdunk.com/products/4282?slide=right"
+      },
       {
         "label": "StockX",
         "url": "https://stockx.com/ja-jp/air-jordan-1-og-royal-1985"
@@ -114,6 +145,10 @@
     "image": "https://images.stockx.com/360/Air-Jordan-1-OG-Bred-1985/Images/Air-Jordan-1-OG-Bred-1985/Lv2/img36.jpg?w=576&q=57&dpr=2&updated_at=1643995610&h=384",
     "keywords": "ogOG ブレッド Bred bred",
     "links": [
+      {
+        "label": "SNKRDUNK",
+        "url": "https://snkrdunk.com/products/4285?slide=right"
+      },
       {
         "label": "StockX",
         "url": "https://stockx.com/ja-jp/jordan-1-og-bred-1985"
@@ -151,7 +186,12 @@
     "sku": "850810TY1",
     "image": "https://image.goat.com/transform/v1/attachments/product_template_pictures/images/028/402/010/original/850810TY1.png.png?action=crop&width=850",
     "keywords": "ogOG メタリックレッド Metalic Redmetalic red",
-    "links": []
+    "links": [
+      {
+        "label": "SNKRDUNK",
+        "url": "https://snkrdunk.com/products/850810TY1?slide=right"
+      }
+    ]
   },
   {
     "id": "aj1-011",
@@ -199,7 +239,12 @@
     "sku": "4287",
     "image": "https://cdn.flightclub.com/TEMPLATE/255195/1.jpg?w=1200",
     "keywords": "ogOG メタリックブラック Metalic Black metalic black",
-    "links": []
+    "links": [
+      {
+        "label": "SNKRDUNK",
+        "url": "https://snkrdunk.com/products/4287?slide=right"
+      }
+    ]
   },
   {
     "id": "aj1-015",
@@ -224,6 +269,10 @@
     "image": "https://images.stockx.com/images/Air-Jordan-1-OG-Metallic-Blue-1986.jpg?fit=fill&bg=FFFFFF&w=576&h=384&q=57&dpr=2&trim=color&updated_at=1686690257",
     "keywords": "ogOG メタリックブルー Metalic Blue metalic blue",
     "links": [
+      {
+        "label": "SNKRDUNK",
+        "url": "https://snkrdunk.com/products/4299?slide=right"
+      },
       {
         "label": "StockX",
         "url": "https://stockx.com/ja-jp/air-jordan-1-og-metallic-blue-1986"
@@ -2087,7 +2136,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/1752/"
+        "url": "https://snkrdunk.com/products/555088-018?slide=right"
       },
       {
         "label": "StockX",
@@ -2108,7 +2157,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/1816/"
+        "url": "https://snkrdunk.com/products/555088-311?slide=right"
       },
       {
         "label": "StockX",
@@ -2129,7 +2178,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/7770/"
+        "url": "https://snkrdunk.com/products/BQ6682-006?slide=right"
       },
       {
         "label": "StockX",
@@ -2150,7 +2199,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/7712/"
+        "url": "https://snkrdunk.com/products/555088-160?slide=right"
       },
       {
         "label": "StockX",
@@ -2171,7 +2220,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/7762/"
+        "url": "https://snkrdunk.com/products/CD0461-007?slide=right"
       },
       {
         "label": "StockX",
@@ -2192,7 +2241,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/7797/"
+        "url": "https://snkrdunk.com/products/CD6578-507?slide=right"
       },
       {
         "label": "StockX",
@@ -2213,7 +2262,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/7834/"
+        "url": "https://snkrdunk.com/products/CD6578-006?slide=right"
       },
       {
         "label": "StockX",
@@ -2234,7 +2283,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/7715/"
+        "url": "https://snkrdunk.com/products/555088-061?slide=right"
       },
       {
         "label": "StockX",
@@ -2255,7 +2304,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/8049/"
+        "url": "https://snkrdunk.com/products/CD6579-071?slide=right"
       },
       {
         "label": "StockX",
@@ -2276,7 +2325,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/7604/"
+        "url": "https://snkrdunk.com/products/555088-140?slide=right"
       },
       {
         "label": "StockX",
@@ -2297,7 +2346,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/8060/"
+        "url": "https://snkrdunk.com/products/CD0461-016?slide=right"
       },
       {
         "label": "StockX",
@@ -2318,7 +2367,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/8122/"
+        "url": "https://snkrdunk.com/products/555088-170?slide=right"
       },
       {
         "label": "StockX",
@@ -2339,7 +2388,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/8538/"
+        "url": "https://snkrdunk.com/products/CU6690-006?slide=right"
       },
       {
         "label": "StockX",
@@ -2360,7 +2409,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/7543/"
+        "url": "https://snkrdunk.com/products/555088-028?slide=right"
       },
       {
         "label": "StockX",
@@ -2381,7 +2430,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/8368/"
+        "url": "https://snkrdunk.com/products/CK5666-100?slide=right"
       },
       {
         "label": "StockX",
@@ -2402,7 +2451,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/8056/"
+        "url": "https://snkrdunk.com/products/555088-062?slide=right"
       },
       {
         "label": "StockX",
@@ -2423,7 +2472,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/8044/"
+        "url": "https://snkrdunk.com/products/555088-060?slide=right"
       },
       {
         "label": "StockX",
@@ -2444,7 +2493,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/8980/"
+        "url": "https://snkrdunk.com/products/BQ4422-600?slide=right"
       },
       {
         "label": "StockX",
@@ -2465,7 +2514,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/8337/"
+        "url": "https://snkrdunk.com/products/CD0461-046?slide=right"
       },
       {
         "label": "StockX",
@@ -2486,7 +2535,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/7827/"
+        "url": "https://snkrdunk.com/products/555088-030?slide=right"
       },
       {
         "label": "StockX",
@@ -2507,7 +2556,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/8183/"
+        "url": "https://snkrdunk.com/products/555088-500?slide=right"
       },
       {
         "label": "StockX",
@@ -2528,7 +2577,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/8221/"
+        "url": "https://snkrdunk.com/products/555088-041?slide=right"
       },
       {
         "label": "StockX",
@@ -2549,7 +2598,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/8802/"
+        "url": "https://snkrdunk.com/products/CD0461-100?slide=right"
       },
       {
         "label": "StockX",
@@ -2570,7 +2619,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/8835/"
+        "url": "https://snkrdunk.com/products/CN8607-002?slide=right"
       },
       {
         "label": "StockX",
@@ -2591,7 +2640,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/8528/"
+        "url": "https://snkrdunk.com/products/DA0382-029?slide=right"
       },
       {
         "label": "StockX",
@@ -2612,7 +2661,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/8528/"
+        "url": "https://snkrdunk.com/products/DC1788-029?slide=right"
       },
       {
         "label": "StockX",
@@ -2633,7 +2682,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/9321/"
+        "url": "https://snkrdunk.com/products/CD0461-601?slide=right"
       },
       {
         "label": "StockX",
@@ -2654,7 +2703,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/9258/"
+        "url": "https://snkrdunk.com/products/555088-126?slide=right"
       },
       {
         "label": "StockX",
@@ -2675,7 +2724,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/8856/"
+        "url": "https://snkrdunk.com/products/DB5877-100?slide=right"
       },
       {
         "label": "StockX",
@@ -2696,7 +2745,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/8856/"
+        "url": "https://snkrdunk.com/products/DC1788-100?slide=right"
       },
       {
         "label": "StockX",
@@ -2717,7 +2766,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/8862/"
+        "url": "https://snkrdunk.com/products/DB4612-300?slide=right"
       },
       {
         "label": "StockX",
@@ -2738,7 +2787,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/8636/"
+        "url": "https://snkrdunk.com/products/555088-105?slide=right"
       },
       {
         "label": "StockX",
@@ -2759,7 +2808,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/8848/"
+        "url": "https://snkrdunk.com/products/555088-032?slide=right"
       },
       {
         "label": "StockX",
@@ -2780,7 +2829,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/9121/"
+        "url": "https://snkrdunk.com/products/DC3481-900?slide=right"
       },
       {
         "label": "StockX",
@@ -2801,7 +2850,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/9851/"
+        "url": "https://snkrdunk.com/products/555088-118?slide=right"
       },
       {
         "label": "StockX",
@@ -2822,7 +2871,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/9507/"
+        "url": "https://snkrdunk.com/products/BQ4422-100?slide=right"
       },
       {
         "label": "StockX",
@@ -2843,7 +2892,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/9988/"
+        "url": "https://snkrdunk.com/products/DA2728-100?slide=right"
       },
       {
         "label": "StockX",
@@ -2864,7 +2913,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/9452/"
+        "url": "https://snkrdunk.com/products/CD0461-001?slide=right"
       },
       {
         "label": "StockX",
@@ -2885,7 +2934,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/9200/"
+        "url": "https://snkrdunk.com/products/555088-033?slide=right"
       },
       {
         "label": "StockX",
@@ -2906,7 +2955,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/9172/"
+        "url": "https://snkrdunk.com/products/555088-134?slide=right"
       },
       {
         "label": "StockX",
@@ -2927,7 +2976,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/9522/"
+        "url": "https://snkrdunk.com/products/555088-402?slide=right"
       },
       {
         "label": "StockX",
@@ -2948,7 +2997,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/9660/"
+        "url": "https://snkrdunk.com/products/555088-035?slide=right"
       },
       {
         "label": "StockX",
@@ -2969,7 +3018,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/9561/"
+        "url": "https://snkrdunk.com/products/CD0461-151?slide=right"
       },
       {
         "label": "StockX",
@@ -2990,7 +3039,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/9731/"
+        "url": "https://snkrdunk.com/products/555088-603?slide=right"
       },
       {
         "label": "StockX",
@@ -3011,7 +3060,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/9720/"
+        "url": "https://snkrdunk.com/products/555088-180?slide=right"
       },
       {
         "label": "StockX",
@@ -3032,7 +3081,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/10320/"
+        "url": "https://snkrdunk.com/products/DH3227-105?slide=right"
       },
       {
         "label": "StockX",
@@ -3053,7 +3102,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/10015/"
+        "url": "https://snkrdunk.com/products/555088-701?slide=right"
       },
       {
         "label": "StockX",
@@ -3074,7 +3123,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/10616/"
+        "url": "https://snkrdunk.com/products/DC6515-100?slide=right"
       },
       {
         "label": "StockX",
@@ -3095,7 +3144,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/9931/"
+        "url": "https://snkrdunk.com/products/CD0461-002?slide=right"
       },
       {
         "label": "StockX",
@@ -3116,7 +3165,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/10036/"
+        "url": "https://snkrdunk.com/products/555088-611?slide=right"
       },
       {
         "label": "StockX",
@@ -3137,7 +3186,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/11267/"
+        "url": "https://snkrdunk.com/products/DO7097-100?slide=right"
       },
       {
         "label": "StockX",
@@ -3158,7 +3207,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/10395/"
+        "url": "https://snkrdunk.com/products/DH3097-001?slide=right"
       },
       {
         "label": "StockX",
@@ -3179,7 +3228,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/1070/"
+        "url": "https://snkrdunk.com/products/555088-063?slide=right"
       },
       {
         "label": "StockX",
@@ -3200,7 +3249,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/10729/"
+        "url": "https://snkrdunk.com/products/DD9335-641?slide=right"
       },
       {
         "label": "StockX",
@@ -3221,7 +3270,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/11280/"
+        "url": "https://snkrdunk.com/products/555088-404?slide=right"
       },
       {
         "label": "StockX",
@@ -3242,7 +3291,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/10926/"
+        "url": "https://snkrdunk.com/products/555088-706?slide=right"
       },
       {
         "label": "StockX",
@@ -3263,7 +3312,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/11177/"
+        "url": "https://snkrdunk.com/products/555088-036?slide=right"
       },
       {
         "label": "StockX",
@@ -3284,7 +3333,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/11657/"
+        "url": "https://snkrdunk.com/products/555088-161?slide=right"
       },
       {
         "label": "StockX",
@@ -3305,7 +3354,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/11700/"
+        "url": "https://snkrdunk.com/products/555088-702?slide=right"
       },
       {
         "label": "StockX",
@@ -3326,7 +3375,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/11740/"
+        "url": "https://snkrdunk.com/products/555088-108?slide=right"
       },
       {
         "label": "StockX",
@@ -3347,7 +3396,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/12094/"
+        "url": "https://snkrdunk.com/products/555088-711?slide=right"
       },
       {
         "label": "StockX",
@@ -3368,7 +3417,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/11734/"
+        "url": "https://snkrdunk.com/products/DM9036-104?slide=right"
       },
       {
         "label": "StockX",
@@ -3389,7 +3438,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/12682/"
+        "url": "https://snkrdunk.com/products/555088-037?slide=right"
       },
       {
         "label": "StockX",
@@ -3410,7 +3459,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/12129/"
+        "url": "https://snkrdunk.com/products/DO9369-101?slide=right"
       },
       {
         "label": "StockX",
@@ -3431,7 +3480,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/12125/"
+        "url": "https://snkrdunk.com/products/555088-202?slide=right"
       },
       {
         "label": "StockX",
@@ -3452,7 +3501,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/12526/"
+        "url": "https://snkrdunk.com/products/DZ5485-612?slide=right"
       },
       {
         "label": "StockX",
@@ -3473,7 +3522,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/12613/"
+        "url": "https://snkrdunk.com/products/DZ5485-303?slide=right"
       },
       {
         "label": "StockX",
@@ -3494,7 +3543,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/articles/13372/"
+        "url": "https://snkrdunk.com/products/DZ2523-001?slide=right"
       },
       {
         "label": "StockX",
@@ -3578,7 +3627,7 @@
     "links": [
       {
         "label": "SNKRDUNK",
-        "url": "https://snkrdunk.com/products/DX0054-805?slide=right"
+        "url": "https://snkrdunk.com/products/DZ5485-052?slide=right"
       },
       {
         "label": "StockX",
@@ -4395,6 +4444,10 @@
     "image": "",
     "keywords": "ヴァージル アブロー アーカイブ アラスカ Virgil Abloh Archive Alaska VAA",
     "links": [
+      {
+        "label": "SNKRDUNK",
+        "url": "https://snkrdunk.com/products/AA3834-100?slide=right"
+      },
       {
         "label": "StockX",
         "url": "https://stockx.com/ja-jp/air-jordan-1-retro-high-virgil-abloh-archive-alaska"
