@@ -1,7 +1,7 @@
 
 (() => {
   'use strict';
-  const DATA_URL = 'sneakers.json?v=13';
+  const DATA_URL = 'sneakers.json?v=14';
   const FRAME_COUNT = 36;
   const FAST_360_CANDIDATES = 10;
   const FAST_PROBE_TIMEOUT = 1200;
@@ -518,6 +518,12 @@
       $('.market-chart-title',panel).textContent='売買価格の推移';
       selectChartPoint(panel,data.points.length-1,true);
       scrollChartToLatest(panel,false);
+      setTimeout(()=>{
+        if(svg._chartMeta){
+          selectChartPoint(panel,svg._chartMeta.latestIndex,true);
+          scrollChartToLatest(panel,false);
+        }
+      },80);
       return;
     }
     if(data.kind==='point'&&data.point>0){drawPointChart(svg,data);svg.removeAttribute('hidden');empty.hidden=true;$('.market-chart-title',panel).textContent='現在価格（履歴未取得）';return;}
@@ -532,10 +538,11 @@
   }
 
   function drawTrendChart(svg,data){
-    const pts=data.points.filter(x=>Number.isFinite(x.value)&&x.value>0),H=290,L=72,R=42,T=34,B=56;
-    // 履歴点の間隔を広めに取り、過去へ横スクロールしてたどれるチャートにする。
-    const pointGap=150;
-    const W=Math.max(980,L+R+Math.max(1,pts.length-1)*pointGap);
+    const pts=data.points.filter(x=>Number.isFinite(x.value)&&x.value>0),H=300,L=78,R=150,T=38,B=58;
+    // 最新ポイントの右側に十分な余白を確保し、価格の玉が表示枠の端で切れないようにする。
+    // 履歴ポイント同士も少し広めに配置する。
+    const pointGap=165;
+    const W=Math.max(1180,L+R+Math.max(1,pts.length-1)*pointGap);
     const vals=pts.map(x=>x.value),min=Math.min(...vals),max=Math.max(...vals),pad=Math.max((max-min)*.18,max*.035,500),lo=Math.max(0,min-pad),hi=max+pad;
     const x=(p,i)=>pts.length===1?(L+(W-L-R)/2):L+i*((W-L-R)/(pts.length-1)),y=v=>T+(H-T-B)*(1-(v-lo)/(hi-lo||1));
     const path=pts.map((p,i)=>`${i?'L':'M'} ${x(p,i).toFixed(1)} ${y(p.value).toFixed(1)}`).join(' '),area=`${path} L ${x(pts.at(-1),pts.length-1)} ${H-B} L ${x(pts[0],0)} ${H-B} Z`;
@@ -564,23 +571,45 @@
     if(!box||!meta?.points?.length||!box.clientWidth)return;
     index=Math.max(0,Math.min(meta.points.length-1,index));
     const p=meta.points[index];
-    const scale=(svg.scrollWidth||meta.width)/meta.width;
+    const scale=(svg.getBoundingClientRect().width||meta.width)/meta.width;
     const px=p.x*scale;
-    const pad=Math.min(130,box.clientWidth*.24);
+    const safeLeft=Math.min(150,box.clientWidth*.26);
+    const safeRight=Math.min(190,box.clientWidth*.30);
     const left=box.scrollLeft,right=left+box.clientWidth;
-    if(force||px<left+pad||px>right-pad){
-      const target=Math.max(0,Math.min(box.scrollWidth-box.clientWidth,px-box.clientWidth*.72));
+    if(force||px<left+safeLeft||px>right-safeRight){
+      // 選択中の玉を表示枠の中央より少し右に置き、左右どちらへも続けて動かしやすくする。
+      const target=Math.max(0,Math.min(box.scrollWidth-box.clientWidth,px-box.clientWidth*.66));
       box.scrollTo({left:target,behavior:smooth?'smooth':'auto'});
     }
   }
 
   function scrollChartToLatest(panel,smooth=false){
     const svg=$('.market-chart',panel),meta=svg?._chartMeta;if(!meta)return;
-    requestAnimationFrame(()=>{
+    // SVGの実幅が確定してから右端へ移動する。1フレームだけだとdialog描画直後に
+    // scrollWidthが古い値のことがあるため、2フレーム待って最新を確実に表示する。
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
       const box=$('.market-chart-box',panel);if(!box)return;
-      box.scrollTo({left:Math.max(0,box.scrollWidth-box.clientWidth),behavior:smooth?'smooth':'auto'});
+      const maxLeft=Math.max(0,box.scrollWidth-box.clientWidth);
+      box.scrollTo({left:maxLeft,behavior:smooth?'smooth':'auto'});
       scrollChartToPoint(panel,meta.latestIndex,{force:false,smooth:false});
-    });
+    }));
+  }
+
+  function autoPanChartBox(box,clientX){
+    if(!box||box.scrollWidth<=box.clientWidth)return;
+    const r=box.getBoundingClientRect();
+    const edge=Math.min(110,r.width*.22);
+    let delta=0;
+    if(clientX<r.left+edge){
+      const ratio=Math.min(1,(r.left+edge-clientX)/edge);
+      delta=-(12+42*ratio);
+    }else if(clientX>r.right-edge){
+      const ratio=Math.min(1,(clientX-(r.right-edge))/edge);
+      delta=12+42*ratio;
+    }
+    if(delta){
+      box.scrollLeft=Math.max(0,Math.min(box.scrollWidth-box.clientWidth,box.scrollLeft+delta));
+    }
   }
 
   function selectChartPoint(panel,index,updateCard=true){
@@ -592,7 +621,7 @@
     $('.chart-cursor-line',cursor).setAttribute('x1',p.x);$('.chart-cursor-line',cursor).setAttribute('x2',p.x);
     $$('.chart-cursor-halo,.chart-cursor-dot',cursor).forEach(c=>{c.setAttribute('cx',p.x);c.setAttribute('cy',p.y);});
     const label=$('.chart-cursor-label',cursor),bubbleW=86,bubbleH=28;
-    const bubbleX=Math.max(meta.L+4,Math.min(meta.width-meta.R-bubbleW-4,p.x-bubbleW/2));
+    const bubbleX=Math.max(10,Math.min(meta.width-bubbleW-10,p.x-bubbleW/2));
     const placeBelow=p.y < meta.T+52;
     const bubbleY=placeBelow?Math.min(meta.height-meta.B-bubbleH-4,p.y+16):Math.max(4,p.y-bubbleH-16);
     label.setAttribute('transform',`translate(${bubbleX} ${bubbleY})`);$('.chart-cursor-price',cursor).textContent=fmt(p.value);
@@ -640,6 +669,8 @@
       });
       svg.addEventListener('pointermove',e=>{
         if(!dragging||e.pointerId!==pointerId)return;
+        // 玉を表示枠の端へ持っていくと、その方向へチャートも自動で追従する。
+        autoPanChartBox(box(),e.clientX);
         pick(e);e.preventDefault();
       });
       ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>svg.addEventListener(ev,finishCursor));
