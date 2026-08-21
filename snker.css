@@ -146,3 +146,19 @@ h1{margin:0;font-size:clamp(36px,6vw,72px);line-height:.94;letter-spacing:-.055e
 .market-grid{grid-template-columns:minmax(0,1fr)!important;}
 .market-snkr{width:100%;}
 .market-empty-standalone{padding:20px;border:1px dashed #d6d6d1;border-radius:12px;background:#fafaf8;color:#777;font-size:13px;text-align:center;}
+
+/* v8: SNKRDUNK-only scrollable history chart */
+.market-stockx{display:none!important;}
+.market-chart-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 10px;border-top:1px solid #ecece7;background:#fff;}
+.market-chart-nav[hidden]{display:none!important;}
+.market-chart-nav button{border:1px solid #d8d8d3;background:#fff;color:#111;border-radius:999px;padding:6px 10px;font-size:9px;font-weight:900;cursor:pointer;white-space:nowrap;}
+.market-chart-nav button:hover{background:#111;color:#fff;border-color:#111;}
+.market-chart-nav span{font-size:8px;color:#888;font-weight:800;text-align:center;}
+.market-chart-box{overflow-x:auto;overflow-y:hidden;cursor:grab;scroll-behavior:smooth;overscroll-behavior-x:contain;scrollbar-width:thin;touch-action:pan-y;}
+.market-chart-box.is-dragging{cursor:grabbing;scroll-behavior:auto;user-select:none;}
+.market-chart-box::-webkit-scrollbar{height:8px}.market-chart-box::-webkit-scrollbar-track{background:#efefeb}.market-chart-box::-webkit-scrollbar-thumb{background:#bcbcb5;border-radius:999px}
+.market-chart:not([hidden]){max-width:none!important;min-width:620px!important;display:block!important;}
+.market-chart-tooltip{position:absolute;z-index:5;min-width:100px;padding:8px 10px;border-radius:10px;background:#111;color:#fff;pointer-events:none;box-shadow:0 6px 24px rgba(0,0,0,.18);}
+.market-chart-tooltip[hidden]{display:none!important;}
+.market-chart-tooltip strong,.market-chart-tooltip span{display:block}.market-chart-tooltip strong{font-size:12px}.market-chart-tooltip span{margin-top:2px;font-size:8px;color:#cfcfcf}
+@media(max-width:620px){.market-chart-nav span{display:none}.market-chart-nav{justify-content:space-between}.market-chart:not([hidden]){min-width:620px!important}}

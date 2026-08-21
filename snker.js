@@ -1,7 +1,7 @@
 
 (() => {
   'use strict';
-  const DATA_URL = 'sneakers.json?v=6';
+  const DATA_URL = 'sneakers.json?v=8';
   const FRAME_COUNT = 36;
   const FAST_360_CANDIDATES = 10;
   const FAST_PROBE_TIMEOUT = 1200;
@@ -202,7 +202,7 @@
     </div>`;}
   function fillText(root,item){$('.detail-title',root).textContent=item.title;$('.detail-year',root).textContent=item.year;$('.d-release',root).textContent=item.releaseDate||'—';$('.d-price',root).textContent=item.releasePrice||'—';$('.d-sku',root).textContent=item.sku||'—';const vi=$('.viewer-image',root);vi.alt=item.title;setDetailStatic(vi,item);const links=$('.detail-links',root);(item.links||[]).forEach(l=>{const a=document.createElement('a');a.href=l.url;a.target='_blank';a.rel='noopener';a.className='product-link '+(/stockx/i.test(l.label)?'stockx':/snkr/i.test(l.label)?'snkrdunk':'');a.textContent=l.label;links.appendChild(a);});}
   function setDetailStatic(img,item){const list=staticCandidates(item);let i=0;const next=()=>{if(i>=list.length){img.style.display='none';return;}img.src=list[i++];};img.addEventListener('error',next,{passive:true});next();}
-  function bindDetail(item){detailAbort?.abort();detailAbort=new AbortController();const signal=detailAbort.signal,root=els.detail;$('.viewer-prev',root)?.addEventListener('click',()=>viewer&&showFrame(viewer.frame-1),{signal});$('.viewer-next',root)?.addEventListener('click',()=>viewer&&showFrame(viewer.frame+1),{signal});const stage=$('.viewer-stage',root);let dragging=false,lastX=0,rem=0;stage.addEventListener('pointerdown',e=>{if(!viewer||e.target.closest('button'))return;dragging=true;lastX=e.clientX;rem=0;stage.setPointerCapture?.(e.pointerId)},{signal});stage.addEventListener('pointermove',e=>{if(!dragging||!viewer)return;rem+=e.clientX-lastX;lastX=e.clientX;const steps=Math.trunc(rem/11);if(steps){rem-=steps*11;showFrame(viewer.frame-steps);}},{signal});['pointerup','pointercancel','lostpointercapture'].forEach(ev=>stage.addEventListener(ev,()=>dragging=false,{signal}));root.addEventListener('toggle',e=>{const d=e.target;if(d.matches?.('.market-section')&&d.open)d.querySelectorAll('.market-source').forEach(p=>loadMarket(p));}, {capture:true,signal});root.addEventListener('click',marketClickHandler,{signal});root.addEventListener('change',marketChangeHandler,{signal});}
+  function bindDetail(item){detailAbort?.abort();detailAbort=new AbortController();const signal=detailAbort.signal,root=els.detail;$('.viewer-prev',root)?.addEventListener('click',()=>viewer&&showFrame(viewer.frame-1),{signal});$('.viewer-next',root)?.addEventListener('click',()=>viewer&&showFrame(viewer.frame+1),{signal});const stage=$('.viewer-stage',root);let dragging=false,lastX=0,rem=0;stage.addEventListener('pointerdown',e=>{if(!viewer||e.target.closest('button'))return;dragging=true;lastX=e.clientX;rem=0;stage.setPointerCapture?.(e.pointerId)},{signal});stage.addEventListener('pointermove',e=>{if(!dragging||!viewer)return;rem+=e.clientX-lastX;lastX=e.clientX;const steps=Math.trunc(rem/11);if(steps){rem-=steps*11;showFrame(viewer.frame-steps);}},{signal});['pointerup','pointercancel','lostpointercapture'].forEach(ev=>stage.addEventListener(ev,()=>dragging=false,{signal}));root.addEventListener('toggle',e=>{const d=e.target;if(d.matches?.('.market-section')&&d.open)d.querySelectorAll('.market-source').forEach(p=>loadMarket(p));}, {capture:true,signal});root.addEventListener('click',marketClickHandler,{signal});root.addEventListener('change',marketChangeHandler,{signal});bindMarketChartGestures(root);}
 
   async function probeImage(url,timeout=3500){if(!url)return false;if(imageProbeCache.has(url))return imageProbeCache.get(url);const p=new Promise(resolve=>{const img=new Image();let done=false;const finish=ok=>{if(done)return;done=true;clearTimeout(t);img.onload=img.onerror=null;resolve(ok)};const t=setTimeout(()=>finish(false),timeout);img.onload=()=>finish(img.naturalWidth>40&&img.naturalHeight>40);img.onerror=()=>finish(false);img.src=url});imageProbeCache.set(url,p);return p;}
   async function load360(item){
@@ -253,65 +253,80 @@
     if(!sn && !item.sku){
       return `<details class="market-section" open><summary>SNKRDUNK 価格チャート</summary><div class="market-inner"><div class="market-empty-standalone">SNKRDUNKの商品ページを特定できないため、価格チャートは表示できません。</div></div></details>`;
     }
-    return `<details class="market-section" open><summary>SNKRDUNK 価格チャート － サイズ・新品 / 中古</summary><div class="market-inner"><p class="market-note">SNKRDUNKの公開価格情報だけを表示します。サイズ・新品 / 中古を変更すると、その条件で価格情報を再取得します。</p><div class="market-grid">${marketPanel('snkrdunk',sn,item.sku)}</div></div></details>`;
+    return `<details class="market-section" open><summary>SNKRDUNK 価格チャート － サイズ・新品 / 中古</summary><div class="market-inner"><p class="market-note">SNKRDUNKの公開価格情報だけを表示します。チャートは横にドラッグ／スクロールすると過去の履歴を確認できます。</p><div class="market-grid">${marketPanel(sn,item.sku)}</div></div></details>`;
   }
 
   function canonicalSnkrHistoryUrl(raw,sku){
     if(sku) return `https://snkrdunk.com/products/${encodeURIComponent(sku)}/sales-histories?slide=right`;
     if(!raw)return '';
     try{
-      const u=new URL(raw); const parts=u.pathname.split('/').filter(Boolean);
-      const pi=parts.indexOf('products');
-      const slug=pi>=0?parts[pi+1]:parts.at(-1);
+      const u=new URL(raw),parts=u.pathname.split('/').filter(Boolean),pi=parts.indexOf('products'),slug=pi>=0?parts[pi+1]:parts.at(-1);
       return slug?`https://snkrdunk.com/products/${encodeURIComponent(slug)}/sales-histories?slide=right`:raw;
     }catch{return raw;}
   }
 
-  function marketPanel(source,url,sku){
-    const name=source==='stockx'?'StockX':'SNKRDUNK', unit=source==='stockx'?'US':'CM';
-    const sizes=source==='stockx'?['All','3.5','4','4.5','5','5.5','6','6.5','7','7.5','8','8.5','9','9.5','10','10.5','11','11.5','12','12.5','13','14','15','16','17']:['All','22.5','23','23.5','24','24.5','25','25.5','26','26.5','27','27.5','28','28.5','29','29.5','30','30.5','31','31.5','32'];
+  function marketPanel(url,sku){
+    const sizes=['All','22.5','23','23.5','24','24.5','25','25.5','26','26.5','27','27.5','28','28.5','29','29.5','30','30.5','31','31.5','32'];
     const opts=sizes.map(x=>`<option ${x==='All'?'selected':''} value="${x}">${x==='All'?'全サイズ':x}</option>`).join('');
-    // SNKRDUNKは元リンクが記事でも、商品番号があれば必ず商品相場ページを取得元にする。
-    const dataUrl=source==='snkrdunk'?canonicalSnkrHistoryUrl(url,sku):url;
-    const official=dataUrl;
-    return `<section class="market-source ${source==='stockx'?'market-stockx':'market-snkr'}" data-source="${source}" data-url="${escapeAttr(dataUrl)}" data-sku="${escapeAttr(sku)}">
-      <div class="market-source-head"><strong>${name}</strong><span class="market-status">準備中</span></div>
-      <div class="market-controls"><label>サイズ (${unit}) <select class="market-size">${opts}</select></label><div class="market-condition"><button type="button" class="active" data-condition="new">新品</button><button type="button" data-condition="used">中古</button></div></div>
+    const dataUrl=canonicalSnkrHistoryUrl(url,sku);
+    return `<section class="market-source market-snkr" data-source="snkrdunk" data-url="${escapeAttr(dataUrl)}" data-sku="${escapeAttr(sku)}">
+      <div class="market-source-head"><strong>SNKRDUNK</strong><span class="market-status">準備中</span></div>
+      <div class="market-controls"><label>サイズ (CM) <select class="market-size">${opts}</select></label><div class="market-condition"><button type="button" class="active" data-condition="new">新品</button><button type="button" data-condition="used">中古</button></div></div>
       <div class="market-current" aria-live="polite"><span>選択条件の価格</span><strong>—</strong><small>全サイズ · 新品</small></div>
       <div class="market-chart-shell">
-        <div class="market-chart-head"><span class="market-chart-title">価格推移</span><span class="market-selection">全サイズ · 新品</span></div>
+        <div class="market-chart-head"><span class="market-chart-title">売買価格の推移</span><span class="market-selection">全サイズ · 新品</span></div>
         <div class="market-scope" hidden></div>
+        <div class="market-chart-nav" hidden>
+          <button type="button" data-chart-nav="older" aria-label="過去の履歴へ移動">← 過去</button>
+          <span>横にドラッグ / スクロール</span>
+          <button type="button" data-chart-nav="latest" aria-label="最新の履歴へ移動">最新 →</button>
+        </div>
         <div class="market-chart-box">
           <div class="market-loading" hidden><span class="market-spinner"></span><span>価格情報を取得しています…</span></div>
           <div class="market-empty">価格情報を準備しています…</div>
-          <svg class="market-chart" hidden viewBox="0 0 620 250" preserveAspectRatio="xMidYMid meet" role="img" aria-label="価格チャート"></svg>
+          <svg class="market-chart" hidden viewBox="0 0 620 250" preserveAspectRatio="xMinYMid meet" role="img" aria-label="SNKRDUNK価格チャート"></svg>
+          <div class="market-chart-tooltip" hidden><strong></strong><span></span></div>
         </div>
       </div>
       <div class="market-metrics"></div>
       <p class="market-footnote" hidden></p>
-      <div class="market-actions">${official?`<a class="market-open" href="${escapeAttr(official)}" target="_blank" rel="noopener">${source==='snkrdunk'?'SNKRDUNKで相場を見る':'StockXで市場データを確認'}</a>`:''}</div>
+      <div class="market-actions">${dataUrl?`<a class="market-open" href="${escapeAttr(dataUrl)}" target="_blank" rel="noopener">SNKRDUNKで相場を見る</a>`:''}</div>
     </section>`;
   }
   function escapeAttr(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
   function clearMarketVisual(panel,message='新しい条件の価格を取得しています…'){
-    const empty=$('.market-empty',panel),svg=$('.market-chart',panel),metrics=$('.market-metrics',panel),foot=$('.market-footnote',panel),scope=$('.market-scope',panel),current=$('.market-current',panel);
-    if(svg){svg.setAttribute('hidden','');svg.innerHTML='';}
+    const empty=$('.market-empty',panel),svg=$('.market-chart',panel),metrics=$('.market-metrics',panel),foot=$('.market-footnote',panel),scope=$('.market-scope',panel),current=$('.market-current',panel),nav=$('.market-chart-nav',panel),tip=$('.market-chart-tooltip',panel);
+    if(svg){svg.setAttribute('hidden','');svg.innerHTML='';svg.style.width='';svg._chartMeta=null;}
     if(empty){empty.hidden=false;empty.textContent=message;}
     if(metrics)metrics.innerHTML='';
     if(foot){foot.hidden=true;foot.textContent='';}
     if(scope){scope.hidden=true;scope.textContent='';scope.className='market-scope';}
+    if(nav)nav.hidden=true;
+    if(tip)tip.hidden=true;
     if(current){$('strong',current).textContent='—';$('small',current).textContent='取得中…';current.classList.remove('is-reference');}
   }
+
   function marketClickHandler(e){
     const cond=e.target.closest('.market-condition button');
-    if(!cond)return;
-    const panel=cond.closest('.market-source');
-    $$('.market-condition button',panel).forEach(b=>b.classList.toggle('active',b===cond));
-    panel.dataset.loadedKey='';
-    clearMarketVisual(panel);
-    loadMarket(panel,true);
+    if(cond){
+      const panel=cond.closest('.market-source');
+      if(cond.classList.contains('active'))return;
+      $$('.market-condition button',panel).forEach(b=>b.classList.toggle('active',b===cond));
+      panel.dataset.loadedKey='';
+      clearMarketVisual(panel);
+      loadMarket(panel,true);
+      return;
+    }
+    const nav=e.target.closest('[data-chart-nav]');
+    if(nav){
+      const panel=nav.closest('.market-source'),box=$('.market-chart-box',panel);
+      if(!box)return;
+      if(nav.dataset.chartNav==='latest')box.scrollTo({left:box.scrollWidth,behavior:'smooth'});
+      else box.scrollBy({left:-Math.max(320,box.clientWidth*.78),behavior:'smooth'});
+    }
   }
+
   function marketChangeHandler(e){
     if(!e.target.matches('.market-size'))return;
     const panel=e.target.closest('.market-source');
@@ -319,33 +334,23 @@
     clearMarketVisual(panel);
     loadMarket(panel,true);
   }
+
   function readerUrl(url,bust=false){
     if(!url)return'';
     let target=url;
-    if(bust){
-      try{const u=new URL(url);u.searchParams.set('_archive_refresh',String(Date.now()));target=u.toString();}catch{}
-    }
+    if(bust){try{const u=new URL(url);u.searchParams.set('_archive_refresh',String(Date.now()));target=u.toString();}catch{}}
     return `https://r.jina.ai/${target}`;
   }
-  function withParams(raw,source,size,condition){
+
+  function withSnkrParams(raw,size,condition){
     if(!raw)return'';
     try{
-      const u=new URL(raw);
-      if(source==='stockx'){
-        const parts=u.pathname.split('/').filter(Boolean),loc=new Set(['ja-jp','en-gb','en','ko-kr','fr-fr','es-mx','es-es','de-de','it-it','zh-cn','zh-tw']);
-        const slug=parts.find(p=>!loc.has(p.toLowerCase()));
-        u.hostname='stockx.com';u.pathname='/ja-jp/'+(slug||parts.at(-1)||'');u.search='';
-        if(size&&size!=='All')u.searchParams.set('size',size);
-        if(condition==='used')u.searchParams.set('condition','used');
-      }else{
-        // SNKRDUNKは相場ページを優先。queryは公式ページの動的UI用で、取得側が必ず反映するとは限らない。
-        const skuMatch=(u.pathname.match(/\/products\/([^/]+)/)||[])[1];
-        if(skuMatch)u.pathname=`/products/${skuMatch}/sales-histories`;
-        u.search='';
-        if(size&&size!=='All')u.searchParams.set('size',size);
-        if(condition)u.searchParams.set('condition',condition);
-        u.searchParams.set('slide','right');
-      }
+      const u=new URL(raw),skuMatch=(u.pathname.match(/\/products\/([^/]+)/)||[])[1];
+      if(skuMatch)u.pathname=`/products/${skuMatch}/sales-histories`;
+      u.search='';
+      if(size&&size!=='All')u.searchParams.set('size',size);
+      u.searchParams.set('condition',condition==='used'?'used':'new');
+      u.searchParams.set('slide','right');
       return u.toString();
     }catch{return raw;}
   }
@@ -353,321 +358,202 @@
   async function fetchText(target,force=false,signal){
     const key='reader:'+target;
     if(!force&&marketCache.has(key))return marketCache.get(key);
-    const local=new AbortController();
-    const abort=()=>local.abort(); signal?.addEventListener('abort',abort,{once:true});
+    const local=new AbortController(),abort=()=>local.abort();signal?.addEventListener('abort',abort,{once:true});
     const t=setTimeout(()=>local.abort(),12000);
     try{
       const r=await fetch(readerUrl(target,force),{signal:local.signal,cache:'no-store'});
       if(!r.ok)throw new Error('HTTP '+r.status);
       const text=await r.text();
       if(text.length<120)throw new Error('empty response');
-      marketCache.set(key,text);
-      return text;
-    }finally{
-      clearTimeout(t);signal?.removeEventListener?.('abort',abort);
-    }
+      marketCache.set(key,text);return text;
+    }finally{clearTimeout(t);signal?.removeEventListener?.('abort',abort);}
   }
 
-  const moneyRE=/(?:￥|¥|\$|£|€)\s*[\d,]+/g;
+  const moneyRE=/(?:￥|¥)\s*[\d,]+/g;
   const toNum=v=>Number(String(v||'').replace(/[^0-9.]/g,''))||0;
-  const fmt=(n,c='¥')=>n?`${c}${Math.round(n).toLocaleString()}`:'—';
-  const currencyOf=t=>(String(t).match(/[￥¥$£€]/)||['¥'])[0].replace('￥','¥');
-  function nearestMoney(text,re){const m=text.match(re);if(!m)return null;return m[0].match(moneyRE)?.at(-1)||null;}
-  function moneyPair(text,re){const m=text.match(re);if(!m)return null;const ms=m[0].match(moneyRE)||[];return ms.length>=2?[ms[ms.length-2],ms[ms.length-1]]:null;}
-
-  function stockxData(text,condition){
-    if(condition==='used'&&!/(Condition\s*:\s*Used|商品状態\s*[:：]\s*中古|Used Listings|Shop Used|中古)/i.test(text)){
-      return {kind:'empty',unsupported:'StockXの中古サイズ別市場データは公開ページから安定して取得できません。公式ページで確認してください。'};
-    }
-    const buy=nearestMoney(text,/(?:Buy Now for|次の価格で今すぐ買う)[\s\S]{0,120}?(?:￥|¥|\$|£|€)\s*[\d,]+/i);
-    const last=nearestMoney(text,/(?:Last Sale|最新の取引額)[\s\S]{0,100}?(?:￥|¥|\$|£|€)\s*[\d,]+/i);
-    const sell=nearestMoney(text,/(?:(?:Sell Now for)[\s\S]{0,60}?(?:￥|¥|\$|£|€)\s*[\d,]+|(?:￥|¥|\$|£|€)\s*[\d,]+\s*で今すぐ売る)/i);
-    const avg=nearestMoney(text,/(?:Average Sale Price|平均取引額)[\s\S]{0,180}?(?:Last 3 Months|過去3か月)[\s\S]{0,90}?(?:￥|¥|\$|£|€)\s*[\d,]+/i);
-    const r12=moneyPair(text,/(?:Price Range|価格帯)[\s\S]{0,100}?(?:Last 12 Months|過去12か月)[\s\S]{0,110}?(?:￥|¥|\$|£|€)\s*[\d,]+\s*[-–〜~]\s*(?:￥|¥|\$|£|€)\s*[\d,]+/i);
-    const r3=moneyPair(text,/(?:Price Range|価格帯)[\s\S]{0,100}?(?:Last 3 Months|過去3か月)[\s\S]{0,110}?(?:￥|¥|\$|£|€)\s*[\d,]+\s*[-–〜~]\s*(?:￥|¥|\$|£|€)\s*[\d,]+/i);
-    const vals=[r12?.[0],r12?.[1],r3?.[0],r3?.[1],avg,last,buy,sell].filter(Boolean);
-    const currency=currencyOf(vals[0]||'¥');
-    const range12=r12?{low:toNum(r12[0]),high:toNum(r12[1])}:null;
-    const range3=r3?{low:toNum(r3[0]),high:toNum(r3[1])}:null;
-    const metrics=[['今すぐ買う',buy],['最新取引',last],['3か月平均',avg],['今すぐ売る',sell]].filter(x=>x[1]);
-    if(range12||range3||last||buy){
-      return {kind:(range12||range3)?'range':'point',currency,range12,range3,last:toNum(last),buy:toNum(buy),point:toNum(last||buy),metrics,note:'StockX公開ページから取得した市場データです。'};
-    }
-    return {kind:'empty',currency,metrics,unsupported:'StockX公開ページから市場データを取得できませんでした。'};
-  }
+  const fmt=n=>n?`¥${Math.round(n).toLocaleString()}`:'—';
 
   function normalizeDateLabel(s){
-    const t=String(s||'').trim().replace(/[.-]/g,'/');
-    const m=t.match(/^(20\d{2})\/(\d{1,2})\/(\d{1,2})$/);
+    const t=String(s||'').trim().replace(/年|月/g,'/').replace(/日/g,'').replace(/[.-]/g,'/').replace(/\/$/,'');
+    let m=t.match(/^(20\d{2})\/(\d{1,2})\/(\d{1,2})$/);
     if(m)return `${m[1].slice(2)}/${String(m[2]).padStart(2,'0')}/${String(m[3]).padStart(2,'0')}`;
-    const md=t.match(/^(\d{1,2})\/(\d{1,2})$/);
-    if(md)return `${String(md[1]).padStart(2,'0')}/${String(md[2]).padStart(2,'0')}`;
+    m=t.match(/^(\d{1,2})\/(\d{1,2})$/);if(m)return `${String(m[1]).padStart(2,'0')}/${String(m[2]).padStart(2,'0')}`;
     return t;
   }
   function dateValue(label){
-    const s=String(label).replace(/[.-]/g,'/');
-    let m=s.match(/^(20\d{2})\/(\d{1,2})\/(\d{1,2})$/);
-    if(m)return new Date(+m[1],+m[2]-1,+m[3]).getTime();
-    m=s.match(/^(\d{1,2})\/(\d{1,2})$/);
-    if(m){const now=new Date();return new Date(now.getFullYear(),+m[1]-1,+m[2]).getTime();}
+    const s=String(label).replace(/年|月/g,'/').replace(/日/g,'').replace(/[.-]/g,'/');
+    let m=s.match(/^(20\d{2})\/(\d{1,2})\/(\d{1,2})$/);if(m)return new Date(+m[1],+m[2]-1,+m[3]).getTime();
+    m=s.match(/^(\d{1,2})\/(\d{1,2})$/);if(m){const now=new Date();return new Date(now.getFullYear(),+m[1]-1,+m[2]).getTime();}
     return NaN;
   }
-  function snkrData(text,condition='new',size='All'){
-    // 新品/中古の明示セクションがある場合はその周辺を優先する。見つからない場合は本文全体を使う。
-    if(condition==='used'){
-      const markers=[...text.matchAll(/(?:中古|USED|Used Listings|中古品)/g)].slice(0,12);
-      if(markers.length){
-        const parts=markers.map(m=>text.slice(Math.max(0,m.index-1200),Math.min(text.length,m.index+3600)));
-        const joined=parts.join('\n');
-        if((joined.match(moneyRE)||[]).length) text=joined;
-        moneyRE.lastIndex=0;
-      }
+
+  function conditionHeading(line,condition){
+    const s=String(line||'').replace(/[#*_`>|\-]/g,' ').replace(/\s+/g,' ').trim();
+    const word=condition==='used'?'中古':'新品',other=condition==='used'?'新品':'中古';
+    if(!s.includes(word)||s.includes(other))return false;
+    if(s.length<=18)return true;
+    return /(売買|取引|販売|相場|履歴|価格|実績|history|sales)/i.test(s);
+  }
+
+  function extractConditionSection(text,condition){
+    const lines=String(text||'').split(/\r?\n/),wanted=[],other=[];
+    lines.forEach((line,i)=>{if(conditionHeading(line,condition))wanted.push(i);if(conditionHeading(line,condition==='used'?'new':'used'))other.push(i);});
+    if(wanted.length){
+      const start=wanted[0],nextOther=other.find(i=>i>start),nextWanted=wanted.find(i=>i>start+1);
+      const end=Math.min(nextOther??lines.length,nextWanted??lines.length,start+900);
+      return lines.slice(Math.max(0,start-3),end).join('\n');
     }
-    const hits=[];
-    const add=(date,value)=>{
-      value=toNum(value);if(!date||value<1000||value>2000000)return;
-      const label=String(date).replace(/年|月/g,'/').replace(/日/g,'').replace(/[.-]/g,'/').replace(/\/$/,'');
-      const key=label+'|'+value;if(hits.some(x=>x.key===key))return;
-      hits.push({key,date:label,label:normalizeDateLabel(label),value,time:dateValue(label)});
+    // condition=used を指定したページで中古セクションを識別できない場合、本文全体を中古履歴として扱わない。
+    if(condition==='used')return '';
+    // 新品側は中古見出しより前だけを優先。見出しが無ければ取得本文全体を使う。
+    if(other.length)return lines.slice(0,other[0]).join('\n');
+    return String(text||'');
+  }
+
+  function sizeContexts(text,size){
+    if(!text||size==='All')return [text];
+    const esc=String(size).replace('.','\\.'),res=[],patterns=[new RegExp(`${esc}\\s*cm`,'ig'),new RegExp(`(?:サイズ|SIZE)\\s*[:：]?\\s*${esc}(?:\\b|\\s|$)`,'ig')];
+    for(const re of patterns){let m,g=0;while((m=re.exec(text))&&g++<120){res.push(text.slice(Math.max(0,m.index-520),Math.min(text.length,m.index+720)));}}
+    return [...new Set(res)];
+  }
+
+  function extractTransactions(text,size='All'){
+    const hits=[],add=(date,price,context='')=>{
+      const value=toNum(price);if(value<1000||value>2000000)return;
+      if(size!=='All'&&!new RegExp(`${String(size).replace('.','\\.')}\\s*cm`,'i').test(context))return;
+      const label=normalizeDateLabel(date),time=dateValue(date),key=`${label}|${value}`;
+      if(!hits.some(x=>x.key===key))hits.push({key,label,value,time});
     };
+    const src=String(text||'');
     const patterns=[
-      {re:/(20\d{2}[\/.-]\d{1,2}[\/.-]\d{1,2})[\s\S]{0,180}?(?:￥|¥)\s*([\d,]+)/g,di:1,vi:2},
-      {re:/(?:￥|¥)\s*([\d,]+)[\s\S]{0,180}?(20\d{2}[\/.-]\d{1,2}[\/.-]\d{1,2})/g,di:2,vi:1},
-      {re:/(20\d{2})年\s*(\d{1,2})月\s*(\d{1,2})日[\s\S]{0,180}?(?:￥|¥)\s*([\d,]+)/g,jp:true},
-      {re:/(\d{1,2})[\/.-](\d{1,2})[\s\S]{0,120}?(?:￥|¥)\s*([\d,]+)/g,md:true}
+      /(20\d{2}[\/.-]\d{1,2}[\/.-]\d{1,2})[\s\S]{0,220}?(?:￥|¥)\s*([\d,]+)/g,
+      /(?:￥|¥)\s*([\d,]+)[\s\S]{0,220}?(20\d{2}[\/.-]\d{1,2}[\/.-]\d{1,2})/g,
+      /(20\d{2})年\s*(\d{1,2})月\s*(\d{1,2})日[\s\S]{0,220}?(?:￥|¥)\s*([\d,]+)/g
     ];
-    for(const p of patterns){
-      let m,guard=0;
-      while((m=p.re.exec(text))&&guard++<160){
-        if(p.jp)add(`${m[1]}/${m[2]}/${m[3]}`,m[4]);
-        else if(p.md)add(`${m[1]}/${m[2]}`,m[3]);
-        else add(m[p.di],m[p.vi]);
-      }
-      if(hits.length>=8)break;
-    }
+    let m,g=0;
+    while((m=patterns[0].exec(src))&&g++<300)add(m[1],m[2],m[0]);
+    g=0;while((m=patterns[1].exec(src))&&g++<300)add(m[2],m[1],m[0]);
+    g=0;while((m=patterns[2].exec(src))&&g++<300)add(`${m[1]}/${m[2]}/${m[3]}`,m[4],m[0]);
     hits.sort((a,b)=>(Number.isFinite(a.time)?a.time:0)-(Number.isFinite(b.time)?b.time:0));
-    const points=hits.slice(-48).map(x=>({label:x.label,value:x.value,time:x.time}));
+    return hits.slice(-120);
+  }
+
+  function extractCurrentPrices(text,size='All'){
+    const contexts=sizeContexts(text,size),prices=[];
+    for(const chunk of contexts){
+      const ms=chunk.match(moneyRE)||[];
+      for(const v of ms){const n=toNum(v);if(n>=1000&&n<=2000000)prices.push(n);}
+    }
+    return [...new Set(prices)].sort((a,b)=>a-b);
+  }
+
+  function parseSnkrData(text,condition,size){
+    const section=extractConditionSection(text,condition);
+    if(!section){return {kind:'empty',metrics:[],unsupported:`${condition==='used'?'中古':'新品'}の売買履歴を新品と分離して取得できませんでした。誤って同じチャートを表示しないため非表示にしています。`};}
+    let points=extractTransactions(section,size);
+    if(size!=='All'&&points.length<2){
+      // サイズ表記が別カラム/別行の場合に備えて、そのサイズ周辺の文脈からもう一度抽出。
+      const joined=sizeContexts(section,size).join('\n');
+      points=extractTransactions(joined,'All');
+    }
     if(points.length>=2){
-      const vals=points.map(x=>x.value),latest=points.at(-1)?.value;
-      return {kind:'trend',points,currency:'¥',metrics:[['最新',fmt(latest)],['最安',fmt(Math.min(...vals))],['最高',fmt(Math.max(...vals))],['取得件数',points.length+'件']],note:'SNKRDUNK公開ページから取得できた日付付き価格情報'};
+      const vals=points.map(x=>x.value),latest=points.at(-1).value;
+      return {kind:'trend',points,currency:'¥',metrics:[['最新',fmt(latest)],['最安',fmt(Math.min(...vals))],['最高',fmt(Math.max(...vals))],['履歴',points.length+'件']],note:`SNKRDUNK公開ページから取得できた${condition==='used'?'中古':'新品'}の売買履歴です。`};
     }
-    const current=(text.match(/(?:￥|¥)\s*[\d,]+\s*~/)||[])[0];
-    const current2=nearestMoney(text,/(?:新品|販売価格|最安|購入|現在価格)[\s\S]{0,100}?(?:￥|¥)\s*[\d,]+/i);
-    const price=current?current.replace(/\s/g,''):current2;
-    if(price){
-      const n=toNum(price);
-      return {kind:'point',currency:'¥',point:n,metrics:[['現在表示',price]],note:'日付付き履歴は取得できなかったため、公開ページで確認できた現在価格だけを表示しています。'};
+    const prices=extractCurrentPrices(section,size);
+    if(prices.length){
+      const point=prices[0];
+      return {kind:'point',point,currency:'¥',metrics:[['現在の最安',fmt(point)],['確認価格数',prices.length+'件'],['価格帯',prices.length>1?`${fmt(prices[0])}〜${fmt(prices.at(-1))}`:fmt(point)]],note:`${condition==='used'?'中古':'新品'}の現在価格は取得できましたが、日付付き履歴は十分に取得できませんでした。`};
     }
-    return {kind:'empty',currency:'¥',metrics:[],unsupported:'日付付きの売買履歴を取得できませんでした。公式の相場グラフで確認してください。'};
+    return {kind:'empty',metrics:[],unsupported:`${size==='All'?'全サイズ':size+'cm'}・${condition==='used'?'中古':'新品'}の価格履歴を取得できませんでした。`};
   }
 
   function setMarketLoading(panel,on){
     const loading=$('.market-loading',panel),empty=$('.market-empty',panel),svg=$('.market-chart',panel);
-    if(loading)loading.hidden=!on;
-    panel.classList.toggle('is-loading',!!on);
+    if(loading)loading.hidden=!on;panel.classList.toggle('is-loading',!!on);
     if(on){if(empty)empty.hidden=true;if(svg)svg.hidden=true;}
   }
   function setSelectionLabel(panel,size,condition){
-    const source=panel.dataset.source,unit=source==='stockx'?'US':'cm';
-    const s=size==='All'?'全サイズ':`${size}${unit}`;
-    $('.market-selection',panel).textContent=`${s} · ${condition==='used'?'中古':'新品'}`;
+    const s=size==='All'?'全サイズ':`${size}cm`;$('.market-selection',panel).textContent=`${s} · ${condition==='used'?'中古':'新品'}`;
   }
-  function showScope(panel,text,type='ok'){
-    const el=$('.market-scope',panel); if(!el)return;
-    el.textContent=text; el.className=`market-scope ${type}`; el.hidden=false;
-  }
-  function selectedSizeContexts(text,source,size){
-    if(!text||size==='All')return [];
-    const escaped=String(size).replace('.', '\\.');
-    const patterns=source==='stockx'
-      ?[new RegExp(`(?:Size|サイズ)\\s*[:：]?\\s*${escaped}(?:\\b|\\s|$)`, 'ig'),new RegExp(`US\\s*${escaped}(?:\\b|\\s|$)`, 'ig')]
-      :[new RegExp(`${escaped}\\s*cm`, 'ig'),new RegExp(`(?:サイズ|SIZE)\\s*[:：]?\\s*${escaped}(?:\\b|\\s|$)`, 'ig')];
-    const chunks=[];
-    for(const re of patterns){
-      let m,guard=0;
-      while((m=re.exec(text))&&guard++<80){
-        const from=Math.max(0,m.index-1400),to=Math.min(text.length,m.index+2400);
-        const chunk=text.slice(from,to);
-        moneyRE.lastIndex=0;
-        const hasMoney=moneyRE.test(chunk); moneyRE.lastIndex=0;
-        if(hasMoney && /(価格|取引|販売|購入|出品|Buy|Sale|Ask|Bid|相場|新品|中古|Used|New)/i.test(chunk)) chunks.push(chunk);
-      }
-    }
-    return [...new Set(chunks)].slice(0,24);
-  }
-
-  function dataScore(data){
-    if(!data)return 0;
-    if(data.kind==='trend')return 100+(data.points?.length||0);
-    if(data.kind==='range')return 70+(data.metrics?.length||0);
-    if(data.kind==='point')return 40+(data.metrics?.length||0);
-    return 0;
-  }
-
-  function snkrListingData(text,size,condition){
-    if(!text||size==='All')return null;
-    const esc=String(size).replace('.', '\\.');
-    const prices=[];
-    const push=v=>{v=toNum(v);if(v>=1000&&v<=2000000)prices.push(v);};
-    const patterns=[
-      new RegExp(`(?:￥|¥)\\s*([\\d,]+)\\s*(?:~|〜)?[\\s\\S]{0,42}?[/／]\\s*${esc}\\s*cm`,'ig'),
-      new RegExp(`${esc}\\s*cm[\\s\\S]{0,70}?(?:￥|¥)\\s*([\\d,]+)`,'ig'),
-      new RegExp(`(?:サイズ|SIZE)\\s*[:：]?\\s*${esc}[\\s\\S]{0,140}?(?:￥|¥)\\s*([\\d,]+)`,'ig')
-    ];
-    for(const re of patterns){let m,g=0;while((m=re.exec(text))&&g++<100)push(m[1]);}
-    if(!prices.length)return null;
-    const uniq=[...new Set(prices)].sort((a,b)=>a-b);
-    const point=uniq[0];
-    return {kind:'point',currency:'¥',point,metrics:[['現在の最安',fmt(point)],['確認価格数',uniq.length+'件'],['価格帯',uniq.length>1?`${fmt(uniq[0])}〜${fmt(uniq.at(-1))}`:fmt(point)]],note:`SNKRDUNK公開ページ内で確認できた${size}cmの${condition==='used'?'中古':'新品'}価格から表示しています。日付付き履歴が取得できた場合はチャートを優先します。`};
-  }
-
-  function parseScopedData(text,source,size,condition){
-    let best=null,bestScore=0;
-    for(const chunk of selectedSizeContexts(text,source,size)){
-      const d=source==='stockx'?stockxData(chunk,condition):snkrData(chunk,condition,size);
-      const score=dataScore(d);
-      if(score>bestScore){best=d;bestScore=score;}
-    }
-    if(source==='snkrdunk'){
-      const listing=snkrListingData(text,size,condition);
-      if(dataScore(listing)>bestScore){best=listing;bestScore=dataScore(listing);}
-    }
-    return bestScore>0?best:null;
-  }
-
-  function primaryPrice(data){
-    if(!data)return 0;
-    if(data.kind==='trend')return data.points?.at(-1)?.value||0;
-    if(data.kind==='point')return data.point||0;
-    if(data.kind==='range')return data.last||data.buy||data.range3?.low||data.range12?.low||0;
-    return 0;
-  }
-  function renderCurrentPrice(panel,data,{reference=false,label=''}={}){
-    const box=$('.market-current',panel);if(!box)return;
-    const price=primaryPrice(data),strong=$('strong',box),small=$('small',box);
-    strong.textContent=price?fmt(price,data?.currency||'¥'):'—';
-    small.textContent=label||($('.market-selection',panel)?.textContent||'');
-    box.classList.toggle('is-reference',!!reference);
+  function showScope(panel,text,type='ok'){const el=$('.market-scope',panel);if(!el)return;el.textContent=text;el.className=`market-scope ${type}`;el.hidden=false;}
+  function primaryPrice(data){if(!data)return 0;if(data.kind==='trend')return data.points?.at(-1)?.value||0;if(data.kind==='point')return data.point||0;return 0;}
+  function renderCurrentPrice(panel,data,label=''){
+    const box=$('.market-current',panel);if(!box)return;const price=primaryPrice(data);$('strong',box).textContent=price?fmt(price):'—';$('small',box).textContent=label||($('.market-selection',panel)?.textContent||'');
   }
 
   async function loadMarket(panel,force=false){
     const raw=panel.dataset.url,status=$('.market-status',panel),empty=$('.market-empty',panel),svg=$('.market-chart',panel),metrics=$('.market-metrics',panel),foot=$('.market-footnote',panel);
-    if(!raw){status.textContent='リンクなし';status.className='market-status error';setMarketLoading(panel,false);empty.hidden=false;empty.textContent='このサイトの商品リンクが登録されていません。';svg.setAttribute('hidden','');metrics.innerHTML='';foot.hidden=true;renderCurrentPrice(panel,null);return;}
-    const source=panel.dataset.source,size=$('.market-size',panel).value,condition=$('.market-condition button.active',panel)?.dataset.condition||'new';
+    if(!raw){status.textContent='リンクなし';status.className='market-status error';setMarketLoading(panel,false);empty.hidden=false;empty.textContent='SNKRDUNKの商品リンクがありません。';return;}
+    const size=$('.market-size',panel).value,condition=$('.market-condition button.active',panel)?.dataset.condition||'new';
     setSelectionLabel(panel,size,condition);
-    const target=withParams(raw,source,size,condition);
-    $('.market-open',panel)?.setAttribute('href',source==='snkrdunk'?target:target);
-    const key=`${source}|${target}|${condition}|${size}`;if(!force&&panel.dataset.loadedKey===key)return;
-
-    panel._marketAbort?.abort();
-    const ctrl=new AbortController();panel._marketAbort=ctrl;
+    const target=withSnkrParams(raw,size,condition);$('.market-open',panel)?.setAttribute('href',target);
+    const key=`${target}|${condition}|${size}`;if(!force&&panel.dataset.loadedKey===key)return;
+    panel._marketAbort?.abort();const ctrl=new AbortController();panel._marketAbort=ctrl;
     const requestId=String((Number(panel.dataset.requestId)||0)+1);panel.dataset.requestId=requestId;
-    status.textContent='取得中';status.className='market-status';
-    clearMarketVisual(panel,'選択条件の価格を取得しています…');
-    setMarketLoading(panel,true);
+    status.textContent='取得中';status.className='market-status';clearMarketVisual(panel,'選択条件の価格を取得しています…');setMarketLoading(panel,true);
     try{
-      const text=await fetchText(target,force,ctrl.signal);
-      if(panel.dataset.requestId!==requestId||ctrl.signal.aborted)return;
-
-      // まず同じ条件の全体データを取得。チャートの参考表示にも使う。
-      const referenceData=source==='stockx'?stockxData(text,condition):snkrData(text,condition,'All');
-      let data=referenceData, exactSize=size==='All', referenceOnly=false;
-
-      if(size!=='All'){
-        const exact=parseScopedData(text,source,size,condition);
-        if(exact){data=exact;exactSize=true;}
-        else{referenceOnly=dataScore(referenceData)>0;}
-      }
-
-      if(size!=='All'&&!exactSize){
-        if(referenceOnly){
-          showScope(panel,`${size}${source==='stockx'?' US':'cm'} の価格は未取得。チャートは全サイズの参考値です。`,'warn');
-          renderCurrentPrice(panel,null,{label:`${size}${source==='stockx'?' US':'cm'} · ${condition==='used'?'中古':'新品'}：サイズ別価格未取得`});
-          drawChart(panel,data);
-          status.textContent='参考表示';status.className='market-status warn';
-        }else{
-          data={kind:'empty',currency:'¥',metrics:[],unsupported:`${size}${source==='stockx'?' US':'cm'}・${condition==='used'?'中古':'新品'}の価格を公開データから確認できませんでした。`};
-          showScope(panel,'サイズ別データ未取得','warn');
-          renderCurrentPrice(panel,null,{label:`${size}${source==='stockx'?' US':'cm'} · ${condition==='used'?'中古':'新品'}`});
-          drawChart(panel,data);
-          status.textContent='取得不可';status.className='market-status error';
-        }
-      }else{
-        showScope(panel,size==='All'?'全サイズの公開データ':'選択サイズのデータ','ok');
-        drawChart(panel,data);
-        renderCurrentPrice(panel,data,{label:`${size==='All'?'全サイズ':size+(source==='stockx'?' US':'cm')} · ${condition==='used'?'中古':'新品'}`});
-        const hasVisual=dataScore(data)>0;
-        status.textContent=hasVisual?'更新済み':'取得不可';status.className='market-status '+(hasVisual?'ok':'error');
-      }
-
-      panel.dataset.loadedKey=key;
-      foot.textContent=data.note||'';foot.hidden=!data.note;
+      const text=await fetchText(target,force,ctrl.signal);if(panel.dataset.requestId!==requestId||ctrl.signal.aborted)return;
+      const data=parseSnkrData(text,condition,size);
+      drawChart(panel,data);
+      renderCurrentPrice(panel,data,`${size==='All'?'全サイズ':size+'cm'} · ${condition==='used'?'中古':'新品'}`);
+      const has=primaryPrice(data)>0 || (data.kind==='trend'&&data.points?.length>=2);
+      showScope(panel,has?'選択条件の公開データ':'選択条件の履歴を分離できません',has?'ok':'warn');
+      status.textContent=has?'更新済み':'取得不可';status.className='market-status '+(has?'ok':'error');
+      panel.dataset.loadedKey=key;foot.textContent=data.note||'';foot.hidden=!data.note;
     }catch(err){
       if(panel.dataset.requestId!==requestId||ctrl.signal.aborted)return;
-      status.textContent='取得不可';status.className='market-status error';
-      svg.setAttribute('hidden','');empty.hidden=false;empty.textContent='外部サイト側の制限で価格データを取得できませんでした。公式ページで確認してください。';metrics.innerHTML='';foot.hidden=true;
-      renderCurrentPrice(panel,null,{label:`${size==='All'?'全サイズ':size+(source==='stockx'?' US':'cm')} · ${condition==='used'?'中古':'新品'}`});
-      showScope(panel,'外部データ取得エラー','error');
-    }finally{
-      if(panel.dataset.requestId===requestId)setMarketLoading(panel,false);
-    }
+      status.textContent='取得不可';status.className='market-status error';svg.setAttribute('hidden','');empty.hidden=false;empty.textContent='SNKRDUNK側の制限で価格データを取得できませんでした。公式ページで確認してください。';metrics.innerHTML='';foot.hidden=true;renderCurrentPrice(panel,null,`${size==='All'?'全サイズ':size+'cm'} · ${condition==='used'?'中古':'新品'}`);showScope(panel,'外部データ取得エラー','error');
+    }finally{if(panel.dataset.requestId===requestId)setMarketLoading(panel,false);}
   }
 
-  function renderMetrics(panel,data){
-    const metrics=$('.market-metrics',panel);metrics.innerHTML='';
-    (data.metrics||[]).forEach(([k,v])=>{const d=document.createElement('div');d.className='market-metric';d.innerHTML=`<span>${k}</span><strong>${v||'—'}</strong>`;metrics.appendChild(d);});
-  }
+  function renderMetrics(panel,data){const metrics=$('.market-metrics',panel);metrics.innerHTML='';(data.metrics||[]).forEach(([k,v])=>{const d=document.createElement('div');d.className='market-metric';d.innerHTML=`<span>${k}</span><strong>${v||'—'}</strong>`;metrics.appendChild(d);});}
   function drawChart(panel,data){
-    const svg=$('.market-chart',panel),empty=$('.market-empty',panel);
-    renderMetrics(panel,data);
-    if(data.kind==='trend'&&data.points?.length>=2){drawTrendChart(svg,data);svg.removeAttribute('hidden');empty.hidden=true;$('.market-chart-title',panel).textContent='売買価格の推移';return;}
-    if(data.kind==='range'){drawRangeChart(svg,data);svg.removeAttribute('hidden');empty.hidden=true;$('.market-chart-title',panel).textContent='市場価格レンジ';return;}
+    const svg=$('.market-chart',panel),empty=$('.market-empty',panel),nav=$('.market-chart-nav',panel),box=$('.market-chart-box',panel);
+    renderMetrics(panel,data);nav.hidden=true;svg._chartMeta=null;
+    if(data.kind==='trend'&&data.points?.length>=2){drawTrendChart(svg,data);svg.removeAttribute('hidden');empty.hidden=true;nav.hidden=false;$('.market-chart-title',panel).textContent='売買価格の推移';requestAnimationFrame(()=>{box.scrollLeft=box.scrollWidth;});return;}
     if(data.kind==='point'&&data.point>0){drawPointChart(svg,data);svg.removeAttribute('hidden');empty.hidden=true;$('.market-chart-title',panel).textContent='現在価格（履歴未取得）';return;}
     svg.setAttribute('hidden','');empty.hidden=false;empty.textContent=data.unsupported||'価格履歴を取得できませんでした。';$('.market-chart-title',panel).textContent='価格情報';
   }
 
   function drawPointChart(svg,data){
-    const W=620,H=250,L=62,R=28,T=34,B=48,v=data.point,c=data.currency||'¥';
-    const lo=Math.max(0,v*.78),hi=Math.max(v*1.22,v+1000),y=x=>T+(H-T-B)*(1-(x-lo)/(hi-lo||1));
-    let s='';
-    for(let i=0;i<5;i++){const yy=T+(H-T-B)*i/4,val=hi-(hi-lo)*i/4;s+=`<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="#e7e7e2"/><text x="${L-10}" y="${yy+3}" text-anchor="end" font-size="9" fill="#8b8b8b">${fmt(val,c)}</text>`;}
-    const yy=y(v),cx=(L+W-R)/2;
-    s+=`<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="#111" stroke-width="2" stroke-dasharray="5 5" opacity=".35"/>`;
-    s+=`<circle cx="${cx}" cy="${yy}" r="7" fill="#111"/><circle cx="${cx}" cy="${yy}" r="14" fill="none" stroke="#111" stroke-opacity=".12" stroke-width="5"/>`;
-    s+=`<rect x="${cx-56}" y="${Math.max(5,yy-45)}" width="112" height="29" rx="14.5" fill="#111"/><text x="${cx}" y="${Math.max(24,yy-25)}" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">${fmt(v,c)}</text>`;
-    s+=`<text x="${cx}" y="${H-18}" text-anchor="middle" font-size="10" fill="#777">現在</text>`;
-    svg.innerHTML=s;
+    const W=620,H=250,L=62,R=28,T=34,B=48,v=data.point,lo=Math.max(0,v*.78),hi=Math.max(v*1.22,v+1000),y=x=>T+(H-T-B)*(1-(x-lo)/(hi-lo||1));
+    svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.style.width='100%';
+    let s='';for(let i=0;i<5;i++){const yy=T+(H-T-B)*i/4,val=hi-(hi-lo)*i/4;s+=`<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="#e7e7e2"/><text x="${L-10}" y="${yy+3}" text-anchor="end" font-size="9" fill="#8b8b8b">${fmt(val)}</text>`;}
+    const yy=y(v),cx=(L+W-R)/2;s+=`<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="#111" stroke-width="2" stroke-dasharray="5 5" opacity=".35"/><circle cx="${cx}" cy="${yy}" r="7" fill="#111"/><rect x="${cx-56}" y="${Math.max(5,yy-45)}" width="112" height="29" rx="14.5" fill="#111"/><text x="${cx}" y="${Math.max(24,yy-25)}" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">${fmt(v)}</text><text x="${cx}" y="${H-18}" text-anchor="middle" font-size="10" fill="#777">現在</text>`;svg.innerHTML=s;
   }
 
   function drawTrendChart(svg,data){
-    const pts=data.points.filter(x=>Number.isFinite(x.value)&&x.value>0);const W=620,H=250,L=58,R=18,T=25,B=44;
+    const pts=data.points.filter(x=>Number.isFinite(x.value)&&x.value>0),H=250,L=66,R=28,T=24,B=46,step=58,W=Math.max(620,L+R+Math.max(1,pts.length-1)*step);
     const vals=pts.map(x=>x.value),min=Math.min(...vals),max=Math.max(...vals),pad=Math.max((max-min)*.18,max*.035,500),lo=Math.max(0,min-pad),hi=max+pad;
-    const times=pts.map(x=>Number.isFinite(x.time)?x.time:null),validTimes=times.every(Number.isFinite)&&Math.max(...times)>Math.min(...times);
-    const tMin=validTimes?Math.min(...times):0,tMax=validTimes?Math.max(...times):1;
-    const x=(p,i)=>L+(W-L-R)*(validTimes?(p.time-tMin)/(tMax-tMin||1):i/(pts.length-1));
-    const y=v=>T+(H-T-B)*(1-(v-lo)/(hi-lo||1));
-    const path=pts.map((p,i)=>`${i?'L':'M'} ${x(p,i).toFixed(1)} ${y(p.value).toFixed(1)}`).join(' ');
-    const area=`${path} L ${x(pts.at(-1),pts.length-1).toFixed(1)} ${H-B} L ${x(pts[0],0).toFixed(1)} ${H-B} Z`;
-    let s=`<defs><linearGradient id="trendArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#111" stop-opacity=".16"/><stop offset="100%" stop-color="#111" stop-opacity="0"/></linearGradient></defs>`;
-    for(let i=0;i<5;i++){const yy=T+(H-T-B)*i/4,val=hi-(hi-lo)*i/4;s+=`<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="#e7e7e2" stroke-width="1"/><text x="${L-9}" y="${yy+3}" text-anchor="end" font-size="9" fill="#8b8b8b">${fmt(val,data.currency)}</text>`;}
+    const x=(p,i)=>L+i*step,y=v=>T+(H-T-B)*(1-(v-lo)/(hi-lo||1));
+    const path=pts.map((p,i)=>`${i?'L':'M'} ${x(p,i).toFixed(1)} ${y(p.value).toFixed(1)}`).join(' '),area=`${path} L ${x(pts.at(-1),pts.length-1)} ${H-B} L ${x(pts[0],0)} ${H-B} Z`;
+    svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.style.width=`${W}px`;svg.style.height='250px';
+    let s=`<defs><linearGradient id="trendArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#111" stop-opacity=".15"/><stop offset="100%" stop-color="#111" stop-opacity="0"/></linearGradient></defs>`;
+    for(let i=0;i<5;i++){const yy=T+(H-T-B)*i/4,val=hi-(hi-lo)*i/4;s+=`<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="#e7e7e2"/><text x="${L-9}" y="${yy+3}" text-anchor="end" font-size="9" fill="#8b8b8b">${fmt(val)}</text>`;}
     s+=`<path d="${area}" fill="url(#trendArea)"/><path d="${path}" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
-    const labelIdx=[0,Math.floor((pts.length-1)/2),pts.length-1].filter((v,i,a)=>a.indexOf(v)===i);
-    labelIdx.forEach(i=>{const p=pts[i];s+=`<text x="${x(p,i)}" y="${H-15}" text-anchor="${i===0?'start':i===pts.length-1?'end':'middle'}" font-size="9" fill="#777">${p.label}</text>`;});
-    const last=pts.at(-1),lx=x(last,pts.length-1),ly=y(last.value);
-    s+=`<circle cx="${lx}" cy="${ly}" r="5" fill="#111"/><circle cx="${lx}" cy="${ly}" r="9" fill="none" stroke="#111" stroke-opacity=".18" stroke-width="4"/><rect x="${Math.max(L,Math.min(W-R-90,lx-45))}" y="${Math.max(3,ly-34)}" width="90" height="24" rx="12" fill="#111"/><text x="${Math.max(L+45,Math.min(W-R-45,lx))}" y="${Math.max(19,ly-18)}" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">${fmt(last.value,data.currency)}</text>`;
-    svg.innerHTML=s;
+    pts.forEach((p,i)=>{const xx=x(p,i),yy=y(p.value);s+=`<circle cx="${xx}" cy="${yy}" r="3.2" fill="#111" data-point="${i}"/>`;if(i===0||i===pts.length-1||i%Math.max(1,Math.ceil(pts.length/9))===0)s+=`<text x="${xx}" y="${H-15}" text-anchor="middle" font-size="9" fill="#777">${p.label}</text>`;});
+    const last=pts.at(-1),lx=x(last,pts.length-1),ly=y(last.value);s+=`<circle cx="${lx}" cy="${ly}" r="6" fill="#111"/><rect x="${Math.max(L,Math.min(W-R-92,lx-46))}" y="${Math.max(3,ly-34)}" width="92" height="24" rx="12" fill="#111"/><text x="${Math.max(L+46,Math.min(W-R-46,lx))}" y="${Math.max(19,ly-18)}" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">${fmt(last.value)}</text>`;
+    svg.innerHTML=s;svg._chartMeta={points:pts.map((p,i)=>({...p,x:x(p,i),y:y(p.value)})),width:W,height:H};
   }
 
-  function drawRangeChart(svg,data){
-    const ranges=[['過去12か月',data.range12],['過去3か月',data.range3]].filter(x=>x[1]&&x[1].high>=x[1].low);
-    const extra=[data.last,data.buy].filter(v=>Number.isFinite(v)&&v>0),all=ranges.flatMap(x=>[x[1].low,x[1].high]).concat(extra);
-    if(!all.length){svg.innerHTML='';return;}
-    const W=620,H=250,L=86,R=22,T=28,B=42,min=Math.min(...all),max=Math.max(...all),pad=Math.max((max-min)*.12,max*.04,1),lo=Math.max(0,min-pad),hi=max+pad;
-    const x=v=>L+(W-L-R)*(v-lo)/(hi-lo||1);let s='';
-    for(let i=0;i<5;i++){const xx=L+(W-L-R)*i/4,val=lo+(hi-lo)*i/4;s+=`<line x1="${xx}" y1="${T}" x2="${xx}" y2="${H-B}" stroke="#ecece7"/><text x="${xx}" y="${H-15}" text-anchor="middle" font-size="9" fill="#858585">${fmt(val,data.currency)}</text>`;}
-    ranges.forEach(([label,r],i)=>{const yy=74+i*66;s+=`<text x="${L-12}" y="${yy+4}" text-anchor="end" font-size="10" font-weight="800" fill="#555">${label}</text><line x1="${x(r.low)}" y1="${yy}" x2="${x(r.high)}" y2="${yy}" stroke="#111" stroke-width="8" stroke-linecap="round"/><circle cx="${x(r.low)}" cy="${yy}" r="5" fill="#fff" stroke="#111" stroke-width="2"/><circle cx="${x(r.high)}" cy="${yy}" r="5" fill="#fff" stroke="#111" stroke-width="2"/><text x="${x(r.low)}" y="${yy-13}" text-anchor="middle" font-size="9" fill="#555">${fmt(r.low,data.currency)}</text><text x="${x(r.high)}" y="${yy-13}" text-anchor="middle" font-size="9" fill="#555">${fmt(r.high,data.currency)}</text>`;});
-    if(data.last){const xx=x(data.last);s+=`<line x1="${xx}" y1="${T}" x2="${xx}" y2="${H-B}" stroke="#111" stroke-dasharray="4 4" stroke-opacity=".4"/><rect x="${Math.max(L,Math.min(W-R-84,xx-42))}" y="${T-4}" width="84" height="22" rx="11" fill="#111"/><text x="${Math.max(L+42,Math.min(W-R-42,xx))}" y="${T+11}" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">最新 ${fmt(data.last,data.currency)}</text>`;}
-    svg.innerHTML=s;
+  function bindMarketChartGestures(root){
+    $$('.market-chart-box',root).forEach(box=>{
+      if(box.dataset.gestureBound)return;box.dataset.gestureBound='1';
+      let dragging=false,startX=0,startScroll=0,moved=false;
+      box.addEventListener('pointerdown',e=>{if(e.button!==undefined&&e.button!==0)return;dragging=true;moved=false;startX=e.clientX;startScroll=box.scrollLeft;box.classList.add('is-dragging');box.setPointerCapture?.(e.pointerId);});
+      box.addEventListener('pointermove',e=>{
+        const svg=$('.market-chart',box),tip=$('.market-chart-tooltip',box);
+        if(dragging){const dx=e.clientX-startX;if(Math.abs(dx)>3)moved=true;box.scrollLeft=startScroll-dx;if(tip)tip.hidden=true;return;}
+        if(!svg?._chartMeta||svg.hidden||!tip)return;
+        const rect=svg.getBoundingClientRect(),vx=(e.clientX-rect.left)*(svg._chartMeta.width/rect.width),pts=svg._chartMeta.points;
+        let best=pts[0];for(const p of pts)if(Math.abs(p.x-vx)<Math.abs(best.x-vx))best=p;
+        $('strong',tip).textContent=fmt(best.value);$('span',tip).textContent=best.label;tip.hidden=false;
+        const boxRect=box.getBoundingClientRect(),left=Math.max(8,Math.min(box.clientWidth-112,e.clientX-boxRect.left-50));tip.style.left=`${left}px`;tip.style.top='12px';
+      });
+      ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>box.addEventListener(ev,()=>{dragging=false;box.classList.remove('is-dragging');}));
+      box.addEventListener('pointerleave',()=>{if(!dragging){const tip=$('.market-chart-tooltip',box);if(tip)tip.hidden=true;}});
+    });
   }
 
 })();
