@@ -1,7 +1,7 @@
 
 (() => {
   'use strict';
-  const DATA_URL = 'sneakers.json?v=8';
+  const DATA_URL = 'sneakers.json?v=10';
   const FRAME_COUNT = 36;
   const FAST_360_CANDIDATES = 10;
   const FAST_PROBE_TIMEOUT = 1200;
@@ -253,7 +253,7 @@
     if(!sn && !item.sku){
       return `<details class="market-section" open><summary>SNKRDUNK 価格チャート</summary><div class="market-inner"><div class="market-empty-standalone">SNKRDUNKの商品ページを特定できないため、価格チャートは表示できません。</div></div></details>`;
     }
-    return `<details class="market-section" open><summary>SNKRDUNK 価格チャート － サイズ・新品 / 中古</summary><div class="market-inner"><p class="market-note">SNKRDUNKの公開価格情報だけを表示します。チャートを左右に動かせるほか、下の売買履歴一覧から過去の日付と価格を直接確認できます。</p><div class="market-grid">${marketPanel(sn,item.sku)}</div></div></details>`;
+    return `<details class="market-section" open><summary>SNKRDUNK 価格チャート － サイズ・新品 / 中古</summary><div class="market-inner"><p class="market-note">SNKRDUNKの公開価格情報だけを表示します。グラフ上の丸を左右にドラッグすると、その時点の日付と価格を確認できます。</p><div class="market-grid">${marketPanel(sn,item.sku)}</div></div></details>`;
   }
 
   function canonicalSnkrHistoryUrl(raw,sku){
@@ -272,24 +272,18 @@
     return `<section class="market-source market-snkr" data-source="snkrdunk" data-url="${escapeAttr(dataUrl)}" data-sku="${escapeAttr(sku)}">
       <div class="market-source-head"><strong>SNKRDUNK</strong><span class="market-status">準備中</span></div>
       <div class="market-controls"><label>サイズ (CM) <select class="market-size">${opts}</select></label><div class="market-condition"><button type="button" class="active" data-condition="new">新品</button><button type="button" data-condition="used">中古</button></div></div>
-      <div class="market-current" aria-live="polite"><span>選択条件の価格</span><strong>—</strong><small>全サイズ · 新品</small></div>
+      <div class="market-current" aria-live="polite"><span>現在の価格</span><strong>—</strong><small>全サイズ · 新品</small></div>
       <div class="market-chart-shell">
         <div class="market-chart-head"><span class="market-chart-title">売買価格の推移</span><span class="market-selection">全サイズ · 新品</span></div>
         <div class="market-scope" hidden></div>
-        <div class="market-chart-nav" hidden>
-          <button type="button" data-chart-nav="older" aria-label="過去の履歴へ移動">← 過去</button>
-          <span>横にドラッグ / スクロール</span>
-          <button type="button" data-chart-nav="latest" aria-label="最新の履歴へ移動">最新 →</button>
+        <div class="market-chart-guide" hidden>
+          <span>● を左右にドラッグして過去の価格を確認</span>
+          <button type="button" data-chart-reset>最新に戻す</button>
         </div>
         <div class="market-chart-box">
           <div class="market-loading" hidden><span class="market-spinner"></span><span>価格情報を取得しています…</span></div>
           <div class="market-empty">価格情報を準備しています…</div>
-          <svg class="market-chart" hidden viewBox="0 0 620 250" preserveAspectRatio="xMinYMid meet" role="img" aria-label="SNKRDUNK価格チャート"></svg>
-          <div class="market-chart-tooltip" hidden><strong></strong><span></span></div>
-        </div>
-        <div class="market-history" hidden>
-          <div class="market-history-head"><strong>売買履歴</strong><span class="market-history-count"></span></div>
-          <div class="market-history-list"></div>
+          <svg class="market-chart" hidden viewBox="0 0 760 270" preserveAspectRatio="xMidYMid meet" role="img" aria-label="SNKRDUNK価格チャート" tabindex="0"></svg>
         </div>
       </div>
       <div class="market-metrics"></div>
@@ -300,16 +294,14 @@
   function escapeAttr(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
   function clearMarketVisual(panel,message='新しい条件の価格を取得しています…'){
-    const empty=$('.market-empty',panel),svg=$('.market-chart',panel),metrics=$('.market-metrics',panel),foot=$('.market-footnote',panel),scope=$('.market-scope',panel),current=$('.market-current',panel),nav=$('.market-chart-nav',panel),tip=$('.market-chart-tooltip',panel),history=$('.market-history',panel),historyList=$('.market-history-list',panel);
-    if(svg){svg.setAttribute('hidden','');svg.innerHTML='';svg.style.width='';svg._chartMeta=null;}
+    const empty=$('.market-empty',panel),svg=$('.market-chart',panel),metrics=$('.market-metrics',panel),foot=$('.market-footnote',panel),scope=$('.market-scope',panel),current=$('.market-current',panel),guide=$('.market-chart-guide',panel);
+    if(svg){svg.setAttribute('hidden','');svg.innerHTML='';svg.style.width='';svg._chartMeta=null;svg.dataset.selectedIndex='';}
     if(empty){empty.hidden=false;empty.textContent=message;}
     if(metrics)metrics.innerHTML='';
     if(foot){foot.hidden=true;foot.textContent='';}
     if(scope){scope.hidden=true;scope.textContent='';scope.className='market-scope';}
-    if(nav)nav.hidden=true;
-    if(tip)tip.hidden=true;
-    if(history){history.hidden=true;if(historyList)historyList.innerHTML='';}
-    if(current){$('strong',current).textContent='—';$('small',current).textContent='取得中…';current.classList.remove('is-reference');}
+    if(guide)guide.hidden=true;
+    if(current){$('span',current).textContent='現在の価格';$('strong',current).textContent='—';$('small',current).textContent='取得中…';current.classList.remove('is-reference','is-history');}
   }
 
   function marketClickHandler(e){
@@ -323,12 +315,11 @@
       loadMarket(panel,true);
       return;
     }
-    const nav=e.target.closest('[data-chart-nav]');
-    if(nav){
-      const panel=nav.closest('.market-source'),box=$('.market-chart-box',panel);
-      if(!box)return;
-      if(nav.dataset.chartNav==='latest')box.scrollTo({left:box.scrollWidth,behavior:'smooth'});
-      else box.scrollBy({left:-Math.max(320,box.clientWidth*.78),behavior:'smooth'});
+    const reset=e.target.closest('[data-chart-reset]');
+    if(reset){
+      const panel=reset.closest('.market-source'),svg=$('.market-chart',panel);
+      const pts=svg?._chartMeta?.points;
+      if(pts?.length) selectChartPoint(panel,pts.length-1,true);
     }
   }
 
@@ -519,61 +510,79 @@
   }
 
   function renderMetrics(panel,data){const metrics=$('.market-metrics',panel);metrics.innerHTML='';(data.metrics||[]).forEach(([k,v])=>{const d=document.createElement('div');d.className='market-metric';d.innerHTML=`<span>${k}</span><strong>${v||'—'}</strong>`;metrics.appendChild(d);});}
-  function renderHistory(panel,points){
-    const wrap=$('.market-history',panel),list=$('.market-history-list',panel),count=$('.market-history-count',panel);
-    if(!wrap||!list)return;
-    const rows=(points||[]).filter(p=>p&&p.value>0).slice().sort((a,b)=>(Number.isFinite(b.time)?b.time:0)-(Number.isFinite(a.time)?a.time:0));
-    if(!rows.length){wrap.hidden=true;list.innerHTML='';if(count)count.textContent='';return;}
-    if(count)count.textContent=`${rows.length}件取得`;
-    list.innerHTML=rows.map((p,i)=>`<div class="market-history-row${i===0?' latest':''}"><span>${p.label||'—'}</span><strong>${fmt(p.value)}</strong>${i===0?'<em>最新</em>':''}</div>`).join('');
-    wrap.hidden=false;
-  }
-
   function drawChart(panel,data){
-    const svg=$('.market-chart',panel),empty=$('.market-empty',panel),nav=$('.market-chart-nav',panel),box=$('.market-chart-box',panel);
-    renderMetrics(panel,data);nav.hidden=true;svg._chartMeta=null;renderHistory(panel,data.kind==='trend'?data.points:[]);
-    if(data.kind==='trend'&&data.points?.length>=2){drawTrendChart(svg,data);svg.removeAttribute('hidden');empty.hidden=true;nav.hidden=false;$('.market-chart-title',panel).textContent='売買価格の推移';requestAnimationFrame(()=>{box.scrollLeft=box.scrollWidth;});return;}
+    const svg=$('.market-chart',panel),empty=$('.market-empty',panel),guide=$('.market-chart-guide',panel);
+    renderMetrics(panel,data);svg._chartMeta=null;if(guide)guide.hidden=true;
+    if(data.kind==='trend'&&data.points?.length>=2){
+      drawTrendChart(svg,data);svg.removeAttribute('hidden');empty.hidden=true;if(guide)guide.hidden=false;
+      $('.market-chart-title',panel).textContent='売買価格の推移';
+      selectChartPoint(panel,data.points.length-1,true);
+      return;
+    }
     if(data.kind==='point'&&data.point>0){drawPointChart(svg,data);svg.removeAttribute('hidden');empty.hidden=true;$('.market-chart-title',panel).textContent='現在価格（履歴未取得）';return;}
     svg.setAttribute('hidden','');empty.hidden=false;empty.textContent=data.unsupported||'価格履歴を取得できませんでした。';$('.market-chart-title',panel).textContent='価格情報';
   }
 
   function drawPointChart(svg,data){
-    const W=620,H=250,L=62,R=28,T=34,B=48,v=data.point,lo=Math.max(0,v*.78),hi=Math.max(v*1.22,v+1000),y=x=>T+(H-T-B)*(1-(x-lo)/(hi-lo||1));
-    svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.style.width='100%';
-    let s='';for(let i=0;i<5;i++){const yy=T+(H-T-B)*i/4,val=hi-(hi-lo)*i/4;s+=`<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="#e7e7e2"/><text x="${L-10}" y="${yy+3}" text-anchor="end" font-size="9" fill="#8b8b8b">${fmt(val)}</text>`;}
-    const yy=y(v),cx=(L+W-R)/2;s+=`<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="#111" stroke-width="2" stroke-dasharray="5 5" opacity=".35"/><circle cx="${cx}" cy="${yy}" r="7" fill="#111"/><rect x="${cx-56}" y="${Math.max(5,yy-45)}" width="112" height="29" rx="14.5" fill="#111"/><text x="${cx}" y="${Math.max(24,yy-25)}" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">${fmt(v)}</text><text x="${cx}" y="${H-18}" text-anchor="middle" font-size="10" fill="#777">現在</text>`;svg.innerHTML=s;
+    const W=760,H=270,L=72,R=30,T=32,B=48,v=data.point,lo=Math.max(0,v*.78),hi=Math.max(v*1.22,v+1000),y=x=>T+(H-T-B)*(1-(x-lo)/(hi-lo||1));
+    svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.style.width='100%';svg.style.height='270px';
+    let s='';for(let i=0;i<5;i++){const yy=T+(H-T-B)*i/4,val=hi-(hi-lo)*i/4;s+=`<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="#e7e7e2"/><text x="${L-10}" y="${yy+3}" text-anchor="end" font-size="10" fill="#8b8b8b">${fmt(val)}</text>`;}
+    const yy=y(v),cx=(L+W-R)/2;s+=`<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="#111" stroke-width="2" stroke-dasharray="5 5" opacity=".35"/><circle cx="${cx}" cy="${yy}" r="8" fill="#111"/><rect x="${cx-58}" y="${Math.max(5,yy-46)}" width="116" height="30" rx="15" fill="#111"/><text x="${cx}" y="${Math.max(25,yy-26)}" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">${fmt(v)}</text><text x="${cx}" y="${H-16}" text-anchor="middle" font-size="10" fill="#777">現在</text>`;svg.innerHTML=s;
   }
 
   function drawTrendChart(svg,data){
-    const pts=data.points.filter(x=>Number.isFinite(x.value)&&x.value>0),H=250,L=66,R=28,T=24,B=46,step=76,W=Math.max(760,L+R+Math.max(1,pts.length-1)*step);
+    const pts=data.points.filter(x=>Number.isFinite(x.value)&&x.value>0),W=760,H=270,L=72,R=30,T=30,B=52;
     const vals=pts.map(x=>x.value),min=Math.min(...vals),max=Math.max(...vals),pad=Math.max((max-min)*.18,max*.035,500),lo=Math.max(0,min-pad),hi=max+pad;
-    const x=(p,i)=>L+i*step,y=v=>T+(H-T-B)*(1-(v-lo)/(hi-lo||1));
+    const x=(p,i)=>L+(W-L-R)*(pts.length===1?.5:i/(pts.length-1)),y=v=>T+(H-T-B)*(1-(v-lo)/(hi-lo||1));
     const path=pts.map((p,i)=>`${i?'L':'M'} ${x(p,i).toFixed(1)} ${y(p.value).toFixed(1)}`).join(' '),area=`${path} L ${x(pts.at(-1),pts.length-1)} ${H-B} L ${x(pts[0],0)} ${H-B} Z`;
-    svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.style.width=`${W}px`;svg.style.height='250px';
-    let s=`<defs><linearGradient id="trendArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#111" stop-opacity=".15"/><stop offset="100%" stop-color="#111" stop-opacity="0"/></linearGradient></defs>`;
-    for(let i=0;i<5;i++){const yy=T+(H-T-B)*i/4,val=hi-(hi-lo)*i/4;s+=`<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="#e7e7e2"/><text x="${L-9}" y="${yy+3}" text-anchor="end" font-size="9" fill="#8b8b8b">${fmt(val)}</text>`;}
+    svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.style.width='100%';svg.style.height='270px';
+    let s=`<defs><linearGradient id="trendArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#111" stop-opacity=".13"/><stop offset="100%" stop-color="#111" stop-opacity="0"/></linearGradient></defs>`;
+    for(let i=0;i<5;i++){const yy=T+(H-T-B)*i/4,val=hi-(hi-lo)*i/4;s+=`<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="#e7e7e2"/><text x="${L-10}" y="${yy+3}" text-anchor="end" font-size="10" fill="#8b8b8b">${fmt(val)}</text>`;}
     s+=`<path d="${area}" fill="url(#trendArea)"/><path d="${path}" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
-    pts.forEach((p,i)=>{const xx=x(p,i),yy=y(p.value);s+=`<circle cx="${xx}" cy="${yy}" r="3.2" fill="#111" data-point="${i}"/>`;if(i===0||i===pts.length-1||i%Math.max(1,Math.ceil(pts.length/9))===0)s+=`<text x="${xx}" y="${H-15}" text-anchor="middle" font-size="9" fill="#777">${p.label}</text>`;});
-    const last=pts.at(-1),lx=x(last,pts.length-1),ly=y(last.value);s+=`<circle cx="${lx}" cy="${ly}" r="6" fill="#111"/><rect x="${Math.max(L,Math.min(W-R-92,lx-46))}" y="${Math.max(3,ly-34)}" width="92" height="24" rx="12" fill="#111"/><text x="${Math.max(L+46,Math.min(W-R-46,lx))}" y="${Math.max(19,ly-18)}" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">${fmt(last.value)}</text>`;
-    svg.innerHTML=s;svg._chartMeta={points:pts.map((p,i)=>({...p,x:x(p,i),y:y(p.value)})),width:W,height:H};
+    const every=Math.max(1,Math.ceil(pts.length/6));
+    pts.forEach((p,i)=>{const xx=x(p,i),yy=y(p.value);if(i===0||i===pts.length-1||i%every===0)s+=`<text x="${xx}" y="${H-18}" text-anchor="middle" font-size="9" fill="#777">${p.label}</text>`;});
+    s+=`<g class="chart-cursor" data-chart-cursor>
+      <line class="chart-cursor-line" x1="0" y1="${T}" x2="0" y2="${H-B}" stroke="#111" stroke-width="1.5" stroke-dasharray="4 4" opacity=".32"/>
+      <circle class="chart-cursor-halo" cx="0" cy="0" r="13" fill="#fff" stroke="#111" stroke-width="2"/>
+      <circle class="chart-cursor-dot" cx="0" cy="0" r="6" fill="#111"/>
+      <g class="chart-cursor-label">
+        <rect x="0" y="0" width="118" height="43" rx="11" fill="#111"/>
+        <text class="chart-cursor-price" x="59" y="18" text-anchor="middle" font-size="12" font-weight="900" fill="#fff"></text>
+        <text class="chart-cursor-date" x="59" y="33" text-anchor="middle" font-size="9" font-weight="700" fill="#cfcfcf"></text>
+      </g>
+    </g>`;
+    svg.innerHTML=s;
+    svg._chartMeta={points:pts.map((p,i)=>({...p,x:x(p,i),y:y(p.value)})),width:W,height:H,L,R,T,B,latestIndex:pts.length-1};
+  }
+
+  function selectChartPoint(panel,index,updateCard=true){
+    const svg=$('.market-chart',panel),meta=svg?._chartMeta;if(!meta?.points?.length)return;
+    index=Math.max(0,Math.min(meta.points.length-1,index));svg.dataset.selectedIndex=String(index);
+    const p=meta.points[index],cursor=$('[data-chart-cursor]',svg);if(!cursor)return;
+    $('.chart-cursor-line',cursor).setAttribute('x1',p.x);$('.chart-cursor-line',cursor).setAttribute('x2',p.x);
+    $$('.chart-cursor-halo,.chart-cursor-dot',cursor).forEach(c=>{c.setAttribute('cx',p.x);c.setAttribute('cy',p.y);});
+    const label=$('.chart-cursor-label',cursor),bubbleX=Math.max(meta.L,Math.min(meta.width-meta.R-118,p.x-59)),bubbleY=Math.max(4,p.y-58);
+    label.setAttribute('transform',`translate(${bubbleX} ${bubbleY})`);$('.chart-cursor-price',cursor).textContent=fmt(p.value);$('.chart-cursor-date',cursor).textContent=p.label||'—';
+    if(updateCard){
+      const current=$('.market-current',panel),size=$('.market-size',panel)?.value||'All',condition=$('.market-condition button.active',panel)?.dataset.condition||'new',latest=index===meta.latestIndex;
+      if(current){$('span',current).textContent=latest?'現在の価格':'過去の価格';$('strong',current).textContent=fmt(p.value);$('small',current).textContent=`${p.label||'—'} · ${size==='All'?'全サイズ':size+'cm'} · ${condition==='used'?'中古':'新品'}`;current.classList.toggle('is-history',!latest);}
+    }
+  }
+
+  function chartIndexFromPointer(svg,clientX){
+    const meta=svg?._chartMeta;if(!meta?.points?.length)return -1;const rect=svg.getBoundingClientRect();if(!rect.width)return -1;
+    const vx=(clientX-rect.left)*(meta.width/rect.width);let best=0,bestDist=Infinity;meta.points.forEach((p,i)=>{const d=Math.abs(p.x-vx);if(d<bestDist){best=i;bestDist=d;}});return best;
   }
 
   function bindMarketChartGestures(root){
-    $$('.market-chart-box',root).forEach(box=>{
-      if(box.dataset.gestureBound)return;box.dataset.gestureBound='1';
-      let dragging=false,startX=0,startScroll=0,moved=false;
-      box.addEventListener('pointerdown',e=>{if(e.button!==undefined&&e.button!==0)return;dragging=true;moved=false;startX=e.clientX;startScroll=box.scrollLeft;box.classList.add('is-dragging');box.setPointerCapture?.(e.pointerId);});
-      box.addEventListener('pointermove',e=>{
-        const svg=$('.market-chart',box),tip=$('.market-chart-tooltip',box);
-        if(dragging){const dx=e.clientX-startX;if(Math.abs(dx)>3)moved=true;box.scrollLeft=startScroll-dx;if(tip)tip.hidden=true;return;}
-        if(!svg?._chartMeta||svg.hidden||!tip)return;
-        const rect=svg.getBoundingClientRect(),vx=(e.clientX-rect.left)*(svg._chartMeta.width/rect.width),pts=svg._chartMeta.points;
-        let best=pts[0];for(const p of pts)if(Math.abs(p.x-vx)<Math.abs(best.x-vx))best=p;
-        $('strong',tip).textContent=fmt(best.value);$('span',tip).textContent=best.label;tip.hidden=false;
-        const boxRect=box.getBoundingClientRect(),left=Math.max(8,Math.min(box.clientWidth-112,e.clientX-boxRect.left-50));tip.style.left=`${left}px`;tip.style.top='12px';
-      });
-      ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>box.addEventListener(ev,()=>{dragging=false;box.classList.remove('is-dragging');}));
-      box.addEventListener('pointerleave',()=>{if(!dragging){const tip=$('.market-chart-tooltip',box);if(tip)tip.hidden=true;}});
+    $$('.market-chart',root).forEach(svg=>{
+      if(svg.dataset.gestureBound)return;svg.dataset.gestureBound='1';let dragging=false;
+      const pick=e=>{if(!svg._chartMeta)return;const idx=chartIndexFromPointer(svg,e.clientX);if(idx>=0)selectChartPoint(svg.closest('.market-source'),idx,true);};
+      svg.addEventListener('pointerdown',e=>{if(!svg._chartMeta)return;dragging=true;svg.classList.add('is-selecting');svg.setPointerCapture?.(e.pointerId);pick(e);e.preventDefault();});
+      svg.addEventListener('pointermove',e=>{if(dragging)pick(e);});
+      ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>svg.addEventListener(ev,()=>{dragging=false;svg.classList.remove('is-selecting');}));
+      svg.addEventListener('click',e=>pick(e));
+      svg.addEventListener('keydown',e=>{if(!svg._chartMeta)return;let idx=Number(svg.dataset.selectedIndex||svg._chartMeta.latestIndex);if(e.key==='ArrowLeft'){e.preventDefault();selectChartPoint(svg.closest('.market-source'),idx-1,true);}else if(e.key==='ArrowRight'){e.preventDefault();selectChartPoint(svg.closest('.market-source'),idx+1,true);}else if(e.key==='Home'){e.preventDefault();selectChartPoint(svg.closest('.market-source'),0,true);}else if(e.key==='End'){e.preventDefault();selectChartPoint(svg.closest('.market-source'),svg._chartMeta.latestIndex,true);}});
     });
   }
 

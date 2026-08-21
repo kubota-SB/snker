@@ -178,3 +178,21 @@ h1{margin:0;font-size:clamp(36px,6vw,72px);line-height:.94;letter-spacing:-.055e
 .market-history-row em{font-style:normal;font-size:7px;font-weight:950;background:#111;color:#fff;border-radius:999px;padding:3px 6px;}
 .market-history-row.latest{background:#fff;}
 @media(max-width:620px){.market-history-list{max-height:185px}.market-chart-box{touch-action:auto}.market-chart:not([hidden]){min-width:760px!important}}
+
+
+/* v10: SNKRDUNK風のドラッグ可能な価格ポイント */
+.market-chart-guide{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 12px;border-top:1px solid #ecece7;background:#fff}
+.market-chart-guide[hidden]{display:none!important}
+.market-chart-guide span{font-size:9px;font-weight:850;color:#666}
+.market-chart-guide button{border:1px solid #d8d8d3;background:#111;color:#fff;border-radius:999px;padding:6px 11px;font-size:9px;font-weight:900;cursor:pointer}
+.market-chart-guide button:hover{opacity:.82}
+.market-chart-box{overflow:hidden!important;cursor:default!important;touch-action:pan-y!important}
+.market-chart{min-width:0!important;max-width:100%!important;width:100%!important;cursor:crosshair;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.market-chart.is-selecting{cursor:grabbing}
+.chart-cursor{pointer-events:none}
+.chart-cursor-halo{filter:drop-shadow(0 2px 5px rgba(0,0,0,.12))}
+.market-current.is-history{background:#f6f6f2;border-color:#dcdcd4}
+.market-current.is-history>span{color:#111}
+.market-history{display:none!important}
+.market-chart-nav{display:none!important}
+@media(max-width:620px){.market-chart-guide span{font-size:8px}.market-chart-guide button{padding:6px 9px}.market-chart{height:230px!important;min-height:230px!important}}
