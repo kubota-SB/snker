@@ -249,8 +249,11 @@
   function preloadFrames(frame){if(!viewer)return;[-2,-1,1,2].forEach(o=>{const f=((frame-1+o+FRAME_COUNT)%FRAME_COUNT)+1;const im=new Image();im.src=frameUrl(viewer.folder,f,viewer.level)});}
 
   function marketMarkup(item){
-    const sn=getLink(item,'snkrdunk'),sx=getLink(item,'stockx');
-    return `<details class="market-section" open><summary>価格チャート － サイズ・新品 / 中古</summary><div class="market-inner"><p class="market-note">まず「全サイズ」の公開価格を表示します。サイズを選ぶと再取得し、サイズ別データを確認できた場合だけそのサイズの価格に切り替えます。取得できない場合は前の価格を残しません。</p><div class="market-grid">${marketPanel('snkrdunk',sn,item.sku)}${marketPanel('stockx',sx,item.sku)}</div></div></details>`;
+    const sn=getLink(item,'snkrdunk');
+    if(!sn && !item.sku){
+      return `<details class="market-section" open><summary>SNKRDUNK 価格チャート</summary><div class="market-inner"><div class="market-empty-standalone">SNKRDUNKの商品ページを特定できないため、価格チャートは表示できません。</div></div></details>`;
+    }
+    return `<details class="market-section" open><summary>SNKRDUNK 価格チャート － サイズ・新品 / 中古</summary><div class="market-inner"><p class="market-note">SNKRDUNKの公開価格情報だけを表示します。サイズ・新品 / 中古を変更すると、その条件で価格情報を再取得します。</p><div class="market-grid">${marketPanel('snkrdunk',sn,item.sku)}</div></div></details>`;
   }
 
   function canonicalSnkrHistoryUrl(raw,sku){
@@ -286,7 +289,7 @@
       </div>
       <div class="market-metrics"></div>
       <p class="market-footnote" hidden></p>
-      <div class="market-actions">${official?`<a class="market-open" href="${escapeAttr(official)}" target="_blank" rel="noopener">${source==='snkrdunk'?'公式の相場グラフ':'StockXで市場データ'}を確認</a>`:''}</div>
+      <div class="market-actions">${official?`<a class="market-open" href="${escapeAttr(official)}" target="_blank" rel="noopener">${source==='snkrdunk'?'SNKRDUNKで相場を見る':'StockXで市場データを確認'}</a>`:''}</div>
     </section>`;
   }
   function escapeAttr(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}

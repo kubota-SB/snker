@@ -141,3 +141,8 @@ h1{margin:0;font-size:clamp(36px,6vw,72px);line-height:.94;letter-spacing:-.055e
 .market-chart:not([hidden]){display:block!important;width:100%!important;height:230px!important}
 .market-chart[hidden]{display:none!important}
 @media(max-width:620px){.market-current>strong{font-size:19px}.market-current>small{width:100%;margin-left:0}.market-chart:not([hidden]){height:205px!important}}
+
+/* v7: SNKRDUNK-only market panel */
+.market-grid{grid-template-columns:minmax(0,1fr)!important;}
+.market-snkr{width:100%;}
+.market-empty-standalone{padding:20px;border:1px dashed #d6d6d1;border-radius:12px;background:#fafaf8;color:#777;font-size:13px;text-align:center;}
