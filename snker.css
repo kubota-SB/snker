@@ -1,7 +1,7 @@
 
 :root{
   --bg:#f5f5f2;--surface:#fff;--surface-2:#f9f9f7;--text:#121212;--muted:#767676;
-  --line:#e5e5e0;--strong:#191919;--stockx:#066b3b;--snkr:#b4162f;--shadow:0 18px 46px rgba(0,0,0,.08);
+  --line:#e5e5e0;--strong:#191919;--stockx:#066b3b;--snkr:#111111;--shadow:0 18px 46px rgba(0,0,0,.08);
   --nav-h:66px;--radius:20px;
 }
 *{box-sizing:border-box}
@@ -50,8 +50,6 @@ h1{margin:0;font-size:clamp(36px,6vw,72px);line-height:.94;letter-spacing:-.055e
 .card-sku{grid-column:1/-1}
 .card-open{margin-top:13px;display:flex;align-items:center;justify-content:space-between;color:#6f6f6f;font-size:10px;font-weight:800}
 .card-open::after{content:'→';font-size:14px;color:#111}
-.more-wrap{text-align:center;margin-top:28px}
-.load-more{min-width:210px;border:1px solid #111;background:#111;color:#fff;border-radius:999px;padding:13px 22px;font-size:12px;font-weight:900;cursor:pointer}
 .state-card{border:1px dashed #cfcfca;border-radius:18px;background:rgba(255,255,255,.55);padding:42px 20px;text-align:center;color:#777;font-size:13px}
 .scroll-top{position:fixed;right:22px;bottom:22px;width:46px;height:46px;border:0;border-radius:50%;background:#111;color:#fff;box-shadow:0 10px 28px rgba(0,0,0,.2);display:none;place-items:center;z-index:90;cursor:pointer}
 .scroll-top.show{display:grid}
@@ -72,7 +70,6 @@ h1{margin:0;font-size:clamp(36px,6vw,72px);line-height:.94;letter-spacing:-.055e
 .viewer-count{position:absolute;right:14px;bottom:14px;background:rgba(17,17,17,.86);color:#fff;border-radius:999px;padding:7px 10px;font-size:9px;font-weight:900}
 .viewer-arrow{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border:1px solid #ddd;background:rgba(255,255,255,.9);border-radius:50%;font-size:25px;cursor:pointer}.viewer-prev{left:12px}.viewer-next{right:12px}
 .viewer-actions{display:flex;gap:9px;flex-wrap:wrap}
-.viewer-load{border:0;background:#111;color:#fff;border-radius:12px;padding:11px 14px;font-size:11px;font-weight:900;cursor:pointer}.viewer-load[disabled]{opacity:.5;cursor:wait}
 .viewer-status{display:flex;align-items:center;color:#707070;font-size:10px;font-weight:750}
 .detail-eyebrow{margin:0 0 9px;color:#999;font-size:10px;font-weight:900;letter-spacing:.13em}
 .detail-title{margin:0;font-size:clamp(25px,3.3vw,42px);line-height:1.05;letter-spacing:-.045em}
@@ -88,7 +85,11 @@ h1{margin:0;font-size:clamp(36px,6vw,72px);line-height:.94;letter-spacing:-.055e
 .market-controls{display:flex;align-items:center;justify-content:space-between;gap:7px;flex-wrap:wrap;margin-bottom:8px}.market-controls label{font-size:9px;font-weight:850;color:#666}.market-size{margin-left:4px;border:1px solid #dadad6;border-radius:8px;background:#fff;padding:5px 7px;font-size:10px;font-weight:800}
 .market-condition{display:flex;border:1px solid #ddd;border-radius:9px;overflow:hidden}.market-condition button{border:0;background:#fff;padding:6px 9px;font-size:9px;font-weight:850;cursor:pointer}.market-condition button.active{background:#111;color:#fff}
 .market-chart-box{position:relative;min-height:170px;border-radius:10px;background:#fafaf8;overflow:hidden}.market-chart{width:100%;height:auto;display:block}.market-empty{min-height:170px;display:grid;place-items:center;text-align:center;padding:18px;color:#888;font-size:9px;line-height:1.6}.market-metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:8px}.market-metric{border:1px solid #ecece8;border-radius:9px;padding:7px 8px}.market-metric span{display:block;color:#999;font-size:7px;font-weight:850}.market-metric strong{display:block;margin-top:2px;font-size:9px}
-.market-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.market-load,.market-open{display:inline-flex;align-items:center;justify-content:center;border:1px solid #111;border-radius:9px;padding:7px 9px;font-size:9px;font-weight:900;text-decoration:none;cursor:pointer}.market-load{background:#111;color:#fff}.market-open{background:#fff;color:#111}
-.detail-links{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}.product-link{display:inline-flex;align-items:center;justify-content:center;min-width:116px;border-radius:12px;padding:11px 14px;text-decoration:none;font-size:11px;font-weight:900;border:1px solid #ddd;background:#fff}.product-link.stockx{background:#0d6b3f;color:#fff;border-color:#0d6b3f}.product-link.snkrdunk{background:#b4162f;color:#fff;border-color:#b4162f}
+.market-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.market-open{display:inline-flex;align-items:center;justify-content:center;border:1px solid #111;border-radius:9px;padding:7px 9px;font-size:9px;font-weight:900;text-decoration:none;cursor:pointer;background:#fff;color:#111}
+.detail-links{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}.product-link{display:inline-flex;align-items:center;justify-content:center;min-width:116px;border-radius:12px;padding:11px 14px;text-decoration:none;font-size:11px;font-weight:900;border:1px solid #ddd;background:#fff}.product-link.stockx{background:#0d6b3f;color:#fff;border-color:#0d6b3f}.product-link.snkrdunk{background:#111;color:#fff;border-color:#111}
 @media(max-width:940px){.sneaker-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.detail-grid{grid-template-columns:1fr}.detail-media{min-height:500px}.detail-info{padding-top:20px}.detail-meta{grid-template-columns:1fr 1fr}.detail-meta-item:last-child{grid-column:1/-1}}
 @media(max-width:620px){:root{--nav-h:58px}.site-header{padding:42px 16px 30px}.search-row{flex-direction:column}.clear-btn{height:42px}.year-nav-inner{padding:0 14px}.archive-main{padding:28px 14px 62px}.sneaker-grid{grid-template-columns:1fr;gap:13px}.card-title{min-height:0}.section-head{align-items:start}.detail-dialog{width:calc(100% - 12px);max-height:calc(100vh - 12px)}.dialog-shell{max-height:calc(100vh - 12px);border-radius:18px}.detail-media{padding:18px;min-height:390px}.viewer-stage{min-height:330px}.detail-info{padding:20px 18px 26px}.detail-meta{grid-template-columns:1fr}.detail-meta-item:last-child{grid-column:auto}.market-metrics{grid-template-columns:1fr 1fr}}
+
+.market-snkr .market-source-head strong{display:inline-flex;align-items:center;background:#111;color:#fff!important;border-radius:8px;padding:5px 9px}
+.market-snkr .market-open{background:#111;color:#fff;border-color:#111}
+.market-stockx .market-open{background:#0d6b3f;color:#fff;border-color:#0d6b3f}
