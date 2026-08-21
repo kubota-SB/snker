@@ -1,7 +1,7 @@
 
 (() => {
   'use strict';
-  const DATA_URL = 'sneakers.json?v=10';
+  const DATA_URL = 'sneakers.json?v=13';
   const FRAME_COUNT = 36;
   const FAST_360_CANDIDATES = 10;
   const FAST_PROBE_TIMEOUT = 1200;
@@ -319,7 +319,7 @@
     if(reset){
       const panel=reset.closest('.market-source'),svg=$('.market-chart',panel);
       const pts=svg?._chartMeta?.points;
-      if(pts?.length) selectChartPoint(panel,pts.length-1,true);
+      if(pts?.length){ selectChartPoint(panel,pts.length-1,true); scrollChartToLatest(panel,true); }
     }
   }
 
@@ -517,6 +517,7 @@
       drawTrendChart(svg,data);svg.removeAttribute('hidden');empty.hidden=true;if(guide)guide.hidden=false;
       $('.market-chart-title',panel).textContent='売買価格の推移';
       selectChartPoint(panel,data.points.length-1,true);
+      scrollChartToLatest(panel,false);
       return;
     }
     if(data.kind==='point'&&data.point>0){drawPointChart(svg,data);svg.removeAttribute('hidden');empty.hidden=true;$('.market-chart-title',panel).textContent='現在価格（履歴未取得）';return;}
@@ -531,11 +532,14 @@
   }
 
   function drawTrendChart(svg,data){
-    const pts=data.points.filter(x=>Number.isFinite(x.value)&&x.value>0),W=760,H=270,L=72,R=30,T=30,B=52;
+    const pts=data.points.filter(x=>Number.isFinite(x.value)&&x.value>0),H=290,L=72,R=42,T=34,B=56;
+    // 履歴点の間隔を広めに取り、過去へ横スクロールしてたどれるチャートにする。
+    const pointGap=150;
+    const W=Math.max(980,L+R+Math.max(1,pts.length-1)*pointGap);
     const vals=pts.map(x=>x.value),min=Math.min(...vals),max=Math.max(...vals),pad=Math.max((max-min)*.18,max*.035,500),lo=Math.max(0,min-pad),hi=max+pad;
-    const x=(p,i)=>L+(W-L-R)*(pts.length===1?.5:i/(pts.length-1)),y=v=>T+(H-T-B)*(1-(v-lo)/(hi-lo||1));
+    const x=(p,i)=>pts.length===1?(L+(W-L-R)/2):L+i*((W-L-R)/(pts.length-1)),y=v=>T+(H-T-B)*(1-(v-lo)/(hi-lo||1));
     const path=pts.map((p,i)=>`${i?'L':'M'} ${x(p,i).toFixed(1)} ${y(p.value).toFixed(1)}`).join(' '),area=`${path} L ${x(pts.at(-1),pts.length-1)} ${H-B} L ${x(pts[0],0)} ${H-B} Z`;
-    svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.style.width='100%';svg.style.height='270px';
+    svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.style.setProperty('width',`${W}px`,'important');svg.style.setProperty('min-width',`${W}px`,'important');svg.style.setProperty('height',`${H}px`,'important');
     let s=`<defs><linearGradient id="trendArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#111" stop-opacity=".13"/><stop offset="100%" stop-color="#111" stop-opacity="0"/></linearGradient></defs>`;
     for(let i=0;i<5;i++){const yy=T+(H-T-B)*i/4,val=hi-(hi-lo)*i/4;s+=`<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="#e7e7e2"/><text x="${L-10}" y="${yy+3}" text-anchor="end" font-size="10" fill="#8b8b8b">${fmt(val)}</text>`;}
     s+=`<path d="${area}" fill="url(#trendArea)"/><path d="${path}" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
@@ -555,6 +559,30 @@
     svg._chartMeta={points:pts.map((p,i)=>({...p,x:x(p,i),y:y(p.value)})),width:W,height:H,L,R,T,B,latestIndex:pts.length-1};
   }
 
+  function scrollChartToPoint(panel,index,{force=false,smooth=false}={}){
+    const svg=$('.market-chart',panel),box=$('.market-chart-box',panel),meta=svg?._chartMeta;
+    if(!box||!meta?.points?.length||!box.clientWidth)return;
+    index=Math.max(0,Math.min(meta.points.length-1,index));
+    const p=meta.points[index];
+    const scale=(svg.scrollWidth||meta.width)/meta.width;
+    const px=p.x*scale;
+    const pad=Math.min(130,box.clientWidth*.24);
+    const left=box.scrollLeft,right=left+box.clientWidth;
+    if(force||px<left+pad||px>right-pad){
+      const target=Math.max(0,Math.min(box.scrollWidth-box.clientWidth,px-box.clientWidth*.72));
+      box.scrollTo({left:target,behavior:smooth?'smooth':'auto'});
+    }
+  }
+
+  function scrollChartToLatest(panel,smooth=false){
+    const svg=$('.market-chart',panel),meta=svg?._chartMeta;if(!meta)return;
+    requestAnimationFrame(()=>{
+      const box=$('.market-chart-box',panel);if(!box)return;
+      box.scrollTo({left:Math.max(0,box.scrollWidth-box.clientWidth),behavior:smooth?'smooth':'auto'});
+      scrollChartToPoint(panel,meta.latestIndex,{force:false,smooth:false});
+    });
+  }
+
   function selectChartPoint(panel,index,updateCard=true){
     const svg=$('.market-chart',panel),meta=svg?._chartMeta;if(!meta?.points?.length)return;
     index=Math.max(0,Math.min(meta.points.length-1,index));svg.dataset.selectedIndex=String(index);
@@ -572,6 +600,8 @@
       const current=$('.market-current',panel),size=$('.market-size',panel)?.value||'All',condition=$('.market-condition button.active',panel)?.dataset.condition||'new',latest=index===meta.latestIndex;
       if(current){$('span',current).textContent=latest?'現在の価格':'過去の価格';$('strong',current).textContent=fmt(p.value);$('small',current).textContent=p.label||'—';current.classList.toggle('is-history',!latest);}
     }
+    // 選択した玉が表示範囲の外へ出たら、チャートだけを自動で追従させる。
+    scrollChartToPoint(panel,index,{force:false,smooth:false});
   }
 
   function chartIndexFromPointer(svg,clientX){
@@ -584,56 +614,82 @@
       if(svg.dataset.gestureBound)return;
       svg.dataset.gestureBound='1';
       let dragging=false,pointerId=null;
+      let panning=false,panPointerId=null,panStartX=0,panStartLeft=0,panMoved=false;
       const panel=()=>svg.closest('.market-source');
+      const box=()=>svg.closest('.market-chart-box');
       const pick=e=>{
         if(!svg._chartMeta)return;
         const idx=chartIndexFromPointer(svg,e.clientX);
         if(idx>=0)selectChartPoint(panel(),idx,true);
       };
-      const finish=e=>{
+      const finishCursor=e=>{
         if(!dragging)return;
         if(e?.clientX!=null)pick(e);
-        dragging=false;
-        pointerId=null;
+        dragging=false;pointerId=null;
         svg.classList.remove('is-selecting');
         $('[data-chart-cursor]',svg)?.classList.remove('is-dragging');
       };
 
-      // 黒い価格の玉（吹き出し／丸）を直接つかんだ時だけドラッグを開始する。
+      // 黒い価格の玉を直接ドラッグして履歴点を移動。
       svg.addEventListener('pointerdown',e=>{
         const cursor=e.target.closest?.('[data-chart-cursor]');
         if(!cursor||!svg._chartMeta)return;
-        dragging=true;
-        pointerId=e.pointerId;
-        svg.classList.add('is-selecting');
-        cursor.classList.add('is-dragging');
-        svg.setPointerCapture?.(e.pointerId);
-        e.preventDefault();
-        e.stopPropagation();
+        dragging=true;pointerId=e.pointerId;
+        svg.classList.add('is-selecting');cursor.classList.add('is-dragging');
+        svg.setPointerCapture?.(e.pointerId);e.preventDefault();e.stopPropagation();
       });
       svg.addEventListener('pointermove',e=>{
         if(!dragging||e.pointerId!==pointerId)return;
-        pick(e);
-        e.preventDefault();
+        pick(e);e.preventDefault();
       });
-      ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>svg.addEventListener(ev,finish));
+      ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>svg.addEventListener(ev,finishCursor));
 
-      // グラフ上をクリックした場合も、その位置の履歴へ玉を移動できる。
+      // 玉以外のチャート部分は左右へドラッグして過去/最新へスクロールできる。
+      const chartBox=box();
+      if(chartBox&&!chartBox.dataset.panBound){
+        chartBox.dataset.panBound='1';
+        chartBox.addEventListener('pointerdown',e=>{
+          if(e.target.closest?.('[data-chart-cursor]'))return;
+          if(e.button!==undefined&&e.button!==0)return;
+          panning=true;panPointerId=e.pointerId;panStartX=e.clientX;panStartLeft=chartBox.scrollLeft;panMoved=false;
+          chartBox.classList.add('is-panning');chartBox.setPointerCapture?.(e.pointerId);
+        });
+        chartBox.addEventListener('pointermove',e=>{
+          if(!panning||e.pointerId!==panPointerId)return;
+          const dx=e.clientX-panStartX;if(Math.abs(dx)>4)panMoved=true;
+          chartBox.scrollLeft=panStartLeft-dx;
+          if(panMoved)e.preventDefault();
+        });
+        const finishPan=e=>{
+          if(!panning)return;
+          panning=false;panPointerId=null;chartBox.classList.remove('is-panning');
+          setTimeout(()=>{panMoved=false;},0);
+        };
+        ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>chartBox.addEventListener(ev,finishPan));
+        chartBox.addEventListener('wheel',e=>{
+          if(Math.abs(e.deltaX)>0)return;
+          if(Math.abs(e.deltaY)>0&&chartBox.scrollWidth>chartBox.clientWidth){
+            chartBox.scrollLeft+=e.deltaY;e.preventDefault();
+          }
+        },{passive:false});
+      }
+
+      // 単純クリックなら最寄りの価格ポイントを選ぶ。横ドラッグ後は選択しない。
       svg.addEventListener('click',e=>{
-        if(e.target.closest?.('[data-chart-cursor]'))return;
+        if(e.target.closest?.('[data-chart-cursor]')||panMoved)return;
         pick(e);
       });
 
-      // キーボード操作は玉自体にフォーカスした場合とSVGにフォーカスした場合の両方に対応。
       svg.addEventListener('keydown',e=>{
         if(!svg._chartMeta)return;
         let idx=Number(svg.dataset.selectedIndex||svg._chartMeta.latestIndex);
         if(e.key==='ArrowLeft'){e.preventDefault();selectChartPoint(panel(),idx-1,true);}
         else if(e.key==='ArrowRight'){e.preventDefault();selectChartPoint(panel(),idx+1,true);}
         else if(e.key==='Home'){e.preventDefault();selectChartPoint(panel(),0,true);}
-        else if(e.key==='End'){e.preventDefault();selectChartPoint(panel(),svg._chartMeta.latestIndex,true);}
+        else if(e.key==='End'){e.preventDefault();selectChartPoint(panel(),svg._chartMeta.latestIndex,true);scrollChartToLatest(panel(),true);}
       });
     });
+
   }
 
 })();
