@@ -253,7 +253,7 @@
     if(!sn && !item.sku){
       return `<details class="market-section" open><summary>SNKRDUNK 価格チャート</summary><div class="market-inner"><div class="market-empty-standalone">SNKRDUNKの商品ページを特定できないため、価格チャートは表示できません。</div></div></details>`;
     }
-    return `<details class="market-section" open><summary>SNKRDUNK 価格チャート － サイズ・新品 / 中古</summary><div class="market-inner"><p class="market-note">SNKRDUNKの公開価格情報だけを表示します。グラフ上の丸を左右にドラッグすると、その時点の日付と価格を確認できます。</p><div class="market-grid">${marketPanel(sn,item.sku)}</div></div></details>`;
+    return `<details class="market-section" open><summary>SNKRDUNK 価格チャート － サイズ・新品 / 中古</summary><div class="market-inner"><p class="market-note">SNKRDUNKの公開価格情報だけを表示します。グラフ上の黒い価格の玉を左右にドラッグすると、その時点の日付と価格を確認できます。</p><div class="market-grid">${marketPanel(sn,item.sku)}</div></div></details>`;
   }
 
   function canonicalSnkrHistoryUrl(raw,sku){
@@ -277,7 +277,7 @@
         <div class="market-chart-head"><span class="market-chart-title">売買価格の推移</span><span class="market-selection">全サイズ · 新品</span></div>
         <div class="market-scope" hidden></div>
         <div class="market-chart-guide" hidden>
-          <span>● を左右にドラッグして過去の価格を確認</span>
+          <span>黒い価格の玉を左右にドラッグして過去の価格を確認</span>
           <button type="button" data-chart-reset>最新に戻す</button>
         </div>
         <div class="market-chart-box">
@@ -541,12 +541,13 @@
     s+=`<path d="${area}" fill="url(#trendArea)"/><path d="${path}" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
     const every=Math.max(1,Math.ceil(pts.length/6));
     pts.forEach((p,i)=>{const xx=x(p,i),yy=y(p.value);if(i===0||i===pts.length-1||i%every===0)s+=`<text x="${xx}" y="${H-18}" text-anchor="middle" font-size="9" fill="#777">${p.label}</text>`;});
-    s+=`<g class="chart-cursor" data-chart-cursor>
+    s+=`<g class="chart-cursor" data-chart-cursor role="slider" aria-label="価格履歴カーソル" aria-valuemin="0" aria-valuemax="${Math.max(0,pts.length-1)}" aria-valuenow="${Math.max(0,pts.length-1)}" tabindex="0">
       <line class="chart-cursor-line" x1="0" y1="${T}" x2="0" y2="${H-B}" stroke="#111" stroke-width="1.5" stroke-dasharray="4 4" opacity=".32"/>
+      <circle class="chart-cursor-hit" cx="0" cy="0" r="24" fill="transparent"/>
       <circle class="chart-cursor-halo" cx="0" cy="0" r="13" fill="#fff" stroke="#111" stroke-width="2"/>
       <circle class="chart-cursor-dot" cx="0" cy="0" r="6" fill="#111"/>
       <g class="chart-cursor-label">
-        <rect x="0" y="0" width="86" height="28" rx="14" fill="#111"/>
+        <rect class="chart-cursor-label-bg" x="0" y="0" width="86" height="28" rx="14" fill="#111"/>
         <text class="chart-cursor-price" x="43" y="18" text-anchor="middle" font-size="11" font-weight="900" fill="#fff"></text>
       </g>
     </g>`;
@@ -558,6 +559,8 @@
     const svg=$('.market-chart',panel),meta=svg?._chartMeta;if(!meta?.points?.length)return;
     index=Math.max(0,Math.min(meta.points.length-1,index));svg.dataset.selectedIndex=String(index);
     const p=meta.points[index],cursor=$('[data-chart-cursor]',svg);if(!cursor)return;
+    cursor.setAttribute('aria-valuenow',String(index));
+    cursor.setAttribute('aria-valuetext',`${p.label||''} ${fmt(p.value)}`.trim());
     $('.chart-cursor-line',cursor).setAttribute('x1',p.x);$('.chart-cursor-line',cursor).setAttribute('x2',p.x);
     $$('.chart-cursor-halo,.chart-cursor-dot',cursor).forEach(c=>{c.setAttribute('cx',p.x);c.setAttribute('cy',p.y);});
     const label=$('.chart-cursor-label',cursor),bubbleW=86,bubbleH=28;
@@ -578,13 +581,58 @@
 
   function bindMarketChartGestures(root){
     $$('.market-chart',root).forEach(svg=>{
-      if(svg.dataset.gestureBound)return;svg.dataset.gestureBound='1';let dragging=false;
-      const pick=e=>{if(!svg._chartMeta)return;const idx=chartIndexFromPointer(svg,e.clientX);if(idx>=0)selectChartPoint(svg.closest('.market-source'),idx,true);};
-      svg.addEventListener('pointerdown',e=>{if(!svg._chartMeta)return;dragging=true;svg.classList.add('is-selecting');svg.setPointerCapture?.(e.pointerId);pick(e);e.preventDefault();});
-      svg.addEventListener('pointermove',e=>{if(dragging)pick(e);});
-      ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>svg.addEventListener(ev,()=>{dragging=false;svg.classList.remove('is-selecting');}));
-      svg.addEventListener('click',e=>pick(e));
-      svg.addEventListener('keydown',e=>{if(!svg._chartMeta)return;let idx=Number(svg.dataset.selectedIndex||svg._chartMeta.latestIndex);if(e.key==='ArrowLeft'){e.preventDefault();selectChartPoint(svg.closest('.market-source'),idx-1,true);}else if(e.key==='ArrowRight'){e.preventDefault();selectChartPoint(svg.closest('.market-source'),idx+1,true);}else if(e.key==='Home'){e.preventDefault();selectChartPoint(svg.closest('.market-source'),0,true);}else if(e.key==='End'){e.preventDefault();selectChartPoint(svg.closest('.market-source'),svg._chartMeta.latestIndex,true);}});
+      if(svg.dataset.gestureBound)return;
+      svg.dataset.gestureBound='1';
+      let dragging=false,pointerId=null;
+      const panel=()=>svg.closest('.market-source');
+      const pick=e=>{
+        if(!svg._chartMeta)return;
+        const idx=chartIndexFromPointer(svg,e.clientX);
+        if(idx>=0)selectChartPoint(panel(),idx,true);
+      };
+      const finish=e=>{
+        if(!dragging)return;
+        if(e?.clientX!=null)pick(e);
+        dragging=false;
+        pointerId=null;
+        svg.classList.remove('is-selecting');
+        $('[data-chart-cursor]',svg)?.classList.remove('is-dragging');
+      };
+
+      // 黒い価格の玉（吹き出し／丸）を直接つかんだ時だけドラッグを開始する。
+      svg.addEventListener('pointerdown',e=>{
+        const cursor=e.target.closest?.('[data-chart-cursor]');
+        if(!cursor||!svg._chartMeta)return;
+        dragging=true;
+        pointerId=e.pointerId;
+        svg.classList.add('is-selecting');
+        cursor.classList.add('is-dragging');
+        svg.setPointerCapture?.(e.pointerId);
+        e.preventDefault();
+        e.stopPropagation();
+      });
+      svg.addEventListener('pointermove',e=>{
+        if(!dragging||e.pointerId!==pointerId)return;
+        pick(e);
+        e.preventDefault();
+      });
+      ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>svg.addEventListener(ev,finish));
+
+      // グラフ上をクリックした場合も、その位置の履歴へ玉を移動できる。
+      svg.addEventListener('click',e=>{
+        if(e.target.closest?.('[data-chart-cursor]'))return;
+        pick(e);
+      });
+
+      // キーボード操作は玉自体にフォーカスした場合とSVGにフォーカスした場合の両方に対応。
+      svg.addEventListener('keydown',e=>{
+        if(!svg._chartMeta)return;
+        let idx=Number(svg.dataset.selectedIndex||svg._chartMeta.latestIndex);
+        if(e.key==='ArrowLeft'){e.preventDefault();selectChartPoint(panel(),idx-1,true);}
+        else if(e.key==='ArrowRight'){e.preventDefault();selectChartPoint(panel(),idx+1,true);}
+        else if(e.key==='Home'){e.preventDefault();selectChartPoint(panel(),0,true);}
+        else if(e.key==='End'){e.preventDefault();selectChartPoint(panel(),svg._chartMeta.latestIndex,true);}
+      });
     });
   }
 

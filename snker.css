@@ -202,3 +202,15 @@ h1{margin:0;font-size:clamp(36px,6vw,72px);line-height:.94;letter-spacing:-.055e
 .chart-cursor-label{filter:drop-shadow(0 3px 8px rgba(0,0,0,.16))}
 .chart-cursor-price{letter-spacing:.01em}
 .market-current.is-history>small{font-weight:850;color:#777}
+
+
+/* v12: SNKRDUNK風の価格カーソル操作 */
+.market-chart{cursor:default!important;touch-action:pan-y!important;}
+.chart-cursor{pointer-events:auto!important;cursor:grab;touch-action:none;outline:none;}
+.chart-cursor.is-dragging{cursor:grabbing;}
+.chart-cursor-line{pointer-events:none;}
+.chart-cursor-hit{pointer-events:all;fill:transparent;cursor:grab;}
+.chart-cursor-halo,.chart-cursor-dot,.chart-cursor-label,.chart-cursor-label-bg,.chart-cursor-price{pointer-events:all;cursor:grab;}
+.chart-cursor.is-dragging .chart-cursor-hit,.chart-cursor.is-dragging .chart-cursor-halo,.chart-cursor.is-dragging .chart-cursor-dot,.chart-cursor.is-dragging .chart-cursor-label,.chart-cursor.is-dragging .chart-cursor-label-bg,.chart-cursor.is-dragging .chart-cursor-price{cursor:grabbing;}
+.chart-cursor:focus-visible .chart-cursor-halo{stroke-width:3;filter:drop-shadow(0 0 0.25rem rgba(0,0,0,.18));}
+.market-chart-guide span::before{content:'↔ ';font-weight:950;color:#111;}
