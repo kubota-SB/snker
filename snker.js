@@ -3,6 +3,8 @@
   'use strict';
   const DATA_URL = 'sneakers.json';
   const FRAME_COUNT = 36;
+  const FAST_360_CANDIDATES = 10;
+  const FAST_PROBE_TIMEOUT = 1200;
   const $ = (s, r=document) => r.querySelector(s);
   const $$ = (s, r=document) => [...r.querySelectorAll(s)];
   const state = { all: [], filtered: [], group: '2026', query: '' };
@@ -24,7 +26,7 @@
     });
     bindGlobalEvents();
     try {
-      const res = await fetch(DATA_URL, { cache: 'no-cache' });
+      const res = await fetch(DATA_URL, { cache: 'default' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       state.all = await res.json();
       const urlGroup = new URL(location.href).searchParams.get('year');
@@ -155,7 +157,14 @@
   function folderCandidates(item){const out=[];addVariants(folderFrom360(item.image),out);addVariants(folderFromStockxImage(item.image),out);const slug=stockxSlug(item);if(slug){addVariants(slugTitle(slug),out);addVariants(slug.split('-').map(p=>p?p[0].toUpperCase()+p.slice(1):p).join('-'),out);}addVariants(titleSeed(item.title),out);return [...new Set(out)].slice(0,34);}
   function normalStockx(folder,ext='jpg'){return `https://images.stockx.com/images/${encodeURI(folder)}.${ext}?fit=fill&bg=FFFFFF&w=900&h=650&q=78&dpr=1&trim=color`;}
   function frameUrl(folder,frame,level='Lv2'){const n=String(frame).padStart(2,'0');return `https://images.stockx.com/360/${encodeURI(folder)}/Images/${encodeURI(folder)}/${level}/img${n}.jpg?w=1100&q=84&dpr=1`;}
-  function staticCandidates(item){const arr=[]; const original=item.image||''; if(/images\.stockx\.com/i.test(original))arr.push(original); if(hasStockx(item))folderCandidates(item).slice(0,4).forEach(f=>{arr.push(normalStockx(f,'jpg'),normalStockx(f,'png'));}); if(original&&!arr.includes(original))arr.push(original); if(item.sku){arr.push(`https://cdn.snkrdunk.com/uploads/sneaker-images/${encodeURIComponent(item.sku)}.jpg?size=l`,`https://cdn.snkrdunk.com/uploads/sneaker-images/${encodeURIComponent(item.sku)}.png?size=l`);} return [...new Set(arr.filter(Boolean))];}
+  function staticCandidates(item){
+    // 一覧はまず登録済み画像を即表示。推測StockX URLを先に大量確認しない。
+    const arr=[]; const original=item.image||'';
+    if(original) arr.push(original);
+    if(hasStockx(item)) folderCandidates(item).slice(0,2).forEach(f=>arr.push(normalStockx(f,'jpg')));
+    if(item.sku) arr.push(`https://cdn.snkrdunk.com/uploads/sneaker-images/${encodeURIComponent(item.sku)}.jpg?size=l`);
+    return [...new Set(arr.filter(Boolean))];
+  }
   function setCardImage(img,item){
     const list=staticCandidates(item); let i=0;
     const next=()=>{if(i>=list.length){const ph=document.createElement('div');ph.className='image-placeholder';ph.innerHTML='<div>AJ1<br><small>IMAGE NOT AVAILABLE</small></div>';img.replaceWith(ph);return;}img.src=list[i++];};
@@ -195,22 +204,41 @@
   async function load360(item){
     const status=$('.viewer-status',els.detail);
     if(!status)return;
-    status.textContent='StockXの360°画像を確認しています…';
     const openedItemId=item.id;
-    for(const folder of folderCandidates(item)){
-      for(const level of ['Lv2','Lv1']){
-        if(currentItem?.id!==openedItemId)return;
-        if(!await probeImage(frameUrl(folder,1,level),3000))continue;
-        if(currentItem?.id!==openedItemId)return;
-        if(!await probeImage(frameUrl(folder,18,level),3000))continue;
-        if(currentItem?.id!==openedItemId)return;
-        viewer={folder,level,frame:1};
+    status.textContent='360°素材を高速確認しています…';
+
+    // 以前は最大34候補×2階層を順番に確認していたため、見つからない商品で非常に遅くなっていた。
+    // 有力候補だけを並列確認し、短時間で静止画へフォールバックする。
+    const folders=folderCandidates(item).slice(0,FAST_360_CANDIDATES);
+    const candidates=[];
+    for(const folder of folders){
+      candidates.push({folder,level:'Lv2'});
+      candidates.push({folder,level:'Lv1'});
+    }
+
+    const firstChecks=await Promise.all(candidates.map(async c=>({
+      ...c,
+      ok: await probeImage(frameUrl(c.folder,1,c.level),FAST_PROBE_TIMEOUT)
+    })));
+    if(currentItem?.id!==openedItemId)return;
+
+    const possible=firstChecks.filter(x=>x.ok);
+    if(possible.length){
+      const validation=await Promise.all(possible.slice(0,6).map(async c=>({
+        ...c,
+        ok18: await probeImage(frameUrl(c.folder,18,c.level),FAST_PROBE_TIMEOUT)
+      })));
+      if(currentItem?.id!==openedItemId)return;
+      const found=validation.find(x=>x.ok18);
+      if(found){
+        viewer={folder:found.folder,level:found.level,frame:1};
         enableViewer();
         status.textContent='左右ドラッグ / スワイプ / 矢印で回転';
         return;
       }
     }
-    if(currentItem?.id===openedItemId) status.textContent='このモデルは静止画で表示しています';
+
+    status.textContent='静止画で表示しています';
   }
   function enableViewer(){const stage=$('.viewer-stage',els.detail),img=$('.viewer-image',els.detail);stage.classList.add('has-360');['.viewer-badge','.viewer-prev','.viewer-next','.viewer-help','.viewer-count'].forEach(s=>$(s,els.detail).hidden=false);showFrame(1);preloadFrames(1);}
   function showFrame(frame){if(!viewer)return;viewer.frame=((frame-1+FRAME_COUNT)%FRAME_COUNT)+1;const img=$('.viewer-image',els.detail);img.style.display='block';img.src=frameUrl(viewer.folder,viewer.frame,viewer.level);$('.viewer-count',els.detail).textContent=`${viewer.frame} / ${FRAME_COUNT}`;preloadFrames(viewer.frame);}
