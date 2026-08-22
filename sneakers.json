@@ -163,7 +163,7 @@
     "releaseDate": "1985年 9月 16日",
     "releasePrice": "$65",
     "sku": "4280",
-    "image": "https://images.stockx.com/images/Air-Jordan-1-OG-Chicago-1985-Product.jpg?bg=FFFFFF&dpr=1&fit=fill&h=857&q=60&trim=color&updated_at=1738193358&w=1200",
+    "image": "https://images.stockx.com/360/Air-Jordan-1-OG-Chicago-1985/Images/Air-Jordan-1-OG-Chicago-1985/Lv2/img01.jpg?w=576&q=57&dpr=2&updated_at=1635283046&h=384",
     "keywords": "ogOG シカゴ Chicago chicago",
     "links": [
       {
@@ -176,9 +176,11 @@
       }
     ],
     "imageFallbacks": [
-      "https://cdn.snkrdunk.com/uploads/sneaker-images/4280.jpg?size=l"
+      "https://images.stockx.com/360/Air-Jordan-1-OG-Chicago-1985/Images/Air-Jordan-1-OG-Chicago-1985/Lv2/img36.jpg?w=576&q=57&dpr=2&updated_at=1635283046&h=384",
+      "https://images.stockx.com/360/Air-Jordan-1-OG-Chicago-1985/Images/Air-Jordan-1-OG-Chicago-1985/Lv1/img01.jpg?w=576&q=57&dpr=2&h=384"
     ],
-    "preferStockx360Image": false
+    "preferStockx360Image": true,
+    "imageSource": "StockX"
   },
   {
     "id": "aj1-010",

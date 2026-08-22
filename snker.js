@@ -1,7 +1,7 @@
 
 (() => {
   'use strict';
-  // v28: OG Chicago uses verified StockX product image for card/detail fallback; 360 remains detail-only
+  // v29: OG Chicago card/detail fallback is StockX-only using verified 1985 Chicago 360 frames
   const DATA_URL = 'sneakers.json?v=28';
   const FRAME_COUNT = 36;
   const FAST_360_CANDIDATES = 10;
@@ -163,12 +163,13 @@
     return `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=1000&h=760&fit=contain&output=webp`;
   }
   function staticCandidates(item){
-    // v28: 一覧画像では推測したStockX画像を使わない。
-    // 品番確認済みURLだけを使い、外部CDNの直リンク制限を避けるため画像キャッシュ経由を優先する。
+    // v29: OG Chicago (4280) はStockX公式の1985 Chicago画像だけを使用する。
+    // 別サイトへフォールバックしないことで、誤った実物写真が表示されるのを防ぐ。
+    const isOgChicago = item.group === 'OG' && String(item.sku) === '4280';
     const verified=[];
     if(item.image) verified.push(item.image);
     if(Array.isArray(item.imageFallbacks)) verified.push(...item.imageFallbacks);
-    if(item.sku) verified.push(`https://cdn.snkrdunk.com/uploads/sneaker-images/${encodeURIComponent(item.sku)}.jpg?size=l`);
+    if(!isOgChicago && item.sku) verified.push(`https://cdn.snkrdunk.com/uploads/sneaker-images/${encodeURIComponent(item.sku)}.jpg?size=l`);
     const direct=[...new Set(verified.filter(Boolean))];
     const arr=[];
     for(const url of direct){
