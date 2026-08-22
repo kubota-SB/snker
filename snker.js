@@ -1,8 +1,8 @@
 
 (() => {
   'use strict';
-  // v18: チャート全体をタップして価格カーソル移動 + 1か月足 / 1年足を確実に切替
-  const DATA_URL = 'sneakers.json?v=21';
+  // v22: サイズ/中古の取得失敗時フォールバック + チャート選択の二重発火修正
+  const DATA_URL = 'sneakers.json?v=22';
   const FRAME_COUNT = 36;
   const FAST_360_CANDIDATES = 10;
   const FAST_PROBE_TIMEOUT = 1200;
@@ -383,6 +383,39 @@
     }finally{clearTimeout(t);signal?.removeEventListener?.('abort',abort);}
   }
 
+  async function fetchTextSafe(target,force=false,signal){
+    if(!target)return '';
+    try{
+      return await fetchText(target,force,signal);
+    }catch(err){
+      if(signal?.aborted)throw err;
+      console.warn('[market] fetch fallback:', target, err?.message||err);
+      return '';
+    }
+  }
+
+  function hasTrend(data){
+    return !!(data&&data.kind==='trend'&&data.rawPoints?.length>=2);
+  }
+  function priceFromData(data){
+    return primaryPrice(data)||0;
+  }
+  function combineMarketData(chartData,currentPrice,referenceLabel=''){
+    if(!chartData)return null;
+    if(chartData.kind!=='trend'){
+      if(currentPrice>0)return {...chartData,selectedPrice:currentPrice};
+      return chartData;
+    }
+    const next={...chartData,selectedPrice:currentPrice>0?currentPrice:(chartData.selectedPrice||0)};
+    if(referenceLabel){
+      next.isReferenceChart=true;
+      next.chartScope=referenceLabel;
+      const extra=` 選択条件専用の履歴を取得できなかったため、「${referenceLabel}」を参考チャートとして表示しています。`;
+      next.note=(next.note||'SNKRDUNK公開ページから取得できた価格情報です。')+extra;
+    }
+    return next;
+  }
+
   const moneyRE=/(?:￥|¥)\s*[\d,]+/g;
   const toNum=v=>Number(String(v||'').replace(/[^0-9.]/g,''))||0;
   const fmt=n=>n?`¥${Math.round(n).toLocaleString()}`:'—';
@@ -615,32 +648,122 @@
   async function loadMarket(panel,force=false){
     const raw=panel.dataset.url,status=$('.market-status',panel),empty=$('.market-empty',panel),svg=$('.market-chart',panel),metrics=$('.market-metrics',panel),foot=$('.market-footnote',panel);
     if(!raw){status.textContent='リンクなし';status.className='market-status error';setMarketLoading(panel,false);empty.hidden=false;empty.textContent='SNKRDUNKの商品リンクがありません。';return;}
-    const size=$('.market-size',panel).value,condition=$('.market-condition button.active',panel)?.dataset.condition||'new';
+
+    const size=$('.market-size',panel).value;
+    const condition=$('.market-condition button.active',panel)?.dataset.condition||'new';
+    const selectionLabel=`${size==='All'?'全サイズ':size+'cm'} · ${condition==='used'?'中古':'新品'}`;
     setSelectionLabel(panel,size,condition);
-    const target=withSnkrParams(raw,size,condition);$('.market-open',panel)?.setAttribute('href',target);
-    const key=`${target}|${condition}|${size}`;if(!force&&panel.dataset.loadedKey===key)return;
-    panel._marketAbort?.abort();const ctrl=new AbortController();panel._marketAbort=ctrl;
+
+    const selectedTarget=withSnkrParams(raw,size,condition);
+    const conditionAllTarget=withSnkrParams(raw,'All',condition);
+    const baseTarget=raw;
+    $('.market-open',panel)?.setAttribute('href',selectedTarget||baseTarget);
+
+    const key=`${selectedTarget}|${condition}|${size}`;
+    if(!force&&panel.dataset.loadedKey===key)return;
+
+    panel._marketAbort?.abort();
+    const ctrl=new AbortController();panel._marketAbort=ctrl;
     const requestId=String((Number(panel.dataset.requestId)||0)+1);panel.dataset.requestId=requestId;
-    status.textContent='取得中';status.className='market-status';clearMarketVisual(panel,'選択条件の価格を取得しています…');setMarketLoading(panel,true);
+    status.textContent='取得中';status.className='market-status';
+    clearMarketVisual(panel,'選択条件の価格を取得しています…');setMarketLoading(panel,true);
+
     try{
-      const text=await fetchText(target,force,ctrl.signal);if(panel.dataset.requestId!==requestId||ctrl.signal.aborted)return;
-      const data=parseSnkrData(text,condition,size);
+      // 1) まずユーザーが選んだ「サイズ × 新品/中古」を取得。
+      // ここが失敗しても処理を終了せず、同条件の全サイズページへ必ずフォールバックする。
+      const selectedText=await fetchTextSafe(selectedTarget,force,ctrl.signal);
+      if(panel.dataset.requestId!==requestId||ctrl.signal.aborted)return;
+      let selectedData=selectedText?parseSnkrData(selectedText,condition,size):null;
+      let currentPrice=priceFromData(selectedData);
+      let finalData=hasTrend(selectedData)?selectedData:null;
+      let referenceLabel='';
+
+      // 2) 同じ新品/中古の「全サイズ」ページ。
+      // 個別サイズURLが取得不可でも、この本文からサイズ周辺の現在価格を拾える場合がある。
+      let conditionAllText='';
+      if(!finalData || !currentPrice){
+        if(conditionAllTarget===selectedTarget) conditionAllText=selectedText;
+        else conditionAllText=await fetchTextSafe(conditionAllTarget,force,ctrl.signal);
+        if(panel.dataset.requestId!==requestId||ctrl.signal.aborted)return;
+
+        if(conditionAllText){
+          const sizedFromAll=parseSnkrData(conditionAllText,condition,size);
+          if(!currentPrice)currentPrice=priceFromData(sizedFromAll);
+          if(!finalData&&hasTrend(sizedFromAll))finalData=sizedFromAll;
+
+          if(!finalData&&size!=='All'){
+            const allConditionData=parseSnkrData(conditionAllText,condition,'All');
+            if(hasTrend(allConditionData)){
+              finalData=allConditionData;
+              referenceLabel=`全サイズ・${condition==='used'?'中古':'新品'}`;
+            }
+          }
+        }
+      }
+
+      // 3) 最後にパラメータ無しの商品履歴ページも確認。
+      // SNKRDUNK/Jina側が size や condition のクエリを拒否するケースでもチャートを残すため。
+      if(!finalData || !currentPrice){
+        let baseText='';
+        if(baseTarget===selectedTarget)baseText=selectedText;
+        else if(baseTarget===conditionAllTarget)baseText=conditionAllText;
+        else baseText=await fetchTextSafe(baseTarget,false,ctrl.signal);
+        if(panel.dataset.requestId!==requestId||ctrl.signal.aborted)return;
+
+        if(baseText){
+          const sizedBase=parseSnkrData(baseText,condition,size);
+          if(!currentPrice)currentPrice=priceFromData(sizedBase);
+          if(!finalData&&hasTrend(sizedBase))finalData=sizedBase;
+
+          if(!finalData){
+            const allBase=parseSnkrData(baseText,condition,'All');
+            if(hasTrend(allBase)){
+              finalData=allBase;
+              referenceLabel=`全サイズ・${condition==='used'?'中古':'新品'}（参考）`;
+            }
+          }
+        }
+      }
+
+      // チャートが無くても選択条件の現在価格だけ取れていれば価格は表示する。
+      // 逆に現在価格が取れなくても、履歴が取れていれば参考チャートを表示する。
+      let data;
+      if(finalData){
+        data=combineMarketData(finalData,currentPrice,referenceLabel);
+      }else if(selectedData&&priceFromData(selectedData)>0){
+        data={...selectedData,selectedPrice:currentPrice||priceFromData(selectedData)};
+      }else if(currentPrice>0){
+        data={kind:'point',point:currentPrice,selectedPrice:currentPrice,currency:'¥',metrics:[['現在',fmt(currentPrice)]],note:`${selectionLabel}の現在価格のみ取得できました。`};
+      }else{
+        data={kind:'empty',metrics:[],unsupported:`${selectionLabel}の現在価格・価格履歴を取得できませんでした。`};
+      }
+
       panel._marketData=data;
       drawChart(panel,data);
-      renderCurrentPrice(panel,data,`${size==='All'?'全サイズ':size+'cm'} · ${condition==='used'?'中古':'新品'}`);
+      renderCurrentPrice(panel,data,selectionLabel);
+
       const hasPrice=primaryPrice(data)>0;
-      const hasChart=data.kind==='trend'&&data.rawPoints?.length>=2;
+      const hasChart=hasTrend(data);
       const has=hasPrice||hasChart;
       const scopeText=data.isReferenceChart
         ? `${data.chartScope||'参考履歴'}をチャート表示`
         : (hasChart?'選択条件の売買履歴':hasPrice?'選択条件の現在価格':'価格履歴を取得できません');
       showScope(panel,scopeText,data.isReferenceChart?'warn':(has?'ok':'warn'));
       status.textContent=has?'更新済み':'取得不可';status.className='market-status '+(has?'ok':'error');
-      panel.dataset.loadedKey=key;foot.textContent=data.note||'';foot.hidden=!data.note;
+      panel.dataset.loadedKey=key;
+      foot.textContent=data.note||'';foot.hidden=!data.note;
     }catch(err){
       if(panel.dataset.requestId!==requestId||ctrl.signal.aborted)return;
-      status.textContent='取得不可';status.className='market-status error';svg.setAttribute('hidden','');empty.hidden=false;empty.textContent='SNKRDUNK側の制限で価格データを取得できませんでした。公式ページで確認してください。';metrics.innerHTML='';foot.hidden=true;renderCurrentPrice(panel,null,`${size==='All'?'全サイズ':size+'cm'} · ${condition==='used'?'中古':'新品'}`);showScope(panel,'外部データ取得エラー','error');
-    }finally{if(panel.dataset.requestId===requestId)setMarketLoading(panel,false);}
+      console.error(err);
+      status.textContent='取得不可';status.className='market-status error';
+      svg.setAttribute('hidden','');empty.hidden=false;
+      empty.textContent='SNKRDUNK側の制限で価格データを取得できませんでした。公式ページで確認してください。';
+      metrics.innerHTML='';foot.hidden=true;
+      renderCurrentPrice(panel,null,selectionLabel);
+      showScope(panel,'外部データ取得エラー','error');
+    }finally{
+      if(panel.dataset.requestId===requestId)setMarketLoading(panel,false);
+    }
   }
 
   function renderMetrics(panel,data){const metrics=$('.market-metrics',panel);metrics.innerHTML='';(data.metrics||[]).forEach(([k,v])=>{const d=document.createElement('div');d.className='market-metric';d.innerHTML=`<span>${k}</span><strong>${v||'—'}</strong>`;metrics.appendChild(d);});}
@@ -842,36 +965,41 @@
 
       const finishCursor=e=>{
         if(!draggingCursor)return;
-        // pointermove中にすでに選択済みなので、pointerupでは再計算しない。
-        // これで離した瞬間に別地点（特に最新）へ飛ぶのを防ぐ。
         draggingCursor=false;
         const oldId=cursorPointerId;
         cursorPointerId=null;
-        suppressClickUntil=performance.now()+450;
+        // ドラッグ終了後にブラウザが生成する click を完全に無視する。
+        // viewBox が移動した後の座標で再選択され、最新へ飛ぶ現象を防ぐ。
+        suppressClickUntil=performance.now()+700;
         svg.classList.remove('is-selecting');
         $('[data-chart-cursor]',svg)?.classList.remove('is-dragging');
-        try{ if(oldId!=null&&svg.hasPointerCapture?.(oldId)) svg.releasePointerCapture(oldId); }catch{}
+        try{if(oldId!=null&&svg.hasPointerCapture?.(oldId))svg.releasePointerCapture(oldId);}catch{}
+        e?.preventDefault?.();
+        e?.stopPropagation?.();
       };
 
       svg.addEventListener('pointerdown',e=>{
+        if(!svg._chartMeta)return;
+        if(e.button!==undefined&&e.button!==0)return;
         const cursor=e.target.closest?.('[data-chart-cursor]');
-        if(cursor&&svg._chartMeta){
+
+        // pointerdownだけで選択を完結させる。
+        // この後のclickでは再計算しないため、viewBox追従後に最新側へ飛ばない。
+        suppressClickUntil=performance.now()+700;
+
+        if(cursor){
           draggingCursor=true;
           cursorPointerId=e.pointerId;
           svg.classList.add('is-selecting');
           cursor.classList.add('is-dragging');
-          try{ svg.setPointerCapture?.(e.pointerId); }catch{}
+          try{svg.setPointerCapture?.(e.pointerId);}catch{}
           e.preventDefault();
           e.stopPropagation();
           return;
         }
 
-        if(!svg._chartMeta)return;
-        if(e.button!==undefined&&e.button!==0)return;
-
-        // v20: チャート本体は「押した瞬間」に選択する。
-        // click/pointerupのブラウザ差に依存しないため、PC/スマホとも確実に玉が移動する。
         pick(e);
+        e.stopPropagation();
       });
 
       svg.addEventListener('pointermove',e=>{
@@ -879,6 +1007,7 @@
         autoPanChartBox(box(),e.clientX);
         pick(e);
         e.preventDefault();
+        e.stopPropagation();
       });
 
       svg.addEventListener('pointerup',e=>{
@@ -891,38 +1020,19 @@
         if(draggingCursor)finishCursor(e);
       });
 
-      // pointerdownで選択できるが、キーボード/一部ブラウザの通常clickもフォールバックとして残す。
+      // pointer操作の直後に発生するclickは選択処理をしない。
+      // キーボード操作は下のkeydownで対応する。
       svg.addEventListener('click',e=>{
         if(performance.now()<suppressClickUntil){
-          e.preventDefault();
-          e.stopPropagation();
-          return;
+          e.preventDefault();e.stopPropagation();return;
         }
-        if(e.target.closest?.('[data-chart-cursor]'))return;
-        pick(e);
+        // pointerdownが発生しない特殊なclickだけフォールバックとして処理。
+        if(e.detail===0&&e.clientX>0)pick(e);
       });
 
       const chartBox=box();
       if(chartBox&&!chartBox.dataset.tapBound){
         chartBox.dataset.tapBound='1';
-        chartBox.addEventListener('pointerdown',e=>{
-          if(e.target.closest?.('[data-chart-cursor]'))return;
-          if(e.target===svg||svg.contains(e.target))return; // SVG側で処理済み
-          if(!svg._chartMeta)return;
-          const r=svg.getBoundingClientRect();
-          if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom)pick(e);
-        });
-        chartBox.addEventListener('click',e=>{
-          if(performance.now()<suppressClickUntil){
-            e.preventDefault();
-            e.stopPropagation();
-            return;
-          }
-          if(e.target.closest?.('[data-chart-cursor]'))return;
-          if(e.target===svg||svg.contains(e.target))return;
-          const r=svg.getBoundingClientRect();
-          if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom)pick(e);
-        });
         chartBox.addEventListener('wheel',e=>{
           if(!svg._chartMeta)return;
           const delta=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;

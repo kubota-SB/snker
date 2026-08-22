@@ -339,3 +339,9 @@ h1{margin:0;font-size:clamp(36px,6vw,72px);line-height:.94;letter-spacing:-.055e
 
 /* v20: chart tap is handled on pointerdown; cursor release keeps selected history point */
 .market-chart{pointer-events:auto!important;}
+
+
+/* v22: selected-size fallback chart + stable chart point selection */
+.market-scope.warn{background:#fff7dc!important;color:#7a5a00!important;}
+.market-scope.ok{background:#edf9f2!important;color:#16683b!important;}
+.market-chart{pointer-events:auto!important;}
