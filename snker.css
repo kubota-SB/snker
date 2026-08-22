@@ -275,3 +275,32 @@ h1{margin:0;font-size:clamp(36px,6vw,72px);line-height:.94;letter-spacing:-.055e
   .market-chart-box{min-height:270px;scroll-padding-left:90px;scroll-padding-right:120px;}
   .market-chart:not([hidden]){height:270px!important;min-height:270px!important;}
 }
+
+
+/* v15: fixed viewport chart. The SVG viewBox pans instead of the DOM element scrolling. */
+.market-chart-box{
+  overflow:hidden!important;
+  cursor:grab!important;
+  touch-action:none!important;
+  scrollbar-width:none!important;
+}
+.market-chart-box::-webkit-scrollbar{display:none!important;}
+.market-chart-box.is-panning{cursor:grabbing!important;user-select:none;-webkit-user-select:none;}
+.market-chart:not([hidden]){
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  height:300px!important;
+  min-height:300px!important;
+  display:block!important;
+  touch-action:none!important;
+  user-select:none;
+  -webkit-user-select:none;
+}
+.chart-cursor{pointer-events:auto!important;cursor:grab!important;touch-action:none!important;}
+.chart-cursor.is-dragging{cursor:grabbing!important;}
+.chart-cursor-label{pointer-events:all!important;}
+.market-chart-guide span::before{content:'● ';font-weight:950;color:#111;}
+@media(max-width:620px){
+  .market-chart:not([hidden]){height:270px!important;min-height:270px!important;}
+}
