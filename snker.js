@@ -298,6 +298,7 @@
   function clearMarketVisual(panel,message='新しい条件の価格を取得しています…'){
     const empty=$('.market-empty',panel),svg=$('.market-chart',panel),metrics=$('.market-metrics',panel),foot=$('.market-footnote',panel),scope=$('.market-scope',panel),current=$('.market-current',panel),guide=$('.market-chart-guide',panel);
     if(svg){svg.setAttribute('hidden','');svg.innerHTML='';svg.style.width='';svg._chartMeta=null;svg.dataset.selectedIndex='';}
+    delete panel.dataset.selectedTime;
     if(empty){empty.hidden=false;empty.textContent=message;}
     if(metrics)metrics.innerHTML='';
     if(foot){foot.hidden=true;foot.textContent='';}
@@ -319,18 +320,9 @@
     }
     const interval=e.target.closest('[data-chart-interval]');
     if(interval){
+      e.preventDefault();
       const panel=interval.closest('.market-source');
-      const nextInterval=interval.dataset.chartInterval||'month';
-      $$('.market-interval button',panel).forEach(b=>{
-        const active=b===interval;
-        b.classList.toggle('active',active);
-        b.setAttribute('aria-pressed',active?'true':'false');
-      });
-      panel.dataset.chartInterval=nextInterval;
-      if(panel._marketData){
-        drawChart(panel,panel._marketData);
-        renderCurrentPrice(panel,panel._marketData,`${$('.market-size',panel).value==='All'?'全サイズ':$('.market-size',panel).value+'cm'} · ${$('.market-condition button.active',panel)?.dataset.condition==='used'?'中古':'新品'}`);
-      }
+      switchChartInterval(panel,interval.dataset.chartInterval||'month');
       return;
     }
     const reset=e.target.closest('[data-chart-reset]');
@@ -347,6 +339,22 @@
     panel.dataset.loadedKey='';
     clearMarketVisual(panel);
     loadMarket(panel,true);
+  }
+
+  function switchChartInterval(panel,nextInterval){
+    if(!panel)return;
+    const svg=$('.market-chart',panel);
+    const meta=svg?._chartMeta;
+    const currentIndex=meta?.points?.length?Math.max(0,Math.min(meta.points.length-1,Number(svg.dataset.selectedIndex||meta.latestIndex))):-1;
+    const selectedTime=currentIndex>=0?meta.points[currentIndex]?.time:Number(panel.dataset.selectedTime);
+    $$('.market-interval button',panel).forEach(b=>{
+      const active=(b.dataset.chartInterval||'month')===nextInterval;
+      b.classList.toggle('active',active);
+      b.setAttribute('aria-pressed',active?'true':'false');
+    });
+    panel.dataset.chartInterval=nextInterval;
+    if(Number.isFinite(Number(selectedTime)))panel.dataset.selectedTime=String(Number(selectedTime));
+    if(panel._marketData)drawChart(panel,panel._marketData,{preferredTime:Number(selectedTime)});
   }
 
   function readerUrl(url,bust=false){
@@ -392,6 +400,11 @@
       console.warn('[market] fetch fallback:', target, err?.message||err);
       return '';
     }
+  }
+
+  function explicitNoTrades(text){
+    const s=String(text||'').replace(/\s+/g,' ');
+    return /(取引(?:履歴)?(?:が)?ありません|売買(?:履歴|実績)?(?:が)?ありません|販売(?:履歴|実績)?(?:が)?ありません|該当する(?:取引|売買|販売)(?:履歴|実績)?(?:が)?ありません|まだ取引がありません|取引データがありません|no sales|no transactions)/i.test(s);
   }
 
   function hasTrend(data){
@@ -628,7 +641,7 @@
       };
     }
 
-    return {kind:'empty',metrics:[],unsupported:`${sizeLabel}・${conditionLabel}の価格履歴を取得できませんでした。`};
+    return {kind:'no-trades',metrics:[['取引','0件']],noTrades:true,unsupported:`${sizeLabel}・${conditionLabel}の取引はありません。`};
   }
 
   function setMarketLoading(panel,on){
@@ -673,6 +686,8 @@
       // ここが失敗しても処理を終了せず、同条件の全サイズページへ必ずフォールバックする。
       const selectedText=await fetchTextSafe(selectedTarget,force,ctrl.signal);
       if(panel.dataset.requestId!==requestId||ctrl.signal.aborted)return;
+      let anyFetched=!!selectedText;
+      let sawExplicitNoTrades=explicitNoTrades(selectedText);
       let selectedData=selectedText?parseSnkrData(selectedText,condition,size):null;
       let currentPrice=priceFromData(selectedData);
       let finalData=hasTrend(selectedData)?selectedData:null;
@@ -685,6 +700,8 @@
         if(conditionAllTarget===selectedTarget) conditionAllText=selectedText;
         else conditionAllText=await fetchTextSafe(conditionAllTarget,force,ctrl.signal);
         if(panel.dataset.requestId!==requestId||ctrl.signal.aborted)return;
+        anyFetched=anyFetched||!!conditionAllText;
+        sawExplicitNoTrades=sawExplicitNoTrades||explicitNoTrades(conditionAllText);
 
         if(conditionAllText){
           const sizedFromAll=parseSnkrData(conditionAllText,condition,size);
@@ -709,6 +726,8 @@
         else if(baseTarget===conditionAllTarget)baseText=conditionAllText;
         else baseText=await fetchTextSafe(baseTarget,false,ctrl.signal);
         if(panel.dataset.requestId!==requestId||ctrl.signal.aborted)return;
+        anyFetched=anyFetched||!!baseText;
+        sawExplicitNoTrades=sawExplicitNoTrades||explicitNoTrades(baseText);
 
         if(baseText){
           const sizedBase=parseSnkrData(baseText,condition,size);
@@ -734,8 +753,10 @@
         data={...selectedData,selectedPrice:currentPrice||priceFromData(selectedData)};
       }else if(currentPrice>0){
         data={kind:'point',point:currentPrice,selectedPrice:currentPrice,currency:'¥',metrics:[['現在',fmt(currentPrice)]],note:`${selectionLabel}の現在価格のみ取得できました。`};
+      }else if(anyFetched){
+        data={kind:'no-trades',noTrades:true,metrics:[['取引','0件']],selectedPrice:0,unsupported:`${selectionLabel}の取引はありません。`,note:'SNKRDUNKのページは取得できましたが、選択条件に該当する売買履歴は確認できませんでした。'};
       }else{
-        data={kind:'empty',metrics:[],unsupported:`${selectionLabel}の現在価格・価格履歴を取得できませんでした。`};
+        data={kind:'fetch-error',metrics:[],unsupported:'SNKRDUNKから価格データを取得できませんでした。'};
       }
 
       panel._marketData=data;
@@ -745,11 +766,12 @@
       const hasPrice=primaryPrice(data)>0;
       const hasChart=hasTrend(data);
       const has=hasPrice||hasChart;
+      const noTrades=data.kind==='no-trades'||data.noTrades;
       const scopeText=data.isReferenceChart
         ? `${data.chartScope||'参考履歴'}をチャート表示`
-        : (hasChart?'選択条件の売買履歴':hasPrice?'選択条件の現在価格':'価格履歴を取得できません');
-      showScope(panel,scopeText,data.isReferenceChart?'warn':(has?'ok':'warn'));
-      status.textContent=has?'更新済み':'取得不可';status.className='market-status '+(has?'ok':'error');
+        : (hasChart?'選択条件の売買履歴':hasPrice?'選択条件の現在価格':noTrades?'取引はありません':'価格データを取得できません');
+      showScope(panel,scopeText,data.isReferenceChart?'warn':(has?'ok':noTrades?'warn':'error'));
+      status.textContent=has?'更新済み':noTrades?'取引なし':'取得不可';status.className='market-status '+(has?'ok':noTrades?'warn':'error');
       panel.dataset.loadedKey=key;
       foot.textContent=data.note||'';foot.hidden=!data.note;
     }catch(err){
@@ -767,8 +789,9 @@
   }
 
   function renderMetrics(panel,data){const metrics=$('.market-metrics',panel);metrics.innerHTML='';(data.metrics||[]).forEach(([k,v])=>{const d=document.createElement('div');d.className='market-metric';d.innerHTML=`<span>${k}</span><strong>${v||'—'}</strong>`;metrics.appendChild(d);});}
-  function drawChart(panel,data){
+  function drawChart(panel,data,options={}){
     const svg=$('.market-chart',panel),empty=$('.market-empty',panel),guide=$('.market-chart-guide',panel);
+    const preferredTime=Number.isFinite(Number(options.preferredTime))?Number(options.preferredTime):Number(panel.dataset.selectedTime);
     svg._chartMeta=null;if(guide)guide.hidden=true;
     if(data.kind==='trend'&&data.rawPoints?.length){
       const interval=panel.dataset.chartInterval||'month';
@@ -779,14 +802,23 @@
       if(points.length){
         drawTrendChart(svg,{...data,points,interval});svg.removeAttribute('hidden');empty.hidden=true;if(guide)guide.hidden=false;
         $('.market-chart-title',panel).textContent=`売買価格の推移（${intervalLabel}）${data.isReferenceChart?'・参考':''}`;
-        selectChartPoint(panel,points.length-1,true);
-        scrollChartToLatest(panel,false);
+        let targetIndex=points.length-1;
+        if(Number.isFinite(preferredTime)){
+          let best=Infinity;
+          points.forEach((p,i)=>{const d=Math.abs((Number(p.time)||0)-preferredTime);if(d<best){best=d;targetIndex=i;}});
+        }
+        selectChartPoint(panel,targetIndex,true);
+        scrollChartToPoint(panel,targetIndex,{force:true,smooth:false});
         return;
       }
     }
     renderMetrics(panel,data);
-    if(data.kind==='point'&&data.point>0){drawPointChart(svg,data);svg.removeAttribute('hidden');empty.hidden=true;$('.market-chart-title',panel).textContent='現在価格（履歴未取得）';return;}
-    svg.setAttribute('hidden','');empty.hidden=false;empty.textContent=data.unsupported||'価格履歴を取得できませんでした。';$('.market-chart-title',panel).textContent='価格情報';
+    if(data.kind==='point'&&data.point>0){
+      svg.setAttribute('hidden','');empty.hidden=false;empty.textContent='過去の取引はありません。';$('.market-chart-title',panel).textContent='取引履歴';return;
+    }
+    svg.setAttribute('hidden','');empty.hidden=false;
+    if(data.kind==='no-trades'||data.noTrades){empty.textContent=data.unsupported||'取引はありません。';$('.market-chart-title',panel).textContent='取引履歴';}
+    else{empty.textContent=data.unsupported||'価格データを取得できませんでした。';$('.market-chart-title',panel).textContent='価格情報';}
   }
 
   function drawPointChart(svg,data){
@@ -905,6 +937,8 @@
     const svg=$('.market-chart',panel),meta=svg?._chartMeta;if(!meta?.points?.length)return;
     index=Math.max(0,Math.min(meta.points.length-1,index));
     svg.dataset.selectedIndex=String(index);
+    const selectedPoint=meta.points[index];
+    if(Number.isFinite(Number(selectedPoint?.time)))panel.dataset.selectedTime=String(Number(selectedPoint.time));
     // 先に表示範囲を追従させてから玉の吹き出し位置を計算する。
     scrollChartToPoint(panel,index,{force:false,smooth:false});
     const p=meta.points[index],cursor=$('[data-chart-cursor]',svg);if(!cursor)return;
@@ -1043,26 +1077,6 @@
       }
 
       const sourcePanel=panel();
-      $$('.market-interval button',sourcePanel).forEach(btn=>{
-        if(btn.dataset.intervalBound)return;
-        btn.dataset.intervalBound='1';
-        btn.addEventListener('click',ev=>{
-          ev.preventDefault();ev.stopPropagation();
-          const next=btn.dataset.chartInterval||'month';
-          $$('.market-interval button',sourcePanel).forEach(b=>{
-            const active=b===btn;
-            b.classList.toggle('active',active);
-            b.setAttribute('aria-pressed',active?'true':'false');
-          });
-          sourcePanel.dataset.chartInterval=next;
-          if(sourcePanel._marketData){
-            drawChart(sourcePanel,sourcePanel._marketData);
-            const size=$('.market-size',sourcePanel)?.value||'All';
-            const condition=$('.market-condition button.active',sourcePanel)?.dataset.condition||'new';
-            renderCurrentPrice(sourcePanel,sourcePanel._marketData,`${size==='All'?'全サイズ':size+'cm'} · ${condition==='used'?'中古':'新品'}`);
-          }
-        });
-      });
 
       svg.addEventListener('keydown',e=>{
         if(!svg._chartMeta)return;
@@ -1074,7 +1088,6 @@
           e.preventDefault();
           selectChartPoint(panel(),svg._chartMeta.latestIndex,true);
           scrollChartToLatest(panel(),false);
-          selectChartPoint(panel(),svg._chartMeta.latestIndex,true);
         }
       });
     });
