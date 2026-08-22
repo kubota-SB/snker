@@ -2,7 +2,7 @@
 (() => {
   'use strict';
   // v18: チャート全体をタップして価格カーソル移動 + 1か月足 / 1年足を確実に切替
-  const DATA_URL = 'sneakers.json?v=20';
+  const DATA_URL = 'sneakers.json?v=21';
   const FRAME_COUNT = 36;
   const FAST_360_CANDIDATES = 10;
   const FAST_PROBE_TIMEOUT = 1200;
@@ -522,26 +522,80 @@
   }
 
   function parseSnkrData(text,condition,size){
-    const section=extractConditionSection(text,condition);
-    if(!section){return {kind:'empty',metrics:[],unsupported:`${condition==='used'?'中古':'新品'}の売買履歴を新品と分離して取得できませんでした。誤って同じチャートを表示しないため非表示にしています。`};}
-    let points=extractTransactions(section,size);
-    if(size!=='All'&&points.length<2){
-      // サイズ表記が別カラム/別行の場合に備えて、そのサイズ周辺の文脈からもう一度抽出。
-      const joined=sizeContexts(section,size).join('\n');
-      points=extractTransactions(joined,'All');
+    const whole=String(text||'');
+    const section=extractConditionSection(whole,condition);
+    const conditionLabel=condition==='used'?'中古':'新品';
+    const sizeLabel=size==='All'?'全サイズ':`${size}cm`;
+
+    // 現在価格はユーザーが選んだ「サイズ × 新品/中古」を最優先する。
+    // 条件見出しを分離できない中古ページでも、condition=used で取得したページ本文から
+    // サイズ周辺の価格を拾えるようにする。
+    const priceSources=[];
+    if(section) priceSources.push(section);
+    if(!section || condition==='used') priceSources.push(whole);
+    let selectedPrices=[];
+    for(const src of priceSources){
+      selectedPrices=extractCurrentPrices(src,size);
+      if(selectedPrices.length)break;
     }
-    if(points.length>=2){
-      const rawPoints=points;
+    const selectedPrice=selectedPrices[0]||0;
+
+    // チャートは「条件・サイズ完全一致」を最優先し、履歴が足りない場合だけ段階的にフォールバック。
+    // これにより個別サイズや中古を選んでもチャート枠自体が消えにくくなる。
+    const candidates=[];
+    const pushCandidate=(label,src,sz,reference=false)=>{
+      if(!src)return;
+      let pts=extractTransactions(src,sz);
+      if(sz!=='All'&&pts.length<2){
+        const joined=sizeContexts(src,sz).join('\n');
+        if(joined)pts=extractTransactions(joined,'All');
+      }
+      if(pts.length>=2)candidates.push({label,points:pts,reference});
+    };
+
+    pushCandidate(`${sizeLabel}・${conditionLabel}`,section,size,false);
+    if(size!=='All')pushCandidate(`全サイズ・${conditionLabel}`,section,'All',true);
+
+    // condition=used/new を付けて取得したページ本文を条件ページとして使う。
+    // 見出し抽出に失敗しても、ページ自体に履歴があれば参考チャートとして残す。
+    if(section!==whole){
+      pushCandidate(`${sizeLabel}・${conditionLabel}（条件ページ）`,whole,size,true);
+      if(size!=='All')pushCandidate(`全サイズ・${conditionLabel}（条件ページ）`,whole,'All',true);
+    }
+
+    const chosen=candidates[0];
+    if(chosen){
+      const rawPoints=chosen.points;
       const monthlyPoints=aggregateMonthly(rawPoints);
       const vals=rawPoints.map(x=>x.value),latest=rawPoints.at(-1).value;
-      return {kind:'trend',points:monthlyPoints,rawPoints,currency:'¥',metrics:[['最新',fmt(latest)],['最安',fmt(Math.min(...vals))],['最高',fmt(Math.max(...vals))],['取引',rawPoints.length+'件']],note:`SNKRDUNK公開ページから取得できた${condition==='used'?'中古':'新品'}の売買履歴です。チャートは1か月足 / 1年足で切り替えられます。`};
+      const current=selectedPrice||latest;
+      const referenceNote=chosen.reference?` 選択条件だけの履歴が十分でないため、チャートは「${chosen.label}」を参考表示しています。`:` チャートは「${chosen.label}」の履歴です。`;
+      return {
+        kind:'trend',points:monthlyPoints,rawPoints,currency:'¥',selectedPrice:current,
+        chartScope:chosen.label,isReferenceChart:chosen.reference,
+        metrics:[['現在',fmt(current)],['最安',fmt(Math.min(...vals))],['最高',fmt(Math.max(...vals))],['取引',rawPoints.length+'件']],
+        note:`SNKRDUNK公開ページから取得できた価格情報です。${referenceNote} 1か月足 / 1年足で切り替えられます。`
+      };
     }
-    const prices=extractCurrentPrices(section,size);
-    if(prices.length){
-      const point=prices[0];
-      return {kind:'point',point,currency:'¥',metrics:[['現在の最安',fmt(point)],['確認価格数',prices.length+'件'],['価格帯',prices.length>1?`${fmt(prices[0])}〜${fmt(prices.at(-1))}`:fmt(point)]],note:`${condition==='used'?'中古':'新品'}の現在価格は取得できましたが、日付付き履歴は十分に取得できませんでした。`};
+
+    if(selectedPrices.length){
+      const point=selectedPrices[0];
+      return {kind:'point',point,selectedPrice:point,currency:'¥',metrics:[['現在の最安',fmt(point)],['確認価格数',selectedPrices.length+'件'],['価格帯',selectedPrices.length>1?`${fmt(selectedPrices[0])}〜${fmt(selectedPrices.at(-1))}`:fmt(point)]],note:`${sizeLabel}・${conditionLabel}の現在価格は取得できましたが、チャート用の過去履歴は取得できませんでした。`};
     }
-    return {kind:'empty',metrics:[],unsupported:`${size==='All'?'全サイズ':size+'cm'}・${condition==='used'?'中古':'新品'}の価格履歴を取得できませんでした。`};
+
+    // 最後の保険：選択条件の価格も履歴も無い場合でも、商品全体の履歴があれば参考チャートを表示する。
+    const fallback=extractTransactions(whole,'All');
+    if(fallback.length>=2){
+      const vals=fallback.map(x=>x.value),latest=fallback.at(-1).value;
+      return {
+        kind:'trend',points:aggregateMonthly(fallback),rawPoints:fallback,currency:'¥',selectedPrice:0,
+        chartScope:'商品全体（参考）',isReferenceChart:true,
+        metrics:[['参考最新',fmt(latest)],['最安',fmt(Math.min(...vals))],['最高',fmt(Math.max(...vals))],['取引',fallback.length+'件']],
+        note:`${sizeLabel}・${conditionLabel}の現在価格は取得できませんでしたが、商品全体の売買履歴を参考チャートとして表示しています。`
+      };
+    }
+
+    return {kind:'empty',metrics:[],unsupported:`${sizeLabel}・${conditionLabel}の価格履歴を取得できませんでした。`};
   }
 
   function setMarketLoading(panel,on){
@@ -553,7 +607,7 @@
     const s=size==='All'?'全サイズ':`${size}cm`;$('.market-selection',panel).textContent=`${s} · ${condition==='used'?'中古':'新品'}`;
   }
   function showScope(panel,text,type='ok'){const el=$('.market-scope',panel);if(!el)return;el.textContent=text;el.className=`market-scope ${type}`;el.hidden=false;}
-  function primaryPrice(data){if(!data)return 0;if(data.kind==='trend')return data.points?.at(-1)?.value||0;if(data.kind==='point')return data.point||0;return 0;}
+  function primaryPrice(data){if(!data)return 0;if(data.selectedPrice>0)return data.selectedPrice;if(data.kind==='trend')return data.points?.at(-1)?.value||0;if(data.kind==='point')return data.point||0;return 0;}
   function renderCurrentPrice(panel,data,label=''){
     const box=$('.market-current',panel);if(!box)return;const price=primaryPrice(data);$('strong',box).textContent=price?fmt(price):'—';$('small',box).textContent=label||($('.market-selection',panel)?.textContent||'');
   }
@@ -574,8 +628,13 @@
       panel._marketData=data;
       drawChart(panel,data);
       renderCurrentPrice(panel,data,`${size==='All'?'全サイズ':size+'cm'} · ${condition==='used'?'中古':'新品'}`);
-      const has=primaryPrice(data)>0 || (data.kind==='trend'&&data.points?.length>=2);
-      showScope(panel,has?'選択条件の公開データ':'選択条件の履歴を分離できません',has?'ok':'warn');
+      const hasPrice=primaryPrice(data)>0;
+      const hasChart=data.kind==='trend'&&data.rawPoints?.length>=2;
+      const has=hasPrice||hasChart;
+      const scopeText=data.isReferenceChart
+        ? `${data.chartScope||'参考履歴'}をチャート表示`
+        : (hasChart?'選択条件の売買履歴':hasPrice?'選択条件の現在価格':'価格履歴を取得できません');
+      showScope(panel,scopeText,data.isReferenceChart?'warn':(has?'ok':'warn'));
       status.textContent=has?'更新済み':'取得不可';status.className='market-status '+(has?'ok':'error');
       panel.dataset.loadedKey=key;foot.textContent=data.note||'';foot.hidden=!data.note;
     }catch(err){
@@ -596,7 +655,7 @@
       renderMetrics(panel,{...data,metrics:[...(data.metrics||[]),extra]});
       if(points.length){
         drawTrendChart(svg,{...data,points,interval});svg.removeAttribute('hidden');empty.hidden=true;if(guide)guide.hidden=false;
-        $('.market-chart-title',panel).textContent=`売買価格の推移（${intervalLabel}）`;
+        $('.market-chart-title',panel).textContent=`売買価格の推移（${intervalLabel}）${data.isReferenceChart?'・参考':''}`;
         selectChartPoint(panel,points.length-1,true);
         scrollChartToLatest(panel,false);
         return;
