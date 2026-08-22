@@ -163,7 +163,7 @@
     "releaseDate": "1985年 9月 16日",
     "releasePrice": "$65",
     "sku": "4280",
-    "image": "https://images.stockx.com/images/Air-Jordan-1-OG-Chicago-1985-Product.jpg?auto=format%2Ccompress&bg=FFFFFF&dpr=2&fit=fill&h=500&q=90&trim=color&updated_at=1606316360&w=700",
+    "image": "https://images.stockx.com/360/Air-Jordan-1-OG-Chicago-1985/Images/Air-Jordan-1-OG-Chicago-1985/Lv2/img01.jpg?w=1000&q=85&dpr=1",
     "keywords": "ogOG シカゴ Chicago chicago",
     "links": [
       {
@@ -176,8 +176,10 @@
       }
     ],
     "imageFallbacks": [
-      "https://images.stockx.com/360/Air-Jordan-1-OG-Chicago-1985/Images/Air-Jordan-1-OG-Chicago-1985/Lv2/img01.jpg?w=576&q=57&dpr=2&updated_at=1635283046&h=384"
-    ]
+      "https://i.ebayimg.com/images/g/EQYAAOSwRbNhslil/s-l400.jpg",
+      "https://cdn.snkrdunk.com/uploads/sneaker-images/4280.jpg?size=l"
+    ],
+    "preferStockx360Image": true
   },
   {
     "id": "aj1-010",
@@ -4184,8 +4186,9 @@
       }
     ],
     "imageFallbacks": [
-      "https://sneakernews.com/wp-content/uploads/2025/02/air-jordan-1-high-85-bred-2025.jpg"
-    ]
+      "https://cdn.snkrdunk.com/uploads/sneaker-images/HV6674-067.jpg?size=l"
+    ],
+    "preferStockx360Image": true
   },
   {
     "id": "aj1-203",
@@ -4206,7 +4209,11 @@
         "label": "StockX",
         "url": "https://stockx.com/ja-jp/air-jordan-1-retro-high-og-black-toe-reimagined"
       }
-    ]
+    ],
+    "imageFallbacks": [
+      "https://cdn.snkrdunk.com/uploads/sneaker-images/DZ5485-106.jpg?size=l"
+    ],
+    "preferStockx360Image": true
   },
   {
     "id": "aj1-204",
@@ -4216,7 +4223,7 @@
     "releaseDate": "2025年2月27日",
     "releasePrice": "$200",
     "sku": "HV8563-600",
-    "image": "https://unlimitedcph.dk/cdn/shop/files/airjordan1highunionlachicagoshadow.jpg?v=1740728272",
+    "image": "https://sneakerbardetroit.com/wp-content/uploads/2025/02/Union-Air-Jordan-1-2025-HV8563-600-Release-Date.jpg",
     "keywords": "ユニオン アイムバック Union LA I’m Back Chicago Shadow union",
     "links": [
       {
@@ -4227,7 +4234,11 @@
         "label": "StockX",
         "url": "https://stockx.com/ja-jp/air-jordan-1-retro-high-og-sp-union-la-chicago-shadow"
       }
-    ]
+    ],
+    "imageFallbacks": [
+      "https://cdn.snkrdunk.com/uploads/sneaker-images/HV8563-600.jpg?size=l"
+    ],
+    "preferStockx360Image": true
   },
   {
     "id": "aj1-205",
@@ -4237,7 +4248,7 @@
     "releaseDate": "2025年4月5日",
     "releasePrice": "$180",
     "sku": "DZ5485-100",
-    "image": "https://image.goat.com/transform/v1/attachments/product_template_additional_pictures/images/109/447/134/original/1411236_08.jpg.jpeg?width=750",
+    "image": "https://media.sivasdescalzo.com/media/catalog/product/D/Z/DZ5485-100_sivasdescalzo-Jordan-Air_Jordan_1_Retro_High_OG_Rare_Air_-1743762542-2.jpg?format=auto&quality=70&width=1200",
     "keywords": "レアエア ディープロイヤルブルー Rare Air Deep Royal Blue",
     "links": [
       {
@@ -4248,7 +4259,11 @@
         "label": "StockX",
         "url": "https://stockx.com/ja-jp/air-jordan-1-retro-high-og-rare-air"
       }
-    ]
+    ],
+    "imageFallbacks": [
+      "https://cdn.snkrdunk.com/uploads/sneaker-images/DZ5485-100.jpg?size=l"
+    ],
+    "preferStockx360Image": true
   },
   {
     "id": "aj1-206",
@@ -4258,7 +4273,7 @@
     "releaseDate": "2025年4月5日",
     "releasePrice": "$180",
     "sku": "DB4612-100",
-    "image": "https://cms-cdn.thesolesupplier.co.uk/2024/08/air-jordan-1-high-og-rare-air-cinnabar-front-2_w672_h672_pad_.jpg.webp",
+    "image": "https://cms-cdn.thesolesupplier.co.uk/2024/08/air-jordan-1-high-og-rare-air-cinnabar-db4612-100_w672_h672_pad_.jpg.webp",
     "keywords": "レアエア シナバー Cinnabar Rare Air sail",
     "links": [
       {
@@ -4269,7 +4284,11 @@
         "label": "StockX",
         "url": "https://stockx.com/ja-jp/air-jordan-1-retro-high-sail-cinnabar-womens"
       }
-    ]
+    ],
+    "imageFallbacks": [
+      "https://cdn.snkrdunk.com/uploads/sneaker-images/DB4612-100.jpg?size=l"
+    ],
+    "preferStockx360Image": true
   },
   {
     "id": "aj1-207",
@@ -4279,7 +4298,7 @@
     "releaseDate": "2025年5月10日",
     "releasePrice": "¥26,950",
     "sku": "DZ5485-402",
-    "image": "https://www.nicekicks.com/files/2025/04/Air-Jordan-1-High-OG-UNC-Reimagined-DZ5485-402-02.jpg",
+    "image": "https://media3.fenom.com/102009/jordan-air-jordan-1-retro-high-og-unc-reimagined.jpg",
     "keywords": "UNC リイマジンド UNC Reimagined university blue",
     "links": [
       {
@@ -4290,7 +4309,11 @@
         "label": "StockX",
         "url": "https://stockx.com/ja-jp/air-jordan-1-retro-high-og-unc-reimagined"
       }
-    ]
+    ],
+    "imageFallbacks": [
+      "https://cdn.snkrdunk.com/uploads/sneaker-images/DZ5485-402.jpg?size=l"
+    ],
+    "preferStockx360Image": true
   },
   {
     "id": "aj1-208",
@@ -4300,7 +4323,7 @@
     "releaseDate": "2025年8月23日",
     "releasePrice": "$180",
     "sku": "DZ5485-008",
-    "image": "https://sneakerdaily.vn/wp-content/uploads/2025/07/Giay-Air-Jordan-1-High-OG-Shattered-Backboard-2025-DZ5485-008.jpg",
+    "image": "https://image.goat.com/transform/v1/attachments/product_template_additional_pictures/images/111/282/869/original/1597300_03.jpg.jpeg?action=crop&width=1800",
     "keywords": "シャタバ シャッタードバックボード Shattered Backboard starfish",
     "links": [
       {
@@ -4313,8 +4336,9 @@
       }
     ],
     "imageFallbacks": [
-      "https://sergeev-store.ru/image/catalog/blog/25may/Screenshot2025-05-19at09.25.53.png"
-    ]
+      "https://cdn.snkrdunk.com/uploads/sneaker-images/DZ5485-008.jpg?size=l"
+    ],
+    "preferStockx360Image": true
   },
   {
     "id": "aj1-209",
@@ -4324,7 +4348,7 @@
     "releaseDate": "2025年7月31日",
     "releasePrice": "$180",
     "sku": "DZ5485-002",
-    "image": "https://www.nicekicks.com/files/2025/07/Air-Jordan-1-High-OG-Self-Expression-DZ5485-002-04.jpg",
+    "image": "https://grailify.com/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsiZGF0YSI6MjE0ODQ2MywicHVyIjoiYmxvYl9pZCJ9fQ%3D%3D--e1253efd4b8cb756a3aa0a9a59c0334fbebdb016/eyJfcmFpbHMiOnsiZGF0YSI6eyJmb3JtYXQiOiJqcGciLCJyZXNpemVfdG9fZml0IjpbODAwLDgwMF0sInF1YWxpdHkiOjkwfSwicHVyIjoidmFyaWF0aW9uIn19--8c7d630b9b8fd5b9c842c93487267dfcebc5691c/DZ5485_002_C_PREM.jpg",
     "keywords": "セルフエクスプレッション Self Expression self-expression",
     "links": [
       {
@@ -4337,8 +4361,9 @@
       }
     ],
     "imageFallbacks": [
-      "https://grailify.com/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsiZGF0YSI6MjE0ODQ2MywicHVyIjoiYmxvYl9pZCJ9fQ%3D%3D--e1253efd4b8cb756a3aa0a9a59c0334fbebdb016/eyJfcmFpbHMiOnsiZGF0YSI6eyJmb3JtYXQiOiJqcGciLCJyZXNpemVfdG9fZml0IjpbODAwLDgwMF0sInF1YWxpdHkiOjkwfSwicHVyIjoidmFyaWF0aW9uIn19--8c7d630b9b8fd5b9c842c93487267dfcebc5691c/DZ5485_002_C_PREM.jpg"
-    ]
+      "https://cdn.snkrdunk.com/uploads/sneaker-images/DZ5485-002.jpg?size=l"
+    ],
+    "preferStockx360Image": true
   },
   {
     "id": "aj1-210",
@@ -4359,7 +4384,11 @@
         "label": "StockX",
         "url": "https://stockx.com/ja-jp/air-jordan-1-retro-high-light-madder-root-womens"
       }
-    ]
+    ],
+    "imageFallbacks": [
+      "https://cdn.snkrdunk.com/uploads/sneaker-images/FD2596-200.jpg?size=l"
+    ],
+    "preferStockx360Image": true
   },
   {
     "id": "aj1-211",
@@ -4380,7 +4409,11 @@
         "label": "StockX",
         "url": "https://stockx.com/ja-jp/air-jordan-1-retro-high-fir-pro-green-womens"
       }
-    ]
+    ],
+    "imageFallbacks": [
+      "https://cdn.snkrdunk.com/uploads/sneaker-images/FD2596-101.jpg?size=l"
+    ],
+    "preferStockx360Image": true
   },
   {
     "id": "aj1-212",
@@ -4390,7 +4423,7 @@
     "releaseDate": "2025年12月6日",
     "releasePrice": "$185",
     "sku": "IH4363-100",
-    "image": "https://www.designscene.net/wp-content/uploads/2025/12/Air-Jordan-1-Retro-High-OG-Sail-Pale-Ivory-02.webp",
+    "image": "https://static.nike.com/a/images/w_1280%2Cq_auto%2Cf_auto/5806bb03-41e8-4a87-bb5b-a09db4156561/air-jordan-1-retro-high-og-sail-and-pale-ivory-ih4363-100.jpg",
     "keywords": "セイル Sail Elephant Swoosh elephant",
     "links": [
       {
@@ -4401,7 +4434,12 @@
         "label": "StockX",
         "url": "https://stockx.com/ja-jp/air-jordan-1-retro-high-og-sail-university-red"
       }
-    ]
+    ],
+    "imageFallbacks": [
+      "https://uptherestore.com/cdn/shop/files/nike-air-jordan-1-retro-sail-university-red-pale-ivory-1_2000x.jpg?v=1764806385",
+      "https://cdn.snkrdunk.com/uploads/sneaker-images/IH4363-100.jpg?size=l"
+    ],
+    "preferStockx360Image": true
   },
   {
     "id": "aj1-213",
@@ -4411,7 +4449,7 @@
     "releaseDate": "2026年2月12日",
     "releasePrice": "$185",
     "sku": "DZ5485-003",
-    "image": "https://cdn.shopify.com/s/files/1/0603/3031/1875/files/2_5921a70d-f7cc-4f2a-b7cd-517be3cabde4_1080x.jpg?=75&v=1772265613",
+    "image": "https://cdn.shopify.com/s/files/1/0603/3031/1875/files/main-square_64418414-f20f-4fd4-b6d3-c55c38a45476.jpg?v=1772265615",
     "keywords": "オールスター All-Star all star",
     "links": [
       {
@@ -4424,8 +4462,10 @@
       }
     ],
     "imageFallbacks": [
-      "https://sneakernews.com/wp-content/uploads/2025/11/jordan-1-all-star-2026.jpg"
-    ]
+      "https://www.nicekicks.com/files/2026/01/dz5485-003-3-1200x1200.jpg",
+      "https://cdn.snkrdunk.com/uploads/sneaker-images/DZ5485-003.jpg?size=l"
+    ],
+    "preferStockx360Image": true
   },
   {
     "id": "aj1-214",
@@ -4435,7 +4475,7 @@
     "releaseDate": "2026年3月7日",
     "releasePrice": "$185",
     "sku": "FD2596-102",
-    "image": "https://two18.com/cdn/shop/files/wmnsjordan1_360191ff-4102-438c-a81c-c3ba527fa312.jpg?v=1771915260",
+    "image": "https://static.nike.com/a/images/t_web_pdp_535_v2/f_auto%2Cu_126ab356-44d8-4a06-89b4-fcdcc8df0245%2Cc_scale%2Cfl_relative%2Cw_1.0%2Ch_1.0%2Cfl_layer_apply/a9b611e9-639c-4c0f-99d0-7e0f1500dc66/WMNS%2BAIR%2BJORDAN%2B1%2BRETRO%2BHI%2BOG.png",
     "keywords": "クリップス Clips Hair Clips hair clips",
     "links": [
       {
@@ -4448,8 +4488,9 @@
       }
     ],
     "imageFallbacks": [
-      "https://parkaccess.com.ph/cdn/shop/files/AURORA_FD2596-102_PHCFH001-2000.jpg?v=1771827032"
-    ]
+      "https://cdn.snkrdunk.com/uploads/sneaker-images/FD2596-102.jpg?size=l"
+    ],
+    "preferStockx360Image": true
   },
   {
     "id": "aj1-215",
@@ -4472,8 +4513,10 @@
       }
     ],
     "imageFallbacks": [
-      "https://www.lapstoneandhammer.com/cdn/shop/files/AURORA_AA3834-100_PHCTH001-2000.png?v=1774461829"
-    ]
+      "https://cdn.sneaktorious.com/_Resources/Persistent/2/3/b/6/23b6e916b4b0c0b0ef3cf2ead8cb7407dfd1f3c6/Off-White_Air_Jordan_1_High_Euro_3-600x600.jpg",
+      "https://cdn.snkrdunk.com/uploads/sneaker-images/AA3834-100.jpg?size=l"
+    ],
+    "preferStockx360Image": true
   },
   {
     "id": "aj1-216",
@@ -4496,8 +4539,10 @@
       }
     ],
     "imageFallbacks": [
-      "https://www.nicekicks.com/files/2026/03/IMG_9723-1-e1774469806770.png"
-    ]
+      "https://i.ebayimg.com/images/g/S58AAeSwoKZp1oOS/s-l1200.jpg",
+      "https://cdn.snkrdunk.com/uploads/sneaker-images/II9811-001.jpg?size=l"
+    ],
+    "preferStockx360Image": true
   },
   {
     "id": "aj1-217",
@@ -4507,7 +4552,7 @@
     "releaseDate": "2026年5月23日",
     "releasePrice": "$185",
     "sku": "FD2596-201",
-    "image": "https://grailify.com/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsiZGF0YSI6MjMwODA2OSwicHVyIjoiYmxvYl9pZCJ9fQ%3D%3D--5e90234de28648670625bf3be8028baa78d75f24/eyJfcmFpbHMiOnsiZGF0YSI6eyJmb3JtYXQiOiJqcGciLCJyZXNpemVfdG9fZml0IjpbODAwLDgwMF0sInF1YWxpdHkiOjkwfSwicHVyIjoidmFyaWF0aW9uIn19--8c7d630b9b8fd5b9c842c93487267dfcebc5691c/image%20-%202026-03-19T133613.302.jpg",
+    "image": "https://momentumshop.ca/cdn/shop/files/AURORA_FD2596-201_PHSLH000-2000_5000x.jpg?v=1780949480",
     "keywords": "ワークウェア ショップジャケット Workwear Shop Jacket work wear",
     "links": [
       {
@@ -4518,7 +4563,12 @@
         "label": "StockX",
         "url": "https://stockx.com/ja-jp/air-jordan-1-retro-high-og-khaki-womens"
       }
-    ]
+    ],
+    "imageFallbacks": [
+      "https://grailify.com/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsiZGF0YSI6MjMwODA2OSwicHVyIjoiYmxvYl9pZCJ9fQ%3D%3D--5e90234de28648670625bf3be8028baa78d75f24/eyJfcmFpbHMiOnsiZGF0YSI6eyJmb3JtYXQiOiJqcGciLCJyZXNpemVfdG9fZml0IjpbODAwLDgwMF0sInF1YWxpdHkiOjkwfSwicHVyIjoidmFyaWF0aW9uIn19--8c7d630b9b8fd5b9c842c93487267dfcebc5691c/image%20-%202026-03-19T133613.302.jpg",
+      "https://cdn.snkrdunk.com/uploads/sneaker-images/FD2596-201.jpg?size=l"
+    ],
+    "preferStockx360Image": true
   },
   {
     "id": "aj1-218",
@@ -4528,7 +4578,7 @@
     "releaseDate": "2026年8月1日",
     "releasePrice": "$185",
     "sku": "DZ5485-201",
-    "image": "https://www.nicekicks.com/files/2026/06/dz5485-201-1-1200x1200.jpg",
+    "image": "https://www.nicekicks.com/files/2026/06/dz5485-201-5-1200x1200.jpg",
     "keywords": "ラブレター Love Letter Love The Game Much Love Respect",
     "links": [
       {
@@ -4541,7 +4591,8 @@
       }
     ],
     "imageFallbacks": [
-      "https://cdn.shopify.com/s/files/1/0603/3031/1875/files/4_9b42aff8-1dba-4576-a9d4-64aeb771aff9_3840x.jpg?=75&v=1782707334"
-    ]
+      "https://cdn.snkrdunk.com/uploads/sneaker-images/DZ5485-201.jpg?size=l"
+    ],
+    "preferStockx360Image": true
   }
 ]

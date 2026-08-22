@@ -1,8 +1,8 @@
 
 (() => {
   'use strict';
-  // v24: OG Chicago / 2025 / 2026 image fallback reliability update
-  const DATA_URL = 'sneakers.json?v=24';
+  // v25: verified OG Chicago / 2025 / 2026 image matching and StockX 360-first card fallback
+  const DATA_URL = 'sneakers.json?v=25';
   const FRAME_COUNT = 36;
   const FAST_360_CANDIDATES = 10;
   const FAST_PROBE_TIMEOUT = 1200;
@@ -159,11 +159,32 @@
   function normalStockx(folder,ext='jpg'){return `https://images.stockx.com/images/${encodeURI(folder)}.${ext}?fit=fill&bg=FFFFFF&w=900&h=650&q=78&dpr=1&trim=color`;}
   function frameUrl(folder,frame,level='Lv2'){const n=String(frame).padStart(2,'0');return `https://images.stockx.com/360/${encodeURI(folder)}/Images/${encodeURI(folder)}/${level}/img${n}.jpg?w=1100&q=84&dpr=1`;}
   function staticCandidates(item){
-    // 一覧はまず登録済み画像を即表示。推測StockX URLを先に大量確認しない。
-    const arr=[]; const original=item.image||'';
+    const arr=[];
+    const original=item.image||'';
+    const stockxFolders=hasStockx(item)?folderCandidates(item).slice(0,6):[];
+
+    // OG Chicago・2025・2026は、商品ページ由来のStockX 360°先頭フレームを最優先。
+    // 外部記事の画像が別モデルへ差し替わっても、誤画像を先に表示しない。
+    if(item.preferStockx360Image){
+      stockxFolders.forEach(f=>{
+        arr.push(frameUrl(f,1,'Lv2'));
+        arr.push(frameUrl(f,1,'Lv1'));
+      });
+    }
+
+    // 品番と照合済みの静止画。
     if(original) arr.push(original);
     if(Array.isArray(item.imageFallbacks)) arr.push(...item.imageFallbacks);
-    if(hasStockx(item)) folderCandidates(item).slice(0,4).forEach(f=>{ arr.push(normalStockx(f+'-Product','jpg')); arr.push(normalStockx(f,'jpg')); });
+
+    // その他のモデルは従来どおり軽量な静止画を優先。
+    if(!item.preferStockx360Image){
+      stockxFolders.slice(0,4).forEach(f=>{
+        arr.push(normalStockx(f+'-Product','jpg'));
+        arr.push(normalStockx(f,'jpg'));
+        arr.push(frameUrl(f,1,'Lv2'));
+      });
+    }
+
     if(item.sku) arr.push(`https://cdn.snkrdunk.com/uploads/sneaker-images/${encodeURIComponent(item.sku)}.jpg?size=l`);
     return [...new Set(arr.filter(Boolean))];
   }
