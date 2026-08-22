@@ -163,7 +163,7 @@
     "releaseDate": "1985年 9月 16日",
     "releasePrice": "$65",
     "sku": "4280",
-    "image": "https://images.stockx.com/360/Air-Jordan-1-OG-Chicago-1985/Images/Air-Jordan-1-OG-Chicago-1985/Lv2/img01.jpg?w=1000&q=85&dpr=1",
+    "image": "https://image.goat.com/transform/v1/attachments/product_template_additional_pictures/images/081/144/943/original/55279_01.jpg.jpeg?action=crop&width=750",
     "keywords": "ogOG シカゴ Chicago chicago",
     "links": [
       {
@@ -176,6 +176,7 @@
       }
     ],
     "imageFallbacks": [
+      "https://images.stockx.com/360/Air-Jordan-1-OG-Chicago-1985/Images/Air-Jordan-1-OG-Chicago-1985/Lv2/img01.jpg?w=1000&q=85&dpr=1",
       "https://i.ebayimg.com/images/g/EQYAAOSwRbNhslil/s-l400.jpg",
       "https://cdn.snkrdunk.com/uploads/sneaker-images/4280.jpg?size=l"
     ],
@@ -4248,7 +4249,7 @@
     "releaseDate": "2025年4月5日",
     "releasePrice": "$180",
     "sku": "DZ5485-100",
-    "image": "https://media.sivasdescalzo.com/media/catalog/product/D/Z/DZ5485-100_sivasdescalzo-Jordan-Air_Jordan_1_Retro_High_OG_Rare_Air_-1743762542-2.jpg?format=auto&quality=70&width=1200",
+    "image": "https://image.goat.com/transform/v1/attachments/product_template_additional_pictures/images/109/447/100/original/1411236_01.jpg.jpeg?action=crop&width=750",
     "keywords": "レアエア ディープロイヤルブルー Rare Air Deep Royal Blue",
     "links": [
       {
@@ -4261,6 +4262,7 @@
       }
     ],
     "imageFallbacks": [
+      "https://media.sivasdescalzo.com/media/catalog/product/D/Z/DZ5485-100_sivasdescalzo-Jordan-Air_Jordan_1_Retro_High_OG_Rare_Air_-1743762542-2.jpg?format=auto&quality=70&width=1200",
       "https://cdn.snkrdunk.com/uploads/sneaker-images/DZ5485-100.jpg?size=l"
     ],
     "preferStockx360Image": true
@@ -4273,7 +4275,7 @@
     "releaseDate": "2025年4月5日",
     "releasePrice": "$180",
     "sku": "DB4612-100",
-    "image": "https://cms-cdn.thesolesupplier.co.uk/2024/08/air-jordan-1-high-og-rare-air-cinnabar-db4612-100_w672_h672_pad_.jpg.webp",
+    "image": "https://image.goat.com/transform/v1/attachments/product_template_additional_pictures/images/109/860/336/original/1411246_01.jpg.jpeg?action=crop&width=750",
     "keywords": "レアエア シナバー Cinnabar Rare Air sail",
     "links": [
       {
@@ -4286,6 +4288,7 @@
       }
     ],
     "imageFallbacks": [
+      "https://cms-cdn.thesolesupplier.co.uk/2024/08/air-jordan-1-high-og-rare-air-cinnabar-db4612-100_w672_h672_pad_.jpg.webp",
       "https://cdn.snkrdunk.com/uploads/sneaker-images/DB4612-100.jpg?size=l"
     ],
     "preferStockx360Image": true
@@ -4298,7 +4301,7 @@
     "releaseDate": "2025年5月10日",
     "releasePrice": "¥26,950",
     "sku": "DZ5485-402",
-    "image": "https://media3.fenom.com/102009/jordan-air-jordan-1-retro-high-og-unc-reimagined.jpg",
+    "image": "https://image.goat.com/transform/v1/attachments/product_template_additional_pictures/images/109/468/074/original/1448233_01.jpg.jpeg?action=crop&width=750",
     "keywords": "UNC リイマジンド UNC Reimagined university blue",
     "links": [
       {
@@ -4311,6 +4314,7 @@
       }
     ],
     "imageFallbacks": [
+      "https://media3.fenom.com/102009/jordan-air-jordan-1-retro-high-og-unc-reimagined.jpg",
       "https://cdn.snkrdunk.com/uploads/sneaker-images/DZ5485-402.jpg?size=l"
     ],
     "preferStockx360Image": true
@@ -4323,7 +4327,7 @@
     "releaseDate": "2025年8月23日",
     "releasePrice": "$180",
     "sku": "DZ5485-008",
-    "image": "https://image.goat.com/transform/v1/attachments/product_template_additional_pictures/images/111/282/869/original/1597300_03.jpg.jpeg?action=crop&width=1800",
+    "image": "https://image.goat.com/transform/v1/attachments/product_template_additional_pictures/images/111/282/860/original/1597300_01.jpg.jpeg?action=crop&width=750",
     "keywords": "シャタバ シャッタードバックボード Shattered Backboard starfish",
     "links": [
       {
@@ -4336,6 +4340,7 @@
       }
     ],
     "imageFallbacks": [
+      "https://image.goat.com/transform/v1/attachments/product_template_additional_pictures/images/111/282/869/original/1597300_03.jpg.jpeg?action=crop&width=1800",
       "https://cdn.snkrdunk.com/uploads/sneaker-images/DZ5485-008.jpg?size=l"
     ],
     "preferStockx360Image": true
@@ -4348,7 +4353,7 @@
     "releaseDate": "2025年7月31日",
     "releasePrice": "$180",
     "sku": "DZ5485-002",
-    "image": "https://grailify.com/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsiZGF0YSI6MjE0ODQ2MywicHVyIjoiYmxvYl9pZCJ9fQ%3D%3D--e1253efd4b8cb756a3aa0a9a59c0334fbebdb016/eyJfcmFpbHMiOnsiZGF0YSI6eyJmb3JtYXQiOiJqcGciLCJyZXNpemVfdG9fZml0IjpbODAwLDgwMF0sInF1YWxpdHkiOjkwfSwicHVyIjoidmFyaWF0aW9uIn19--8c7d630b9b8fd5b9c842c93487267dfcebc5691c/DZ5485_002_C_PREM.jpg",
+    "image": "https://image.goat.com/transform/v1/attachments/product_template_pictures/images/111/186/389/original/DZ5485_002.png.png?action=crop&width=750",
     "keywords": "セルフエクスプレッション Self Expression self-expression",
     "links": [
       {
@@ -4361,6 +4366,7 @@
       }
     ],
     "imageFallbacks": [
+      "https://grailify.com/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsiZGF0YSI6MjE0ODQ2MywicHVyIjoiYmxvYl9pZCJ9fQ%3D%3D--e1253efd4b8cb756a3aa0a9a59c0334fbebdb016/eyJfcmFpbHMiOnsiZGF0YSI6eyJmb3JtYXQiOiJqcGciLCJyZXNpemVfdG9fZml0IjpbODAwLDgwMF0sInF1YWxpdHkiOjkwfSwicHVyIjoidmFyaWF0aW9uIn19--8c7d630b9b8fd5b9c842c93487267dfcebc5691c/DZ5485_002_C_PREM.jpg",
       "https://cdn.snkrdunk.com/uploads/sneaker-images/DZ5485-002.jpg?size=l"
     ],
     "preferStockx360Image": true
@@ -4373,7 +4379,7 @@
     "releaseDate": "2025年9月9日",
     "releasePrice": "$180",
     "sku": "FD2596-200",
-    "image": "https://cdn.sneaktorious.com/_Resources/Persistent/3/c/b/4/3cb4fbccb337d2bd7542b8eca3417134cf2b8f2e/air-jordan-1-high-og-baroque-brown-w-fd2596-200-release-date-september-9-2025-raffle-list-3-600x600.png",
+    "image": "https://image.goat.com/transform/v1/attachments/product_template_additional_pictures/images/113/702/281/original/1485835_01.jpg.jpeg?action=crop&width=750",
     "keywords": "バロックブラウン Baroque Brown light madder root",
     "links": [
       {
@@ -4386,6 +4392,7 @@
       }
     ],
     "imageFallbacks": [
+      "https://cdn.sneaktorious.com/_Resources/Persistent/3/c/b/4/3cb4fbccb337d2bd7542b8eca3417134cf2b8f2e/air-jordan-1-high-og-baroque-brown-w-fd2596-200-release-date-september-9-2025-raffle-list-3-600x600.png",
       "https://cdn.snkrdunk.com/uploads/sneaker-images/FD2596-200.jpg?size=l"
     ],
     "preferStockx360Image": true
@@ -4398,7 +4405,7 @@
     "releaseDate": "2025年10月18日",
     "releasePrice": "$185",
     "sku": "FD2596-101",
-    "image": "https://cms-cdn.thesolesupplier.co.uk/2024/12/air-jordan-1-high-og-pro-green.jpg",
+    "image": "https://image.goat.com/transform/v1/attachments/product_template_pictures/images/113/105/696/original/FD2596_101.png.png?action=crop&width=750",
     "keywords": "プログリーン Pro Green fir green",
     "links": [
       {
@@ -4411,6 +4418,7 @@
       }
     ],
     "imageFallbacks": [
+      "https://cms-cdn.thesolesupplier.co.uk/2024/12/air-jordan-1-high-og-pro-green.jpg",
       "https://cdn.snkrdunk.com/uploads/sneaker-images/FD2596-101.jpg?size=l"
     ],
     "preferStockx360Image": true
@@ -4423,7 +4431,7 @@
     "releaseDate": "2025年12月6日",
     "releasePrice": "$185",
     "sku": "IH4363-100",
-    "image": "https://static.nike.com/a/images/w_1280%2Cq_auto%2Cf_auto/5806bb03-41e8-4a87-bb5b-a09db4156561/air-jordan-1-retro-high-og-sail-and-pale-ivory-ih4363-100.jpg",
+    "image": "https://image.goat.com/transform/v1/attachments/product_template_additional_pictures/images/113/832/768/original/1661356_01.jpg.jpeg?action=crop&width=2000",
     "keywords": "セイル Sail Elephant Swoosh elephant",
     "links": [
       {
@@ -4436,6 +4444,7 @@
       }
     ],
     "imageFallbacks": [
+      "https://static.nike.com/a/images/w_1280%2Cq_auto%2Cf_auto/5806bb03-41e8-4a87-bb5b-a09db4156561/air-jordan-1-retro-high-og-sail-and-pale-ivory-ih4363-100.jpg",
       "https://uptherestore.com/cdn/shop/files/nike-air-jordan-1-retro-sail-university-red-pale-ivory-1_2000x.jpg?v=1764806385",
       "https://cdn.snkrdunk.com/uploads/sneaker-images/IH4363-100.jpg?size=l"
     ],

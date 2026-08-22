@@ -1,8 +1,8 @@
 
 (() => {
   'use strict';
-  // v25: verified OG Chicago / 2025 / 2026 image matching and StockX 360-first card fallback
-  const DATA_URL = 'sneakers.json?v=25';
+  // v26: verified OG Chicago / 2025 / 2026 image matching and StockX 360-first card fallback
+  const DATA_URL = 'sneakers.json?v=26';
   const FRAME_COUNT = 36;
   const FAST_360_CANDIDATES = 10;
   const FAST_PROBE_TIMEOUT = 1200;
@@ -158,34 +158,23 @@
   function folderCandidates(item){const out=[];addVariants(folderFrom360(item.image),out);addVariants(folderFromStockxImage(item.image),out);const slug=stockxSlug(item);if(slug){addVariants(slugTitle(slug),out);addVariants(slug.split('-').map(p=>p?p[0].toUpperCase()+p.slice(1):p).join('-'),out);}addVariants(titleSeed(item.title),out);return [...new Set(out)].slice(0,34);}
   function normalStockx(folder,ext='jpg'){return `https://images.stockx.com/images/${encodeURI(folder)}.${ext}?fit=fill&bg=FFFFFF&w=900&h=650&q=78&dpr=1&trim=color`;}
   function frameUrl(folder,frame,level='Lv2'){const n=String(frame).padStart(2,'0');return `https://images.stockx.com/360/${encodeURI(folder)}/Images/${encodeURI(folder)}/${level}/img${n}.jpg?w=1100&q=84&dpr=1`;}
+  function proxyImage(url){
+    if(!url || !/^https?:\/\//i.test(url)) return url || '';
+    return `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=1000&h=760&fit=contain&output=webp`;
+  }
   function staticCandidates(item){
+    // v26: 一覧画像では推測したStockX画像を使わない。
+    // 品番確認済みURLだけを使い、外部CDNの直リンク制限を避けるため画像キャッシュ経由を優先する。
+    const verified=[];
+    if(item.image) verified.push(item.image);
+    if(Array.isArray(item.imageFallbacks)) verified.push(...item.imageFallbacks);
+    if(item.sku) verified.push(`https://cdn.snkrdunk.com/uploads/sneaker-images/${encodeURIComponent(item.sku)}.jpg?size=l`);
+    const direct=[...new Set(verified.filter(Boolean))];
     const arr=[];
-    const original=item.image||'';
-    const stockxFolders=hasStockx(item)?folderCandidates(item).slice(0,6):[];
-
-    // OG Chicago・2025・2026は、商品ページ由来のStockX 360°先頭フレームを最優先。
-    // 外部記事の画像が別モデルへ差し替わっても、誤画像を先に表示しない。
-    if(item.preferStockx360Image){
-      stockxFolders.forEach(f=>{
-        arr.push(frameUrl(f,1,'Lv2'));
-        arr.push(frameUrl(f,1,'Lv1'));
-      });
+    for(const url of direct){
+      if(/^https?:\/\//i.test(url)) arr.push(proxyImage(url));
+      arr.push(url);
     }
-
-    // 品番と照合済みの静止画。
-    if(original) arr.push(original);
-    if(Array.isArray(item.imageFallbacks)) arr.push(...item.imageFallbacks);
-
-    // その他のモデルは従来どおり軽量な静止画を優先。
-    if(!item.preferStockx360Image){
-      stockxFolders.slice(0,4).forEach(f=>{
-        arr.push(normalStockx(f+'-Product','jpg'));
-        arr.push(normalStockx(f,'jpg'));
-        arr.push(frameUrl(f,1,'Lv2'));
-      });
-    }
-
-    if(item.sku) arr.push(`https://cdn.snkrdunk.com/uploads/sneaker-images/${encodeURIComponent(item.sku)}.jpg?size=l`);
     return [...new Set(arr.filter(Boolean))];
   }
   function setCardImage(img,item){
