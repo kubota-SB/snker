@@ -304,3 +304,14 @@ h1{margin:0;font-size:clamp(36px,6vw,72px);line-height:.94;letter-spacing:-.055e
 @media(max-width:620px){
   .market-chart:not([hidden]){height:270px!important;min-height:270px!important;}
 }
+
+
+/* v17: chart interval switch + tap-to-inspect */
+.market-interval{display:flex;justify-content:flex-end;gap:5px;padding:5px 12px 9px;background:#fafaf8;}
+.market-interval button{border:1px solid #d9d9d4;background:#fff;color:#666;border-radius:999px;padding:6px 11px;font-size:9px;font-weight:900;cursor:pointer;min-height:30px;}
+.market-interval button.active{background:#111;color:#fff;border-color:#111;}
+.market-interval button:focus-visible{outline:2px solid #111;outline-offset:2px;}
+.market-chart{cursor:pointer!important;}
+.chart-cursor,.chart-cursor *{cursor:grab!important;}
+.chart-cursor.is-dragging,.chart-cursor.is-dragging *{cursor:grabbing!important;}
+@media(max-width:620px){.market-interval{justify-content:stretch}.market-interval button{flex:1;min-height:36px;font-size:10px;}}

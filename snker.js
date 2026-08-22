@@ -1,8 +1,8 @@
 
 (() => {
   'use strict';
-  // v16: SNKRDUNKの取引履歴を月足（月ごとの最終取引価格）へ集約して表示
-  const DATA_URL = 'sneakers.json?v=14';
+  // v17: SNKRDUNKチャートを1か月足 / 1年足で切替。タップで過去価格ポイントを選択可能
+  const DATA_URL = 'sneakers.json?v=17';
   const FRAME_COUNT = 36;
   const FAST_360_CANDIDATES = 10;
   const FAST_PROBE_TIMEOUT = 1200;
@@ -254,7 +254,7 @@
     if(!sn && !item.sku){
       return `<details class="market-section" open><summary>SNKRDUNK 価格チャート</summary><div class="market-inner"><div class="market-empty-standalone">SNKRDUNKの商品ページを特定できないため、価格チャートは表示できません。</div></div></details>`;
     }
-    return `<details class="market-section" open><summary>SNKRDUNK 価格チャート － サイズ・新品 / 中古</summary><div class="market-inner"><p class="market-note">SNKRDUNKの公開価格情報だけを表示します。グラフ上の黒い価格の玉を左右にドラッグすると、その時点の日付と価格を確認できます。</p><div class="market-grid">${marketPanel(sn,item.sku)}</div></div></details>`;
+    return `<details class="market-section" open><summary>SNKRDUNK 価格チャート － サイズ・新品 / 中古</summary><div class="market-inner"><p class="market-note">SNKRDUNKの公開価格情報だけを表示します。グラフをタップ、または黒い価格の玉を左右にドラッグすると、その時点の価格を確認できます。</p><div class="market-grid">${marketPanel(sn,item.sku)}</div></div></details>`;
   }
 
   function canonicalSnkrHistoryUrl(raw,sku){
@@ -275,10 +275,11 @@
       <div class="market-controls"><label>サイズ (CM) <select class="market-size">${opts}</select></label><div class="market-condition"><button type="button" class="active" data-condition="new">新品</button><button type="button" data-condition="used">中古</button></div></div>
       <div class="market-current" aria-live="polite"><span>現在の価格</span><strong>—</strong><small>全サイズ · 新品</small></div>
       <div class="market-chart-shell">
-        <div class="market-chart-head"><span class="market-chart-title">売買価格の推移</span><span class="market-selection">全サイズ · 新品</span></div>
+        <div class="market-chart-head"><span class="market-chart-title">売買価格の推移（月足）</span><span class="market-selection">全サイズ · 新品</span></div>
+        <div class="market-interval" role="group" aria-label="チャート間隔"><button type="button" class="active" data-chart-interval="month">1か月足</button><button type="button" data-chart-interval="year">1年足</button></div>
         <div class="market-scope" hidden></div>
         <div class="market-chart-guide" hidden>
-          <span>黒い価格の玉を左右にドラッグして過去の価格を確認</span>
+          <span>グラフをタップ / 黒い価格の玉を左右にドラッグ</span>
           <button type="button" data-chart-reset>最新に戻す</button>
         </div>
         <div class="market-chart-box">
@@ -314,6 +315,18 @@
       panel.dataset.loadedKey='';
       clearMarketVisual(panel);
       loadMarket(panel,true);
+      return;
+    }
+    const interval=e.target.closest('[data-chart-interval]');
+    if(interval){
+      const panel=interval.closest('.market-source');
+      if(interval.classList.contains('active'))return;
+      $$('.market-interval button',panel).forEach(b=>b.classList.toggle('active',b===interval));
+      panel.dataset.chartInterval=interval.dataset.chartInterval||'month';
+      if(panel._marketData){
+        drawChart(panel,panel._marketData);
+        renderCurrentPrice(panel,panel._marketData,`${$('.market-size',panel).value==='All'?'全サイズ':$('.market-size',panel).value+'cm'} · ${$('.market-condition button.active',panel)?.dataset.condition==='used'?'中古':'新品'}`);
+      }
       return;
     }
     const reset=e.target.closest('[data-chart-reset]');
@@ -472,6 +485,29 @@
     });
     return monthly.length>=2?monthly:valid;
   }
+  function aggregateYearly(points){
+    const valid=(points||[]).filter(p=>Number.isFinite(p.time)&&Number.isFinite(p.value)&&p.value>0).sort((a,b)=>a.time-b.time);
+    if(!valid.length)return [];
+    const groups=new Map();
+    for(const p of valid){
+      const d=new Date(p.time),year=d.getFullYear();
+      const row=groups.get(year)||{year,items:[]};
+      row.items.push(p);groups.set(year,row);
+    }
+    return [...groups.values()].map(g=>{
+      const items=g.items.sort((a,b)=>a.time-b.time),last=items.at(-1),vals=items.map(x=>x.value);
+      return {
+        key:String(g.year),label:String(g.year),fullLabel:`${g.year}年`,value:last.value,time:last.time,
+        open:items[0].value,high:Math.max(...vals),low:Math.min(...vals),close:last.value,count:items.length,rawLabel:last.label
+      };
+    });
+  }
+
+  function chartPointsFor(data,interval){
+    const raw=data?.rawPoints||[];
+    return interval==='year'?aggregateYearly(raw):aggregateMonthly(raw);
+  }
+
   function extractCurrentPrices(text,size='All'){
     const contexts=sizeContexts(text,size),prices=[];
     for(const chunk of contexts){
@@ -494,7 +530,7 @@
       const rawPoints=points;
       const monthlyPoints=aggregateMonthly(rawPoints);
       const vals=rawPoints.map(x=>x.value),latest=rawPoints.at(-1).value;
-      return {kind:'trend',points:monthlyPoints,rawPoints,currency:'¥',metrics:[['最新',fmt(latest)],['最安',fmt(Math.min(...vals))],['最高',fmt(Math.max(...vals))],['取引',rawPoints.length+'件'],['月足',monthlyPoints.length+'か月']],note:`SNKRDUNK公開ページから取得できた${condition==='used'?'中古':'新品'}の売買履歴を月ごとの最終取引価格でまとめています。`};
+      return {kind:'trend',points:monthlyPoints,rawPoints,currency:'¥',metrics:[['最新',fmt(latest)],['最安',fmt(Math.min(...vals))],['最高',fmt(Math.max(...vals))],['取引',rawPoints.length+'件']],note:`SNKRDUNK公開ページから取得できた${condition==='used'?'中古':'新品'}の売買履歴です。チャートは1か月足 / 1年足で切り替えられます。`};
     }
     const prices=extractCurrentPrices(section,size);
     if(prices.length){
@@ -531,6 +567,7 @@
     try{
       const text=await fetchText(target,force,ctrl.signal);if(panel.dataset.requestId!==requestId||ctrl.signal.aborted)return;
       const data=parseSnkrData(text,condition,size);
+      panel._marketData=data;
       drawChart(panel,data);
       renderCurrentPrice(panel,data,`${size==='All'?'全サイズ':size+'cm'} · ${condition==='used'?'中古':'新品'}`);
       const has=primaryPrice(data)>0 || (data.kind==='trend'&&data.points?.length>=2);
@@ -546,20 +583,25 @@
   function renderMetrics(panel,data){const metrics=$('.market-metrics',panel);metrics.innerHTML='';(data.metrics||[]).forEach(([k,v])=>{const d=document.createElement('div');d.className='market-metric';d.innerHTML=`<span>${k}</span><strong>${v||'—'}</strong>`;metrics.appendChild(d);});}
   function drawChart(panel,data){
     const svg=$('.market-chart',panel),empty=$('.market-empty',panel),guide=$('.market-chart-guide',panel);
-    renderMetrics(panel,data);svg._chartMeta=null;if(guide)guide.hidden=true;
-    if(data.kind==='trend'&&data.points?.length>=2){
-      drawTrendChart(svg,data);svg.removeAttribute('hidden');empty.hidden=true;if(guide)guide.hidden=false;
-      $('.market-chart-title',panel).textContent='売買価格の推移（月足）';
-      selectChartPoint(panel,data.points.length-1,true);
-      scrollChartToLatest(panel,false);
-      setTimeout(()=>{
-        if(svg._chartMeta){
-          selectChartPoint(panel,svg._chartMeta.latestIndex,true);
-          scrollChartToLatest(panel,false);
-        }
-      },80);
-      return;
+    svg._chartMeta=null;if(guide)guide.hidden=true;
+    if(data.kind==='trend'&&data.rawPoints?.length){
+      const interval=panel.dataset.chartInterval||'month';
+      const points=chartPointsFor(data,interval);
+      const intervalLabel=interval==='year'?'1年足':'1か月足';
+      const extra=interval==='year'?['年足',points.length+'年']:['月足',points.length+'か月'];
+      renderMetrics(panel,{...data,metrics:[...(data.metrics||[]),extra]});
+      if(points.length){
+        drawTrendChart(svg,{...data,points,interval});svg.removeAttribute('hidden');empty.hidden=true;if(guide)guide.hidden=false;
+        $('.market-chart-title',panel).textContent=`売買価格の推移（${intervalLabel}）`;
+        selectChartPoint(panel,points.length-1,true);
+        scrollChartToLatest(panel,false);
+        setTimeout(()=>{
+          if(svg._chartMeta){selectChartPoint(panel,svg._chartMeta.latestIndex,true);scrollChartToLatest(panel,false);}
+        },50);
+        return;
+      }
     }
+    renderMetrics(panel,data);
     if(data.kind==='point'&&data.point>0){drawPointChart(svg,data);svg.removeAttribute('hidden');empty.hidden=true;$('.market-chart-title',panel).textContent='現在価格（履歴未取得）';return;}
     svg.setAttribute('hidden','');empty.hidden=false;empty.textContent=data.unsupported||'価格履歴を取得できませんでした。';$('.market-chart-title',panel).textContent='価格情報';
   }
@@ -576,10 +618,13 @@
     const H=300,T=38,B=58;
     // v15: ブラウザの横スクロールに頼らず、SVGのviewBoxだけを動かす。
     // これで価格の玉が右端で切れず、玉をドラッグした方向へグラフが追従する。
-    const pointGap=118;
+    const interval=data.interval||'month';
+    const idealGap=interval==='year'?190:118;
     const sidePad=100;
     const viewportWidth=1040;
-    const W=Math.max(viewportWidth,sidePad*2+Math.max(1,pts.length-1)*pointGap);
+    const contentSpan=Math.max(viewportWidth-sidePad*2,Math.max(1,pts.length-1)*idealGap);
+    const pointGap=pts.length>1?contentSpan/(pts.length-1):0;
+    const W=sidePad*2+contentSpan;
     const vals=pts.map(x=>x.value),min=Math.min(...vals),max=Math.max(...vals);
     const pad=Math.max((max-min)*.18,max*.035,500),lo=Math.max(0,min-pad),hi=max+pad;
     const x=(p,i)=>pts.length===1?W/2:sidePad+i*pointGap;
@@ -768,9 +813,11 @@
           setChartViewport(svg,panStartView-dx*scale);
           if(panMoved)e.preventDefault();
         });
-        const finishPan=()=>{
+        const finishPan=e=>{
           if(!panning)return;
+          const wasMoved=panMoved;
           panning=false;panPointerId=null;chartBox.classList.remove('is-panning');
+          if(!wasMoved&&e?.type==='pointerup'&&e.target.closest?.('.market-chart')) pick(e);
           setTimeout(()=>{panMoved=false;},0);
         };
         ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>chartBox.addEventListener(ev,finishPan));
