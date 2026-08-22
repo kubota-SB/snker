@@ -335,3 +335,7 @@ h1{margin:0;font-size:clamp(36px,6vw,72px);line-height:.94;letter-spacing:-.055e
 .market-chart-box:active{cursor:crosshair!important;}
 .market-interval button{cursor:pointer!important;}
 .market-interval button.active{box-shadow:inset 0 0 0 1px #111;}
+
+
+/* v20: chart tap is handled on pointerdown; cursor release keeps selected history point */
+.market-chart{pointer-events:auto!important;}

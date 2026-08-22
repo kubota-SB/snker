@@ -2,7 +2,7 @@
 (() => {
   'use strict';
   // v18: チャート全体をタップして価格カーソル移動 + 1か月足 / 1年足を確実に切替
-  const DATA_URL = 'sneakers.json?v=17';
+  const DATA_URL = 'sneakers.json?v=20';
   const FRAME_COUNT = 36;
   const FAST_360_CANDIDATES = 10;
   const FAST_PROBE_TIMEOUT = 1200;
@@ -599,9 +599,6 @@
         $('.market-chart-title',panel).textContent=`売買価格の推移（${intervalLabel}）`;
         selectChartPoint(panel,points.length-1,true);
         scrollChartToLatest(panel,false);
-        setTimeout(()=>{
-          if(svg._chartMeta){selectChartPoint(panel,svg._chartMeta.latestIndex,true);scrollChartToLatest(panel,false);}
-        },50);
         return;
       }
     }
@@ -767,8 +764,9 @@
       if(svg.dataset.gestureBound)return;
       svg.dataset.gestureBound='1';
 
-      let draggingCursor=false,cursorPointerId=null;
-      let tapPointerId=null,tapStartX=0,tapStartY=0,tapMoved=false;
+      let draggingCursor=false;
+      let cursorPointerId=null;
+      let suppressClickUntil=0;
       const panel=()=>svg.closest('.market-source');
       const box=()=>svg.closest('.market-chart-box');
 
@@ -785,71 +783,87 @@
 
       const finishCursor=e=>{
         if(!draggingCursor)return;
-        if(e?.clientX!=null)pick(e);
-        draggingCursor=false;cursorPointerId=null;
+        // pointermove中にすでに選択済みなので、pointerupでは再計算しない。
+        // これで離した瞬間に別地点（特に最新）へ飛ぶのを防ぐ。
+        draggingCursor=false;
+        const oldId=cursorPointerId;
+        cursorPointerId=null;
+        suppressClickUntil=performance.now()+450;
         svg.classList.remove('is-selecting');
         $('[data-chart-cursor]',svg)?.classList.remove('is-dragging');
+        try{ if(oldId!=null&&svg.hasPointerCapture?.(oldId)) svg.releasePointerCapture(oldId); }catch{}
       };
 
-      // 黒い価格の玉は従来どおり直接ドラッグ可能。
       svg.addEventListener('pointerdown',e=>{
         const cursor=e.target.closest?.('[data-chart-cursor]');
         if(cursor&&svg._chartMeta){
-          draggingCursor=true;cursorPointerId=e.pointerId;
-          svg.classList.add('is-selecting');cursor.classList.add('is-dragging');
-          svg.setPointerCapture?.(e.pointerId);
-          e.preventDefault();e.stopPropagation();
+          draggingCursor=true;
+          cursorPointerId=e.pointerId;
+          svg.classList.add('is-selecting');
+          cursor.classList.add('is-dragging');
+          try{ svg.setPointerCapture?.(e.pointerId); }catch{}
+          e.preventDefault();
+          e.stopPropagation();
           return;
         }
 
-        // 玉以外のチャートを押した場合は「タップ候補」として記録。
-        // pointer captureは使わない。これで通常のclick/tapが確実に発火する。
         if(!svg._chartMeta)return;
         if(e.button!==undefined&&e.button!==0)return;
-        tapPointerId=e.pointerId;tapStartX=e.clientX;tapStartY=e.clientY;tapMoved=false;
+
+        // v20: チャート本体は「押した瞬間」に選択する。
+        // click/pointerupのブラウザ差に依存しないため、PC/スマホとも確実に玉が移動する。
+        pick(e);
       });
 
       svg.addEventListener('pointermove',e=>{
-        if(draggingCursor&&e.pointerId===cursorPointerId){
-          autoPanChartBox(box(),e.clientX);
-          pick(e);e.preventDefault();
-          return;
-        }
-        if(tapPointerId===e.pointerId){
-          if(Math.hypot(e.clientX-tapStartX,e.clientY-tapStartY)>8)tapMoved=true;
-        }
+        if(!draggingCursor||e.pointerId!==cursorPointerId)return;
+        autoPanChartBox(box(),e.clientX);
+        pick(e);
+        e.preventDefault();
       });
 
       svg.addEventListener('pointerup',e=>{
-        if(draggingCursor&&e.pointerId===cursorPointerId){finishCursor(e);return;}
-        if(tapPointerId===e.pointerId){
-          const shouldPick=!tapMoved;
-          tapPointerId=null;
-          if(shouldPick)pick(e);
-        }
+        if(draggingCursor&&e.pointerId===cursorPointerId)finishCursor(e);
       });
       svg.addEventListener('pointercancel',e=>{
         if(draggingCursor&&e.pointerId===cursorPointerId)finishCursor(e);
-        if(tapPointerId===e.pointerId)tapPointerId=null;
       });
-      svg.addEventListener('lostpointercapture',finishCursor);
+      svg.addEventListener('lostpointercapture',e=>{
+        if(draggingCursor)finishCursor(e);
+      });
 
-      // デスクトップの通常clickでも必ず選択。pointerupと重複しても同じ地点を選ぶだけなので安全。
+      // pointerdownで選択できるが、キーボード/一部ブラウザの通常clickもフォールバックとして残す。
       svg.addEventListener('click',e=>{
+        if(performance.now()<suppressClickUntil){
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
         if(e.target.closest?.('[data-chart-cursor]'))return;
         pick(e);
       });
 
-      // SVGの外側コンテナにclickが来たブラウザでも、座標がグラフ内なら選択する。
       const chartBox=box();
       if(chartBox&&!chartBox.dataset.tapBound){
         chartBox.dataset.tapBound='1';
-        chartBox.addEventListener('click',e=>{
+        chartBox.addEventListener('pointerdown',e=>{
           if(e.target.closest?.('[data-chart-cursor]'))return;
+          if(e.target===svg||svg.contains(e.target))return; // SVG側で処理済み
+          if(!svg._chartMeta)return;
           const r=svg.getBoundingClientRect();
           if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom)pick(e);
         });
-        // トラックパッド/ホイールでは表示範囲だけ移動可能。
+        chartBox.addEventListener('click',e=>{
+          if(performance.now()<suppressClickUntil){
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+          }
+          if(e.target.closest?.('[data-chart-cursor]'))return;
+          if(e.target===svg||svg.contains(e.target))return;
+          const r=svg.getBoundingClientRect();
+          if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom)pick(e);
+        });
         chartBox.addEventListener('wheel',e=>{
           if(!svg._chartMeta)return;
           const delta=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;
@@ -859,7 +873,6 @@
         },{passive:false});
       }
 
-      // 1か月足 / 1年足は各ボタンに直接バインドして必ず再描画する。
       const sourcePanel=panel();
       $$('.market-interval button',sourcePanel).forEach(btn=>{
         if(btn.dataset.intervalBound)return;
@@ -888,7 +901,12 @@
         if(e.key==='ArrowLeft'){e.preventDefault();selectChartPoint(panel(),idx-1,true);}
         else if(e.key==='ArrowRight'){e.preventDefault();selectChartPoint(panel(),idx+1,true);}
         else if(e.key==='Home'){e.preventDefault();selectChartPoint(panel(),0,true);}
-        else if(e.key==='End'){e.preventDefault();selectChartPoint(panel(),svg._chartMeta.latestIndex,true);scrollChartToLatest(panel(),false);selectChartPoint(panel(),svg._chartMeta.latestIndex,true);}
+        else if(e.key==='End'){
+          e.preventDefault();
+          selectChartPoint(panel(),svg._chartMeta.latestIndex,true);
+          scrollChartToLatest(panel(),false);
+          selectChartPoint(panel(),svg._chartMeta.latestIndex,true);
+        }
       });
     });
   }
