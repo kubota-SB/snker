@@ -254,7 +254,7 @@
     if(!sn && !item.sku){
       return `<details class="market-section" open><summary>SNKRDUNK 価格チャート</summary><div class="market-inner"><div class="market-empty-standalone">SNKRDUNKの商品ページを特定できないため、価格チャートは表示できません。</div></div></details>`;
     }
-    return `<details class="market-section" open><summary>SNKRDUNK 価格チャート － サイズ・新品 / 中古</summary><div class="market-inner"><p class="market-note">SNKRDUNKの公開価格情報だけを表示します。グラフをタップ、または黒い価格の玉を左右にドラッグすると、その時点の価格を確認できます。</p><div class="market-grid">${marketPanel(sn,item.sku)}</div></div></details>`;
+    return `<details class="market-section" open><summary>SNKRDUNK 価格チャート － サイズ・新品 / 中古</summary><div class="market-inner"><p class="market-note">SNKRDUNKの公開価格情報だけを表示します。チャート上をクリック／タップすると、その位置に最も近い価格へ黒い玉が移動します。黒い玉を左右にドラッグすることもできます。</p><div class="market-grid">${marketPanel(sn,item.sku)}</div></div></details>`;
   }
 
   function canonicalSnkrHistoryUrl(raw,sku){
@@ -279,7 +279,7 @@
         <div class="market-interval-row"><span class="market-interval-label">表示間隔</span><div class="market-interval" role="group" aria-label="チャート表示間隔"><button type="button" class="active" aria-pressed="true" data-chart-interval="month">1か月足</button><button type="button" aria-pressed="false" data-chart-interval="year">1年足</button></div></div>
         <div class="market-scope" hidden></div>
         <div class="market-chart-guide" hidden>
-          <span>グラフの好きな位置をタップすると価格の玉が移動</span>
+          <span>チャートをクリック／タップするとその位置へ価格の玉が移動</span>
           <button type="button" data-chart-reset>最新に戻す</button>
         </div>
         <div class="market-chart-box">
@@ -766,12 +766,19 @@
     $$('.market-chart',root).forEach(svg=>{
       if(svg.dataset.gestureBound)return;
       svg.dataset.gestureBound='1';
+
       let draggingCursor=false,cursorPointerId=null;
-      let panning=false,panPointerId=null,panStartX=0,panStartView=0,panMoved=false;
+      let tapPointerId=null,tapStartX=0,tapStartY=0,tapMoved=false;
       const panel=()=>svg.closest('.market-source');
       const box=()=>svg.closest('.market-chart-box');
+
+      const pointInsideSvg=e=>{
+        const r=svg.getBoundingClientRect();
+        return e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
+      };
+
       const pick=e=>{
-        if(!svg._chartMeta)return;
+        if(!svg._chartMeta||e?.clientX==null||!pointInsideSvg(e))return;
         const idx=chartIndexFromPointer(svg,e.clientX);
         if(idx>=0)selectChartPoint(panel(),idx,true);
       };
@@ -784,52 +791,65 @@
         $('[data-chart-cursor]',svg)?.classList.remove('is-dragging');
       };
 
-      // 黒い価格の玉そのものをつかんで左右へ移動。
+      // 黒い価格の玉は従来どおり直接ドラッグ可能。
       svg.addEventListener('pointerdown',e=>{
         const cursor=e.target.closest?.('[data-chart-cursor]');
-        if(!cursor||!svg._chartMeta)return;
-        draggingCursor=true;cursorPointerId=e.pointerId;
-        svg.classList.add('is-selecting');cursor.classList.add('is-dragging');
-        svg.setPointerCapture?.(e.pointerId);e.preventDefault();e.stopPropagation();
-      });
-      svg.addEventListener('pointermove',e=>{
-        if(!draggingCursor||e.pointerId!==cursorPointerId)return;
-        autoPanChartBox(box(),e.clientX);
-        pick(e);e.preventDefault();
-      });
-      ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>svg.addEventListener(ev,finishCursor));
+        if(cursor&&svg._chartMeta){
+          draggingCursor=true;cursorPointerId=e.pointerId;
+          svg.classList.add('is-selecting');cursor.classList.add('is-dragging');
+          svg.setPointerCapture?.(e.pointerId);
+          e.preventDefault();e.stopPropagation();
+          return;
+        }
 
+        // 玉以外のチャートを押した場合は「タップ候補」として記録。
+        // pointer captureは使わない。これで通常のclick/tapが確実に発火する。
+        if(!svg._chartMeta)return;
+        if(e.button!==undefined&&e.button!==0)return;
+        tapPointerId=e.pointerId;tapStartX=e.clientX;tapStartY=e.clientY;tapMoved=false;
+      });
+
+      svg.addEventListener('pointermove',e=>{
+        if(draggingCursor&&e.pointerId===cursorPointerId){
+          autoPanChartBox(box(),e.clientX);
+          pick(e);e.preventDefault();
+          return;
+        }
+        if(tapPointerId===e.pointerId){
+          if(Math.hypot(e.clientX-tapStartX,e.clientY-tapStartY)>8)tapMoved=true;
+        }
+      });
+
+      svg.addEventListener('pointerup',e=>{
+        if(draggingCursor&&e.pointerId===cursorPointerId){finishCursor(e);return;}
+        if(tapPointerId===e.pointerId){
+          const shouldPick=!tapMoved;
+          tapPointerId=null;
+          if(shouldPick)pick(e);
+        }
+      });
+      svg.addEventListener('pointercancel',e=>{
+        if(draggingCursor&&e.pointerId===cursorPointerId)finishCursor(e);
+        if(tapPointerId===e.pointerId)tapPointerId=null;
+      });
+      svg.addEventListener('lostpointercapture',finishCursor);
+
+      // デスクトップの通常clickでも必ず選択。pointerupと重複しても同じ地点を選ぶだけなので安全。
+      svg.addEventListener('click',e=>{
+        if(e.target.closest?.('[data-chart-cursor]'))return;
+        pick(e);
+      });
+
+      // SVGの外側コンテナにclickが来たブラウザでも、座標がグラフ内なら選択する。
       const chartBox=box();
-      if(chartBox&&!chartBox.dataset.panBound){
-        chartBox.dataset.panBound='1';
-        chartBox.addEventListener('pointerdown',e=>{
+      if(chartBox&&!chartBox.dataset.tapBound){
+        chartBox.dataset.tapBound='1';
+        chartBox.addEventListener('click',e=>{
           if(e.target.closest?.('[data-chart-cursor]'))return;
-          if(e.button!==undefined&&e.button!==0)return;
-          if(!svg._chartMeta)return;
-          panning=true;panPointerId=e.pointerId;panStartX=e.clientX;panStartView=svg._chartMeta.viewStart;panMoved=false;
-          chartBox.classList.add('is-panning');chartBox.setPointerCapture?.(e.pointerId);
+          const r=svg.getBoundingClientRect();
+          if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom)pick(e);
         });
-        chartBox.addEventListener('pointermove',e=>{
-          if(!panning||e.pointerId!==panPointerId||!svg._chartMeta)return;
-          const dx=e.clientX-panStartX;if(Math.abs(dx)>4)panMoved=true;
-          const rect=svg.getBoundingClientRect();
-          const scale=svg._chartMeta.viewportWidth/(rect.width||1);
-          setChartViewport(svg,panStartView-dx*scale);
-          if(panMoved)e.preventDefault();
-        });
-        const finishPan=e=>{
-          if(!panning)return;
-          const wasMoved=panMoved;
-          panning=false;panPointerId=null;chartBox.classList.remove('is-panning');
-          // pointer capture中はpointerupのtargetがchartBoxになるため、targetでは判定しない。
-          // 移動量が小さいタップなら、座標から直接いちばん近い価格ポイントを選ぶ。
-          if(!wasMoved&&e?.type==='pointerup'&&e?.clientX!=null){
-            const r=svg.getBoundingClientRect();
-            if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom) pick(e);
-          }
-          setTimeout(()=>{panMoved=false;},0);
-        };
-        ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>chartBox.addEventListener(ev,finishPan));
+        // トラックパッド/ホイールでは表示範囲だけ移動可能。
         chartBox.addEventListener('wheel',e=>{
           if(!svg._chartMeta)return;
           const delta=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;
@@ -839,22 +859,18 @@
         },{passive:false});
       }
 
-      svg.addEventListener('click',e=>{
-        if(e.target.closest?.('[data-chart-cursor]')||panMoved)return;
-        pick(e);
-      });
-
-      // 足切替は詳細モーダル内の委譲イベントに加え、各ボタンにも直接バインド。
-      // ブラウザやSVGのポインターキャプチャ状態に左右されず確実に再描画する。
+      // 1か月足 / 1年足は各ボタンに直接バインドして必ず再描画する。
       const sourcePanel=panel();
       $$('.market-interval button',sourcePanel).forEach(btn=>{
         if(btn.dataset.intervalBound)return;
         btn.dataset.intervalBound='1';
         btn.addEventListener('click',ev=>{
-          ev.stopPropagation();
+          ev.preventDefault();ev.stopPropagation();
           const next=btn.dataset.chartInterval||'month';
           $$('.market-interval button',sourcePanel).forEach(b=>{
-            const active=b===btn; b.classList.toggle('active',active); b.setAttribute('aria-pressed',active?'true':'false');
+            const active=b===btn;
+            b.classList.toggle('active',active);
+            b.setAttribute('aria-pressed',active?'true':'false');
           });
           sourcePanel.dataset.chartInterval=next;
           if(sourcePanel._marketData){

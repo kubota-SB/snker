@@ -328,3 +328,10 @@ h1{margin:0;font-size:clamp(36px,6vw,72px);line-height:.94;letter-spacing:-.055e
 .market-chart{cursor:crosshair!important;}
 .market-chart-guide span::before{content:'● '!important;}
 @media(max-width:620px){.market-interval-row{align-items:stretch;flex-direction:column;gap:6px}.market-interval{width:100%;display:flex!important}.market-interval button{flex:1;min-height:42px!important;font-size:11px!important}.market-interval-label{font-size:10px}.market-chart-guide span{font-size:8px}}
+
+/* v19: チャート全体をタップ対象にし、表示間隔タブを明確化 */
+.market-chart-box{cursor:pointer!important;}
+.market-chart{cursor:crosshair!important;}
+.market-chart-box:active{cursor:crosshair!important;}
+.market-interval button{cursor:pointer!important;}
+.market-interval button.active{box-shadow:inset 0 0 0 1px #111;}
