@@ -1,7 +1,7 @@
 
 (() => {
   'use strict';
-  // v17: SNKRDUNKチャートを1か月足 / 1年足で切替。タップで過去価格ポイントを選択可能
+  // v18: チャート全体をタップして価格カーソル移動 + 1か月足 / 1年足を確実に切替
   const DATA_URL = 'sneakers.json?v=17';
   const FRAME_COUNT = 36;
   const FAST_360_CANDIDATES = 10;
@@ -275,11 +275,11 @@
       <div class="market-controls"><label>サイズ (CM) <select class="market-size">${opts}</select></label><div class="market-condition"><button type="button" class="active" data-condition="new">新品</button><button type="button" data-condition="used">中古</button></div></div>
       <div class="market-current" aria-live="polite"><span>現在の価格</span><strong>—</strong><small>全サイズ · 新品</small></div>
       <div class="market-chart-shell">
-        <div class="market-chart-head"><span class="market-chart-title">売買価格の推移（月足）</span><span class="market-selection">全サイズ · 新品</span></div>
-        <div class="market-interval" role="group" aria-label="チャート間隔"><button type="button" class="active" data-chart-interval="month">1か月足</button><button type="button" data-chart-interval="year">1年足</button></div>
+        <div class="market-chart-head"><span class="market-chart-title">売買価格の推移（1か月足）</span><span class="market-selection">全サイズ · 新品</span></div>
+        <div class="market-interval-row"><span class="market-interval-label">表示間隔</span><div class="market-interval" role="group" aria-label="チャート表示間隔"><button type="button" class="active" aria-pressed="true" data-chart-interval="month">1か月足</button><button type="button" aria-pressed="false" data-chart-interval="year">1年足</button></div></div>
         <div class="market-scope" hidden></div>
         <div class="market-chart-guide" hidden>
-          <span>グラフをタップ / 黒い価格の玉を左右にドラッグ</span>
+          <span>グラフの好きな位置をタップすると価格の玉が移動</span>
           <button type="button" data-chart-reset>最新に戻す</button>
         </div>
         <div class="market-chart-box">
@@ -320,9 +320,13 @@
     const interval=e.target.closest('[data-chart-interval]');
     if(interval){
       const panel=interval.closest('.market-source');
-      if(interval.classList.contains('active'))return;
-      $$('.market-interval button',panel).forEach(b=>b.classList.toggle('active',b===interval));
-      panel.dataset.chartInterval=interval.dataset.chartInterval||'month';
+      const nextInterval=interval.dataset.chartInterval||'month';
+      $$('.market-interval button',panel).forEach(b=>{
+        const active=b===interval;
+        b.classList.toggle('active',active);
+        b.setAttribute('aria-pressed',active?'true':'false');
+      });
+      panel.dataset.chartInterval=nextInterval;
       if(panel._marketData){
         drawChart(panel,panel._marketData);
         renderCurrentPrice(panel,panel._marketData,`${$('.market-size',panel).value==='All'?'全サイズ':$('.market-size',panel).value+'cm'} · ${$('.market-condition button.active',panel)?.dataset.condition==='used'?'中古':'新品'}`);
@@ -817,7 +821,12 @@
           if(!panning)return;
           const wasMoved=panMoved;
           panning=false;panPointerId=null;chartBox.classList.remove('is-panning');
-          if(!wasMoved&&e?.type==='pointerup'&&e.target.closest?.('.market-chart')) pick(e);
+          // pointer capture中はpointerupのtargetがchartBoxになるため、targetでは判定しない。
+          // 移動量が小さいタップなら、座標から直接いちばん近い価格ポイントを選ぶ。
+          if(!wasMoved&&e?.type==='pointerup'&&e?.clientX!=null){
+            const r=svg.getBoundingClientRect();
+            if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom) pick(e);
+          }
           setTimeout(()=>{panMoved=false;},0);
         };
         ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>chartBox.addEventListener(ev,finishPan));
@@ -833,6 +842,28 @@
       svg.addEventListener('click',e=>{
         if(e.target.closest?.('[data-chart-cursor]')||panMoved)return;
         pick(e);
+      });
+
+      // 足切替は詳細モーダル内の委譲イベントに加え、各ボタンにも直接バインド。
+      // ブラウザやSVGのポインターキャプチャ状態に左右されず確実に再描画する。
+      const sourcePanel=panel();
+      $$('.market-interval button',sourcePanel).forEach(btn=>{
+        if(btn.dataset.intervalBound)return;
+        btn.dataset.intervalBound='1';
+        btn.addEventListener('click',ev=>{
+          ev.stopPropagation();
+          const next=btn.dataset.chartInterval||'month';
+          $$('.market-interval button',sourcePanel).forEach(b=>{
+            const active=b===btn; b.classList.toggle('active',active); b.setAttribute('aria-pressed',active?'true':'false');
+          });
+          sourcePanel.dataset.chartInterval=next;
+          if(sourcePanel._marketData){
+            drawChart(sourcePanel,sourcePanel._marketData);
+            const size=$('.market-size',sourcePanel)?.value||'All';
+            const condition=$('.market-condition button.active',sourcePanel)?.dataset.condition||'new';
+            renderCurrentPrice(sourcePanel,sourcePanel._marketData,`${size==='All'?'全サイズ':size+'cm'} · ${condition==='used'?'中古':'新品'}`);
+          }
+        });
       });
 
       svg.addEventListener('keydown',e=>{
