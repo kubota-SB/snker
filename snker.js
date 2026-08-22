@@ -1,6 +1,7 @@
 
 (() => {
   'use strict';
+  // v16: SNKRDUNKの取引履歴を月足（月ごとの最終取引価格）へ集約して表示
   const DATA_URL = 'sneakers.json?v=14';
   const FRAME_COUNT = 36;
   const FAST_360_CANDIDATES = 10;
@@ -440,6 +441,37 @@
     return hits.slice(-120);
   }
 
+
+  function aggregateMonthly(points){
+    const valid=(points||[]).filter(p=>Number.isFinite(p.time)&&Number.isFinite(p.value)&&p.value>0).sort((a,b)=>a.time-b.time);
+    if(valid.length<2)return valid;
+    const groups=new Map();
+    for(const p of valid){
+      const d=new Date(p.time);
+      const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+      const row=groups.get(key)||{key,year:d.getFullYear(),month:d.getMonth()+1,items:[]};
+      row.items.push(p);groups.set(key,row);
+    }
+    const monthly=[...groups.values()].map(g=>{
+      const items=g.items.sort((a,b)=>a.time-b.time);
+      const last=items.at(-1);
+      const vals=items.map(x=>x.value);
+      return {
+        key:g.key,
+        label:`${String(g.year).slice(2)}/${String(g.month).padStart(2,'0')}`,
+        fullLabel:`${g.year}年${g.month}月`,
+        value:last.value,
+        time:last.time,
+        open:items[0].value,
+        high:Math.max(...vals),
+        low:Math.min(...vals),
+        close:last.value,
+        count:items.length,
+        rawLabel:last.label
+      };
+    });
+    return monthly.length>=2?monthly:valid;
+  }
   function extractCurrentPrices(text,size='All'){
     const contexts=sizeContexts(text,size),prices=[];
     for(const chunk of contexts){
@@ -459,8 +491,10 @@
       points=extractTransactions(joined,'All');
     }
     if(points.length>=2){
-      const vals=points.map(x=>x.value),latest=points.at(-1).value;
-      return {kind:'trend',points,currency:'¥',metrics:[['最新',fmt(latest)],['最安',fmt(Math.min(...vals))],['最高',fmt(Math.max(...vals))],['履歴',points.length+'件']],note:`SNKRDUNK公開ページから取得できた${condition==='used'?'中古':'新品'}の売買履歴です。`};
+      const rawPoints=points;
+      const monthlyPoints=aggregateMonthly(rawPoints);
+      const vals=rawPoints.map(x=>x.value),latest=rawPoints.at(-1).value;
+      return {kind:'trend',points:monthlyPoints,rawPoints,currency:'¥',metrics:[['最新',fmt(latest)],['最安',fmt(Math.min(...vals))],['最高',fmt(Math.max(...vals))],['取引',rawPoints.length+'件'],['月足',monthlyPoints.length+'か月']],note:`SNKRDUNK公開ページから取得できた${condition==='used'?'中古':'新品'}の売買履歴を月ごとの最終取引価格でまとめています。`};
     }
     const prices=extractCurrentPrices(section,size);
     if(prices.length){
@@ -515,7 +549,7 @@
     renderMetrics(panel,data);svg._chartMeta=null;if(guide)guide.hidden=true;
     if(data.kind==='trend'&&data.points?.length>=2){
       drawTrendChart(svg,data);svg.removeAttribute('hidden');empty.hidden=true;if(guide)guide.hidden=false;
-      $('.market-chart-title',panel).textContent='売買価格の推移';
+      $('.market-chart-title',panel).textContent='売買価格の推移（月足）';
       selectChartPoint(panel,data.points.length-1,true);
       scrollChartToLatest(panel,false);
       setTimeout(()=>{
@@ -542,9 +576,9 @@
     const H=300,T=38,B=58;
     // v15: ブラウザの横スクロールに頼らず、SVGのviewBoxだけを動かす。
     // これで価格の玉が右端で切れず、玉をドラッグした方向へグラフが追従する。
-    const pointGap=96;
-    const sidePad=92;
-    const viewportWidth=1180;
+    const pointGap=118;
+    const sidePad=100;
+    const viewportWidth=1040;
     const W=Math.max(viewportWidth,sidePad*2+Math.max(1,pts.length-1)*pointGap);
     const vals=pts.map(x=>x.value),min=Math.min(...vals),max=Math.max(...vals);
     const pad=Math.max((max-min)*.18,max*.035,500),lo=Math.max(0,min-pad),hi=max+pad;
@@ -647,7 +681,7 @@
     scrollChartToPoint(panel,index,{force:false,smooth:false});
     const p=meta.points[index],cursor=$('[data-chart-cursor]',svg);if(!cursor)return;
     cursor.setAttribute('aria-valuenow',String(index));
-    cursor.setAttribute('aria-valuetext',`${p.label||''} ${fmt(p.value)}`.trim());
+    cursor.setAttribute('aria-valuetext',`${p.fullLabel||p.label||''} ${fmt(p.value)}`.trim());
     $('.chart-cursor-line',cursor).setAttribute('x1',p.x);$('.chart-cursor-line',cursor).setAttribute('x2',p.x);
     $$('.chart-cursor-hit,.chart-cursor-halo,.chart-cursor-dot',cursor).forEach(c=>{c.setAttribute('cx',p.x);c.setAttribute('cy',p.y);});
 
@@ -664,7 +698,7 @@
       if(current){
         $('span',current).textContent=latest?'現在の価格':'過去の価格';
         $('strong',current).textContent=fmt(p.value);
-        $('small',current).textContent=p.label||'—';
+        $('small',current).textContent=p.fullLabel||p.label||'—';
         current.classList.toggle('is-history',!latest);
       }
     }
