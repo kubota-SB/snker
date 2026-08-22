@@ -1,8 +1,8 @@
 
 (() => {
   'use strict';
-  // v27: verified OG Chicago / 2025 / 2026 image matching and StockX 360-first card fallback
-  const DATA_URL = 'sneakers.json?v=27';
+  // v28: OG Chicago uses verified StockX product image for card/detail fallback; 360 remains detail-only
+  const DATA_URL = 'sneakers.json?v=28';
   const FRAME_COUNT = 36;
   const FAST_360_CANDIDATES = 10;
   const FAST_PROBE_TIMEOUT = 1200;
@@ -163,7 +163,7 @@
     return `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=1000&h=760&fit=contain&output=webp`;
   }
   function staticCandidates(item){
-    // v27: 一覧画像では推測したStockX画像を使わない。
+    // v28: 一覧画像では推測したStockX画像を使わない。
     // 品番確認済みURLだけを使い、外部CDNの直リンク制限を避けるため画像キャッシュ経由を優先する。
     const verified=[];
     if(item.image) verified.push(item.image);
