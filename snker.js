@@ -1,8 +1,8 @@
 
 (() => {
   'use strict';
-  // v22: サイズ/中古の取得失敗時フォールバック + チャート選択の二重発火修正
-  const DATA_URL = 'sneakers.json?v=22';
+  // v24: OG Chicago / 2025 / 2026 image fallback reliability update
+  const DATA_URL = 'sneakers.json?v=24';
   const FRAME_COUNT = 36;
   const FAST_360_CANDIDATES = 10;
   const FAST_PROBE_TIMEOUT = 1200;
@@ -118,7 +118,7 @@
     const card=document.createElement('article'); card.className='sneaker-card'; card.tabIndex=0; card.dataset.id=item.id;
     card.innerHTML=`
       <div class="card-image-wrap">
-        <img class="card-image" alt="" loading="lazy" decoding="async">
+        <img class="card-image" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">
         <span class="card-year">${item.group==='OG'?item.year:item.year}</span>
         ${hasStockx(item)?'<span class="card-360">360°対応を確認</span>':''}
       </div>
@@ -162,7 +162,8 @@
     // 一覧はまず登録済み画像を即表示。推測StockX URLを先に大量確認しない。
     const arr=[]; const original=item.image||'';
     if(original) arr.push(original);
-    if(hasStockx(item)) folderCandidates(item).slice(0,2).forEach(f=>arr.push(normalStockx(f,'jpg')));
+    if(Array.isArray(item.imageFallbacks)) arr.push(...item.imageFallbacks);
+    if(hasStockx(item)) folderCandidates(item).slice(0,4).forEach(f=>{ arr.push(normalStockx(f+'-Product','jpg')); arr.push(normalStockx(f,'jpg')); });
     if(item.sku) arr.push(`https://cdn.snkrdunk.com/uploads/sneaker-images/${encodeURIComponent(item.sku)}.jpg?size=l`);
     return [...new Set(arr.filter(Boolean))];
   }
@@ -190,7 +191,7 @@
   function detailMarkup(item){return `
     <div class="detail-grid">
       <div class="detail-media">
-        <div class="viewer-stage"><img class="viewer-image" alt="" draggable="false"><span class="viewer-badge" hidden>360° VIEW</span><button class="viewer-arrow viewer-prev" type="button" hidden>‹</button><button class="viewer-arrow viewer-next" type="button" hidden>›</button><span class="viewer-help" hidden>ドラッグ / スワイプで回転</span><span class="viewer-count" hidden>1 / 36</span></div>
+        <div class="viewer-stage"><img class="viewer-image" alt="" draggable="false" referrerpolicy="no-referrer"><span class="viewer-badge" hidden>360° VIEW</span><button class="viewer-arrow viewer-prev" type="button" hidden>‹</button><button class="viewer-arrow viewer-next" type="button" hidden>›</button><span class="viewer-help" hidden>ドラッグ / スワイプで回転</span><span class="viewer-count" hidden>1 / 36</span></div>
         <div class="viewer-actions"><span class="viewer-status">${hasStockx(item)?'360°素材を確認しています…':'StockX 360°素材なし'}</span></div>
       </div>
       <div class="detail-info">
